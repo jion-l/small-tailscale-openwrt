@@ -12,7 +12,7 @@ while [ $# -gt 0 ]; do
 done
 
 # 生成服务文件
-cat > /etc/init.d/tailscale <<EOF
+cat > /etc/init.d/tailscale <<"EOF"
 #!/bin/sh /etc/rc.common
 
 # 版权声明 2020 Google LLC.
@@ -22,12 +22,11 @@ USE_PROCD=1
 START=90
 STOP=1
 
-
 ensure_tailscaled() {
   # 检查tailscaled是否存在且可执行
   if [ ! -x "/usr/local/bin/tailscaled" ]; then
     echo "未在/usr/local/bin/tailscaled找到tailscaled，尝试安装..."
-    
+
     if [ -x "/etc/tailscale/fetch_and_install.sh" ]; then
       if "/etc/tailscale/fetch_and_install.sh"; then
         echo "tailscaled安装成功"
@@ -39,7 +38,7 @@ ensure_tailscaled() {
       echo "安装脚本/etc/tailscale/fetch_and_install.sh不存在或不可执行"
       return 1
     fi
-    
+
     # 验证安装是否成功
     if [ ! -x "/usr/local/bin/tailscaled" ]; then
       echo "安装尝试后仍未找到tailscaled"
@@ -60,6 +59,8 @@ start_service() {
       echo "错误：找不到有效的tailscaled可执行文件"
       return 1
     fi
+  else
+    TAILSCALED_BIN="/usr/local/bin/tailscaled"
   fi
 
   procd_open_instance
@@ -71,13 +72,14 @@ start_service() {
 
   # OpenWRT系统中/var是/tmp的符号链接，因此将持久状态写入其他位置
   procd_append_param command --state /etc/config/tailscaled.state
-  
+
   # 为TLS证书和Taildrop文件保持持久存储
   procd_append_param command --statedir /etc/tailscale/
 
   procd_set_param respawn
   procd_set_param stdout 1
   procd_set_param stderr 1
+  procd_set_param logfile /var/log/tailscale.log
 
   procd_close_instance
 }
@@ -86,7 +88,7 @@ stop_service() {
   # 尝试两个位置的清理操作
   [ -x "/usr/local/bin/tailscaled" ] && /usr/local/bin/tailscaled --cleanup
   [ -x "/tmp/tailscaled" ] && /tmp/tailscaled --cleanup
-  
+
   # 确保进程已停止
   killall tailscaled 2>/dev/null
 }
@@ -98,5 +100,5 @@ chmod +x /etc/init.d/tailscale
 
 # 启动服务
 if [ "$MODE" = "local" ]; then
-    /etc/init.d/tailscale start
+    /etc/init.d/tailscale restart || /etc/init.d/tailscale start
 fi
