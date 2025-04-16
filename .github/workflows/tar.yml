@@ -31,5 +31,5 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add tailscale-openwrt-scripts.tar.gz
           git commit -m "$(date -u +'%Y-%m-%d %H:%M:%S' -d '+8 hours')"
-          git push origin HEAD:chinese_mainland
+          git push origin HEAD:main
 
