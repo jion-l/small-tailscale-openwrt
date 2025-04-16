@@ -126,32 +126,26 @@ jobs:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
           body: |
-            ## Optimized Tailscale Build ${{ env.TAG }}
-            
-            **Includes:**
-            - UPX-compressed combined binaries (tailscale+tailscaled)
-            
-            **Supported Architectures:** ${{ env.BUILD_PLATFORMS }}
-            **Checksums:**
+            ## 🚀 Tailscale ${{ env.TAG }} (压缩版本)
 
-            SHA256 and MD5 checksums are included in `SHA256SUMS.txt` and `MD5SUMS.txt`.
+            📦 架构支持：${{ env.BUILD_PLATFORMS }}
             
-            To verify:
+            🌟 包含:
+            - UPX压缩过的联合二进制运行文件 ( tailscale + tailscaled )
             
+            📝 校验：
             ```bash
             sha256sum -c SHA256SUMS.txt
             md5sum -c MD5SUMS.txt
             ```
             
-            **Usage:**
+            🔧 启动方式：
+            ```bash
+            ./tailscaled [arguments]
+            ln -s ./tailscaled ./tailscale
+            ./tailscale up
             ```
-            # As tailscaled
-            ./tailscaled_[version]_[arch] [arguments]
             
-            # As tailscale CLI (via symlink)
-            ln -s tailscaled_[version]_[arch] tailscale
-            ./tailscale [command]
-            ```
           draft: false
           prerelease: false
           files: |
