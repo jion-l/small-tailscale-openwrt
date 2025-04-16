@@ -1,58 +1,83 @@
-# Tailscale OpenWRT 一键管理套件
+# Tailscale OpenWRT 解耦安装方案
 
-## 📦 功能特性
-- 双模式安装：本地持久化 `/usr/local/bin` 或 内存安装 `/tmp`
-- 智能镜像加速：自动选择可用镜像源下载
-- 全自动更新：支持定时更新和手动更新
-- 完整卸载：一键清除所有相关文件和服务
-
-## 🚀 快速开始
-```bash
-# 下载安装器
-mkdir -p /etc/tailscale/ && wget -O /etc/tailscale/install.sh https://ghfast.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh && chmod +x /etc/tailscale/install.sh && wget -O /etc/tailscale/mirrors.txt https://ghfast.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main//mirrors.txt
-```
-```
-# 执行安装（推荐本地安装+自动更新）
-/etc/tailscale/install.sh --auto-update --version=latest
-```
-
-## ⚙️ 管理命令
-| 命令 | 功能 |
-|------|------|
-| `/etc/init.d/tailscale start` | 启动服务 |
-| `/etc/init.d/tailscale stop` | 停止服务 |
-| `/etc/tailscale/autoupdate_ctl.sh on` | 启用自动更新 |
-| `/etc/tailscale/autoupdate_ctl.sh off` | 禁用自动更新 |
-| `/etc/tailscale/uninstall.sh` | 完全卸载 |
-
-## 🔧 高级配置
-1. **指定安装版本**：
-   ```bash
-   /etc/tailscale/install.sh --version=v1.44.0
-   ```
-
-2. **内存安装模式**：
-   ```bash
-   /etc/tailscale/install.sh --tmp
-   ```
-
-3. **手动立即更新**：
-   ```bash
-   /etc/tailscale/autoupdate.sh
-   ```
-
-## 📂 文件结构
+## 📦 文件结构
 ```
 /etc/tailscale/
-├── install.sh           # 安装入口
-├── fetch_and_install.sh # 下载器
-├── autoupdate*          # 更新相关
-├── uninstall.sh         # 卸载脚本
-├── install.conf         # 安装配置
-└── mirrors.txt          # 镜像列表
+├── install.sh             # 基础安装
+├── setup.sh               # 主配置脚本
+├── fetch_and_install.sh   # 下载安装器
+├── test_mirrors.sh        # 代理检测
+├── autoupdate.sh          # 自动更新
+├── mirror_maintenance.sh  # 镜像维护
+├── setup_service.sh       # 服务配置
+├── setup_cron.sh          # 定时任务
+├── notify_ctl.sh          # 通知管理
+├── update_ctl.sh          # 更新控制
+├── uninstall.sh           # 卸载脚本
+├── install.conf           # 安装配置
+├── mirrors.txt            # 镜像列表
+├── valid_mirrors.txt      # 有效镜像
+└── mirror_scores.txt      # 镜像评分
 ```
 
+## 🚀 快速安装
+```bash
+# 一键安装管理脚本
+mkdir -p /etc/tailscale && \
+curl -sSL curl https://github.3x25.com/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+```
+
+```bash
+# 完成配置（本地安装+自动更新）
+/etc/tailscale/setup.sh --auto-update
+```
+
+## 🔧 日常管理
+| 命令 | 功能 |
+|------|------|
+| `update_ctl.sh on` | 启用自动更新 |
+| `notify_ctl.sh` | 配置通知 |
+| `test_mirrors.sh` | 检测代理 |
+| `fetch_and_install.sh --dry-run` | 检查新版本 |
+
+## ⚙️ 版本管理
+```bash
+# 安装特定版本
+/etc/tailscale/fetch_and_install.sh --version=v1.44.0
+
+# 强制重新检测代理
+rm /etc/tailscale/valid_mirrors.txt && /etc/tailscale/test_mirrors.sh
+```
+
+## 📡 代理配置
+1. 编辑镜像列表：
+   ```bash
+   nano /etc/tailscale/mirrors.txt
+   ```
+   格式示例：
+   ```
+   https://wget.la/
+   https://ghproxy.net/
+   ```
+
+## 🔔 通知系统
+```bash
+# 交互式配置
+/etc/tailscale/notify_ctl.sh
+
+# 配置项说明：
+# - 更新通知：版本升级成功时提醒
+# - 代理失败：超过50%镜像不可用时提醒
+# - 紧急通知：关键系统错误提醒
+```
+
+## 🗑️ 完全卸载
+```bash
+/etc/tailscale/uninstall.sh
+```
+> 注意：默认会保留配置目录
+
 ## ⚠️ 注意事项
-1. 内存安装模式重启后需重新下载
-2. 自动更新默认每天03:00执行
-3. 卸载脚本会删除所有相关文件和配置
+1. 内存安装模式(`--tmp`)重启后需重新下载
+2. 首次使用建议配置通知
+3. 自动更新默认关闭
