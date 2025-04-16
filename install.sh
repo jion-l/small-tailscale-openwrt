@@ -13,7 +13,7 @@ mkdir -p "$CONFIG_DIR"
 echo "📥 下载安装资源..."
 curl -sSL -o "/tmp/mirrors.txt" "$MIRROR_LIST_URL"
 curl -sSL -o "/tmp/tailscale-scripts.tar.gz" "$SCRIPTS_TGZ_URL"
-
+/etc/tailscale/test_mirrors.sh
 # 解压脚本
 echo "📦 解压脚本包..."
 tar -xzf "/tmp/tailscale-scripts.tar.gz" -C "$CONFIG_DIR"
