@@ -105,9 +105,6 @@ jobs:
               mips|mipsle)
                 export GOMIPS=softfloat
                 ;;
-              mips64|mips64le)
-                export GOMIPS64=softfloat
-                ;;
             esac
 
             # 编译
