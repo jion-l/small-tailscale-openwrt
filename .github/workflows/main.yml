@@ -93,19 +93,19 @@ jobs:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
           body: |
-            ## Tailscale ${{ env.TAG }} - Optimized Build
+            ## Tailscale ${{ env.TAG#v }} - Optimized Build
+            版本 %${{ env.latest_version }}% 已从上游同步
             
             **Includes:**
-            - Original TGZ packages from tailscale.com
             - UPX-compressed combined binaries (tailscale+tailscaled)
             
             **Combined Binary Usage:**
             ```
             # As tailscaled
-            ./combined_tailscaled_${TAG#v}_[arch] [arguments]
+            ./tailscaled [arguments]
             
             # As tailscale CLI (via symlink)
-            ln -s combined_tailscaled_${TAG#v}_[arch] tailscale
+            ln -s tailscaled tailscale
             ./tailscale [command]
             ```
           draft: false
