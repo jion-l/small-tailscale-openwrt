@@ -1,158 +1,108 @@
-name: Sync and Build Tailscale
+name: Build Optimized Tailscaled
 on:
   schedule:
     - cron: "10 23 * * *"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Tailscale version to sync (leave empty for latest)'
+        description: 'Tailscale version to build (leave empty for latest)'
         required: false
+
 env:
-  SOFTWARE_NAME: "tailscale"
+  SOFTWARE_NAME: "tailscaled"
   REPO_OFFICIAL: "tailscale/tailscale"
+  BUILD_PLATFORMS: "386 amd64 arm64 geode mips mips64 mips64le mipsle riscv64"
+  GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
-  BUILD_PLATFORMS: "386 amd64 arm64 arm"
 
 jobs:
-  check_versions:
+  check_version:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     outputs:
-      LATEST_TAG: ${{ steps.get_official_tag.outputs.TAG }}
-      EXISTING_TAG: ${{ steps.get_existing_tag.outputs.TAG }}
+      TAG: ${{ steps.set_version.outputs.TAG }}
     steps:
       - name: Set Version
         id: set_version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
-            version="${{ github.event.inputs.version }}"
-            echo "Using manually specified version: $version"
+            echo "TAG=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
           else
-            version=""
-            echo "No version specified, will use latest"
+            TAG=$(curl -s "https://api.github.com/repos/${{ env.REPO_OFFICIAL }}/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
+            echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
           fi
-          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Using version: $TAG"
 
-      - name: Get latest official Tailscale tag
-        id: get_official_tag
-        run: |
-          if [ -n "${{ steps.set_version.outputs.version }}" ]; then
-            echo "TAG=${{ steps.set_version.outputs.version }}" >> "$GITHUB_OUTPUT"
-          else
-            latest_tag=$(curl -s "https://api.github.com/repos/${{ env.REPO_OFFICIAL }}/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
-            echo "Latest official Tailscale tag: $latest_tag"
-            echo "TAG=$latest_tag" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Check existing tags in this repo
-        id: get_existing_tag
-        run: |
-          existing_tag=$(curl -s "https://api.github.com/repos/${{ github.repository }}/releases/tags/${{ steps.get_official_tag.outputs.TAG }}" | grep -oP '"tag_name": "\K(.*)(?=")' || echo "")
-          echo "Existing tag in this repo: $existing_tag"
-          echo "TAG=$existing_tag" >> "$GITHUB_OUTPUT"
-
-  download_and_build:
-    needs: check_versions
-    if: needs.check_versions.outputs.LATEST_TAG != needs.check_versions.outputs.EXISTING_TAG
+  build:
+    needs: check_version
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     env:
-      TAG: ${{ needs.check_versions.outputs.LATEST_TAG }}
+      TAG: ${{ needs.check_version.outputs.TAG }}
     steps:
-      - name: Check Repository Owner
-        id: check_owner
-        run: |
-          if [ "${{ github.repository_owner }}" != "CH3NGYZ" ]; then
-            echo "Repository owner is not CH3NGYZ. Cancelling the job."
-            exit 1
-          fi
-
-      - name: Checkout Tailscale source code
+      - name: Checkout Tailscale source
         uses: actions/checkout@v4
         with:
           repository: ${{ env.REPO_OFFICIAL }}
           ref: ${{ env.TAG }}
 
-      - name: Set up Go
+      - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
 
-      - name: Get UPX latest version
+      - name: Install UPX
         run: |
-          echo "UPX_VERSION=$(
-            curl -s https://api.github.com/repos/upx/upx/releases/latest \
-            | jq -r '.tag_name' \
-            | cut -c 2-
-          )" >> "$GITHUB_ENV"
+          sudo apt-get update
+          sudo apt-get install -y upx
 
-      - name: Download and setup UPX
+      - name: Build for all platforms
         run: |
-          wget -q "https://github.com/upx/upx/releases/latest/download/upx-${{ env.UPX_VERSION }}-amd64_linux.tar.xz"
-          tar --to-stdout -xf "upx-${{ env.UPX_VERSION }}-amd64_linux.tar.xz" \
-            "upx-${{ env.UPX_VERSION }}-amd64_linux/upx" > "${PWD}/upx"
-          chmod -v +x "${PWD}/upx"
-
-      - name: Build and compress binaries
-        run: |
-          mkdir -p dist
           for platform in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $platform..."
             
-            # Build tailscale binary
-            GOOS=linux GOARCH=$platform go build \
-              -ldflags="-s -w" \
-              -o "dist/${SOFTWARE_NAME}-linux-${platform}" \
-              ./cmd/tailscale
+            # Build combined binary
+            OUTPUT="${SOFTWARE_NAME}_${TAG#v}_${platform}"
+            GOOS=linux GOARCH=$platform go build ${{ env.GO_BUILD_FLAGS }} -o "$OUTPUT" ./cmd/tailscaled
             
-            # Build tailscaled binary
-            GOOS=linux GOARCH=$platform go build \
-              -ldflags="-s -w" \
-              -o "dist/${SOFTWARE_NAME}d-linux-${platform}" \
-              ./cmd/tailscaled
+            # Compress with UPX (skip unsupported platforms)
+            if [[ "$platform" != "mips64" && "$platform" != "mips64le" ]]; then
+              upx ${{ env.UPX_COMPRESSION }} "$OUTPUT"
+            fi
             
-            # Compress with UPX
-            "${PWD}/upx" $UPX_COMPRESSION "dist/${SOFTWARE_NAME}-linux-${platform}"
-            "${PWD}/upx" $UPX_COMPRESSION "dist/${SOFTWARE_NAME}d-linux-${platform}"
-            
-            # Rename to standard format
-            mv "dist/${SOFTWARE_NAME}-linux-${platform}" "dist/${SOFTWARE_NAME}_${TAG#v}_${platform}"
-            mv "dist/${SOFTWARE_NAME}d-linux-${platform}" "dist/${SOFTWARE_NAME}d_${TAG#v}_${platform}"
+            # Generate checksum
+            sha256sum "$OUTPUT" >> checksums.txt
           done
 
-      - name: Download pre-built TGZ packages
-        run: |
-          for platform in ${{ env.BUILD_PLATFORMS }}; do
-            curl --remote-name "https://pkgs.tailscale.com/stable/${SOFTWARE_NAME}_${TAG#v}_${platform}.tgz"
-          done
-          mkdir -p dist
-          mv *.tgz dist/
-
-      - name: Create checksums
-        run: |
-          cd dist
-          sha256sum * > "checksums.txt"
-          echo "Built version: ${TAG}" > "version.txt"
+          # Create version file
+          echo "$TAG" > version.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.TAG }}
-          name: ${{ env.TAG }}
+          name: "Optimized Tailscaled ${{ env.TAG }}"
           body: |
-            Tailscale ${{ env.TAG }} - Optimized Build
+            Optimized Tailscaled Build ${{ env.TAG }}
             
-            This release contains:
-            - UPX-compressed binaries built from source (both tailscale and tailscaled)
-            - Original pre-built TGZ packages
+            This release contains UPX-compressed tailscaled binaries built with:
+            - Combined tailscale/tailscaled functionality
+            - `--extra-small` build flag
+            - Stripped debug symbols (-ldflags="-s -w")
+            - UPX LZMA compression
             
-            Checksums:
+            **Supported Architectures**: ${{ env.BUILD_PLATFORMS }}
+            
+            ### Usage
             ```
-            $(cat dist/checksums.txt)
+            # As tailscaled
+            ./tailscaled_${TAG#v}_[arch] [arguments]
+            
+            # As tailscale CLI (via symlink)
+            ln -s tailscaled_${TAG#v}_[arch] tailscale
+            ./tailscale [command]
             ```
           draft: false
           prerelease: false
           files: |
-            dist/*
+            ${SOFTWARE_NAME}_${TAG#v}_*
+            checksums.txt
+            version.txt
