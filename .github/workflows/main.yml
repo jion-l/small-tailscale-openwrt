@@ -1,17 +1,17 @@
 name: Sync and Build Tailscale
 on:
   schedule:
-    - cron: '10 23 * * *'
+    - cron: "10 23 * * *"
   workflow_dispatch:
     inputs:
       version:
         description: 'Tailscale version to sync (leave empty for latest)'
         required: false
 env:
-  SOFTWARE_NAME: 'tailscale'
-  REPO_OFFICIAL: 'tailscale/tailscale'
-  UPX_COMPRESSION: '--lzma --best --no-progress'
-  BUILD_PLATFORMS: '386 amd64 arm64 geode mips mips64 mips64le mipsle riscv64'
+  SOFTWARE_NAME: "tailscale"
+  REPO_OFFICIAL: "tailscale/tailscale"
+  UPX_COMPRESSION: "--lzma --best --no-progress"
+  BUILD_PLATFORMS: "386 amd64 arm64 arm"
 
 jobs:
   check_versions:
@@ -97,20 +97,29 @@ jobs:
 
       - name: Build and compress binaries
         run: |
+          mkdir -p dist
           for platform in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $platform..."
             
-            # Build the binary
-            binary_name="${SOFTWARE_NAME}-linux-${platform}"
-            GOOS=linux GOARCH=$platform ./build_dist.sh \
-              --extra-small --box \
-              -o "$binary_name" ./cmd/tailscale ./cmd/tailscaled
+            # Build tailscale binary
+            GOOS=linux GOARCH=$platform go build \
+              -ldflags="-s -w" \
+              -o "dist/${SOFTWARE_NAME}-linux-${platform}" \
+              ./cmd/tailscale
+            
+            # Build tailscaled binary
+            GOOS=linux GOARCH=$platform go build \
+              -ldflags="-s -w" \
+              -o "dist/${SOFTWARE_NAME}d-linux-${platform}" \
+              ./cmd/tailscaled
             
             # Compress with UPX
-            "${PWD}/upx" $UPX_COMPRESSION "$binary_name"
+            "${PWD}/upx" $UPX_COMPRESSION "dist/${SOFTWARE_NAME}-linux-${platform}"
+            "${PWD}/upx" $UPX_COMPRESSION "dist/${SOFTWARE_NAME}d-linux-${platform}"
             
             # Rename to standard format
-            mv "$binary_name" "${SOFTWARE_NAME}_${TAG#v}_${platform}"
+            mv "dist/${SOFTWARE_NAME}-linux-${platform}" "dist/${SOFTWARE_NAME}_${TAG#v}_${platform}"
+            mv "dist/${SOFTWARE_NAME}d-linux-${platform}" "dist/${SOFTWARE_NAME}d_${TAG#v}_${platform}"
           done
 
       - name: Download pre-built TGZ packages
@@ -118,10 +127,13 @@ jobs:
           for platform in ${{ env.BUILD_PLATFORMS }}; do
             curl --remote-name "https://pkgs.tailscale.com/stable/${SOFTWARE_NAME}_${TAG#v}_${platform}.tgz"
           done
+          mkdir -p dist
+          mv *.tgz dist/
 
       - name: Create checksums
         run: |
-          sha256sum ${SOFTWARE_NAME}_* > "checksums.txt"
+          cd dist
+          sha256sum * > "checksums.txt"
           echo "Built version: ${TAG}" > "version.txt"
 
       - name: Create Release
@@ -133,16 +145,14 @@ jobs:
             Tailscale ${{ env.TAG }} - Optimized Build
             
             This release contains:
-            - UPX-compressed binaries built from source
+            - UPX-compressed binaries built from source (both tailscale and tailscaled)
             - Original pre-built TGZ packages
             
             Checksums:
             ```
-            $(cat checksums.txt)
+            $(cat dist/checksums.txt)
             ```
           draft: false
           prerelease: false
           files: |
-            ${SOFTWARE_NAME}_${TAG#v}_*
-            checksums.txt
-            version.txt
+            dist/*
