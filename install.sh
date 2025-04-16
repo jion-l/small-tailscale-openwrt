@@ -3,8 +3,8 @@
 set -e
 
 CONFIG_DIR="/etc/tailscale"
-MIRROR_LIST_URL="https://github.3x25.com/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
-SCRIPTS_TGZ_URL="https://github.3x25.com/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
+MIRROR_LIST_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
+SCRIPTS_TGZ_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
 
 # 创建目录
 mkdir -p "$CONFIG_DIR"
