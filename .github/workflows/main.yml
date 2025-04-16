@@ -111,6 +111,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            tailscale_${{ env.TAG#v }}_*.tgz
-            combined_tailscaled_${{ env.TAG#v }}_*
+            tailscale_${{ env.TAG }}_*.tgz
+            combined_tailscaled_${{ env.TAG }}_*
             version.txt
