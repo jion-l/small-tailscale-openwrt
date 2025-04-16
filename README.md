@@ -24,7 +24,7 @@
 ```bash
 # 一键安装管理脚本
 mkdir -p /etc/tailscale && \
-curl -sSL https://github.3x25.com/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
 /etc/tailscale/test_mirrors.sh
 ```
 
