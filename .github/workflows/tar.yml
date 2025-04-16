@@ -1,0 +1,42 @@
+name: Auto Package Tailscale Scripts
+
+on:
+  push:
+    paths:
+      - "scripts/install.sh"
+      - "scripts/fetch_and_install.sh"
+      - "scripts/autoupdate.sh"
+
+permissions:
+  contents: write
+
+jobs:
+  package_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current repo
+        uses: actions/checkout@v4
+
+      - name: Create tarball
+        run: |
+          mkdir -p package
+          cp scripts/install.sh scripts/fetch_and_install.sh scripts/autoupdate.sh package/
+          tar -czvf tailscale-scripts.tar.gz -C package .
+
+      - name: Checkout tailscale-openwrt repo
+        uses: actions/checkout@v4
+        with:
+          repository: CH3NGYZ/tailscale-openwrt
+          token: ${{ secrets.PUSH_TOKEN }}
+          path: openwrt_repo
+
+      - name: Copy tarball to openwrt repo
+        run: |
+          cp tailscale-scripts.tar.gz openwrt_repo/dist/
+          cd openwrt_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add dist/tailscale-scripts.tar.gz
+          git commit -m "Update packaged tailscale scripts"
+          git push
