@@ -15,8 +15,7 @@ permissions:
 
 env:
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "amd64"
-  # 386 arm arm64 mips mipsle mips64 mips64le
+  BUILD_PLATFORMS: "amd64 386 arm arm64 mips mipsle mips64 mips64le"
   GO_BUILD_FLAGS: "-tags ts_include_cli"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -112,6 +111,10 @@ jobs:
                 ;;
             esac
             go build -o "$binary_name" $GO_BUILD_FLAGS ./cmd/tailscaled
+            if [[ "$arch" =~ ^(mips64|mips64le)$ ]]; then
+              echo "⚠️ 跳过 $arch 的 UPX 压缩"
+            else
+              upx $UPX_COMPRESSION "$binary_name"
           done
 
 
