@@ -15,7 +15,8 @@ permissions:
 
 env:
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "386 amd64 arm arm64 mips mipsle mips64 mips64le"
+  BUILD_PLATFORMS: "amd64"
+  # 386 arm arm64 mips mipsle mips64 mips64le
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -100,7 +101,7 @@ jobs:
             GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
           
             case "$arch" in
-              mips64 | mips64le)
+              mips64 | mips64le | amd64)
                 echo "Skipping UPX compression for $arch (not supported)"
                 ;;
               *)
