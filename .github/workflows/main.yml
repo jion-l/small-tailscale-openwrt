@@ -73,7 +73,7 @@ jobs:
 
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $arch..."
-            binary_name="tailscaled_linux_${arch}"
+            binary_name="tailscaled_${ env.TAG }_${arch}"
             
             # Build combined binary
             GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
@@ -87,14 +87,12 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        env:
-          TAG_SHORT: ${{ env.TAG }}
         with:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
           body: |
             ## Tailscale ${{ env.TAG }} - Optimized Build
-            版本 %${{ env.TAG }}% 已从上游同步
+            # 版本 %${{ env.TAG }}% 已从上游同步
             
             **Includes:**
             - UPX-compressed combined binaries (tailscale+tailscaled)
@@ -111,5 +109,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            tailscaled_linux_*
+            tailscaled_*
             version.txt
