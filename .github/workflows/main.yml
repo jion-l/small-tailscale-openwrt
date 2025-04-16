@@ -64,7 +64,7 @@ jobs:
             GOOS=linux GOARCH=$platform go build ${{ env.GO_BUILD_FLAGS }} -o "$OUTPUT" ./cmd/tailscaled
             
             # Compress with UPX (skip unsupported platforms)
-            if [[ "$platform" != "mips64" && "$platform" != "mips64le" ]]; then
+            if [[ "$platform" != "mips64" && "$platform" != "mips64le" && "$platform" != "geode" ]]; then
               upx ${{ env.UPX_COMPRESSION }} "$OUTPUT"
             fi
             
