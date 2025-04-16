@@ -98,12 +98,12 @@ jobs:
             ./tailscaled_${{TAG#v}}_[arch] [arguments]
             
             # As tailscale CLI (via symlink)
-            ln -s tailscaled_${{TAG#v}}_[arch] tailscale
+            ln -s tailscaled_${TAG#v}_[arch] tailscale
             ./tailscale [command]
             ```
           draft: false
           prerelease: false
           files: |
-            ${{SOFTWARE_NAME}}_${{TAG#v}}_*
+            ${SOFTWARE_NAME}_${TAG#v}_*
             checksums.txt
             version.txt
