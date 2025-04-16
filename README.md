@@ -1,4 +1,6 @@
-# Tailscale OpenWRT 解耦安装方案
+# Tailscale OpenWRT 一键安装方案
+
+# 项目暂时还不可用!!!
 
 ## 📦 文件结构
 ```
