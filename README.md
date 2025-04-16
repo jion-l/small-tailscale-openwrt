@@ -9,7 +9,7 @@
 ## 🚀 快速开始
 ```bash
 # 下载安装器
-mkdir /etc/tailscale/ && wget -O /etc/tailscale/install.sh https://ghfast.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh && chmod +x /etc/tailscale/install.sh
+mkdir -p /etc/tailscale/ && wget -O /etc/tailscale/install.sh https://ghfast.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh && chmod +x /etc/tailscale/install.sh
 ```
 ```
 # 执行安装（推荐本地安装+自动更新）
