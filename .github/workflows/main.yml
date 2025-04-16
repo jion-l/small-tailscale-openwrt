@@ -11,7 +11,8 @@ on:
 env:
   SOFTWARE_NAME: "tailscaled"
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "386 amd64 arm64 mips mips64 mips64le mipsle"
+  BUILD_PLATFORMS: "386"
+  #  amd64 arm64 mips mips64 mips64le mipsle
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -94,15 +95,15 @@ jobs:
             ### Usage
             ```
             # As tailscaled
-            ./tailscaled_${TAG#v}_[arch] [arguments]
+            ./tailscaled_${{TAG#v}}_[arch] [arguments]
             
             # As tailscale CLI (via symlink)
-            ln -s tailscaled_${TAG#v}_[arch] tailscale
+            ln -s tailscaled_${{TAG#v}}_[arch] tailscale
             ./tailscale [command]
             ```
           draft: false
           prerelease: false
           files: |
-            ${SOFTWARE_NAME}_${TAG#v}_*
+            ${{SOFTWARE_NAME}}_${{TAG#v}}_*
             checksums.txt
             version.txt
