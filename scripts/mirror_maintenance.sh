@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -e
 
 CONFIG_DIR="/etc/tailscale"
