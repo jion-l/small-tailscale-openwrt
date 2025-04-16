@@ -38,7 +38,7 @@ jobs:
       - name: Check if tag exists
         id: check_tag
         run: |
-          if git ls-remote --tags origin "refs/tags/${{ steps.set_version.outputs.TAG }}" | grep -q "${{ steps.set_version.outputs.TAG }}"; then
+          if git ls-remote --tags https://github.com/${{ github.repository }} "refs/tags/${{ steps.set_version.outputs.TAG }}"  | grep -q "${{ steps.set_version.outputs.TAG }}"; then
             echo "EXISTS=true" >> "$GITHUB_OUTPUT"
             echo "Tag ${{ steps.set_version.outputs.TAG }} already exists"
           else
