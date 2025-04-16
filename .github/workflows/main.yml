@@ -17,7 +17,7 @@ env:
   REPO_OFFICIAL: "tailscale/tailscale"
   BUILD_PLATFORMS: "amd64"
   # 386 arm arm64 mips mipsle mips64 mips64le
-  GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
+  GO_BUILD_FLAGS: "-tags ts_include_cli"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
 jobs:
@@ -98,7 +98,7 @@ jobs:
             echo "Building for $arch..."
             binary_name="tailscaled_linux_${arch}"
           
-            GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
+            GOOS=linux GOARCH=$arch go build -o "$binary_name" ${{ env.GO_BUILD_FLAGS }} ./cmd/tailscaled
           
             case "$arch" in
               mips64 | mips64le | amd64)
