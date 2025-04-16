@@ -72,8 +72,21 @@ jobs:
         with:
           go-version: 'stable'
 
-      - name: Install UPX
-        run: sudo apt-get update && sudo apt-get install -y upx
+      - name: Install latest UPX
+        run: |
+          set -e
+          # 获取最新 UPX release tag
+          LATEST_UPX=$(curl -s https://api.github.com/repos/upx/upx/releases/latest | grep -oP '"tag_name": "v\K[0-9.]+' | head -n1)
+          echo "Latest UPX version: $LATEST_UPX"
+      
+          # 下载并解压
+          curl -LO "https://github.com/upx/upx/releases/download/v${LATEST_UPX}/upx-${LATEST_UPX}-amd64_linux.tar.xz"
+          tar -xf "upx-${LATEST_UPX}-amd64_linux.tar.xz"
+      
+          # 安装
+          sudo cp "upx-${LATEST_UPX}-amd64_linux/upx" /usr/local/bin/
+          upx --version
+
 
       - name: Build optimized binaries
         run: |
