@@ -1,7 +1,6 @@
 #!/bin/sh
 
 set -e
-
 CONFIG_DIR="/etc/tailscale"
 
 # 加载配置
