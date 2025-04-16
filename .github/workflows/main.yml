@@ -111,7 +111,7 @@ jobs:
             esac
 
             # 编译
-            go build -o "$binary_name" "${GO_BUILD_FLAGS}" ./cmd/tailscaled
+            go build -o "$binary_name" ${GO_BUILD_FLAGS} ./cmd/tailscaled
 
             # UPX 压缩（跳过 mips64 和 mips64le）
             case "$arch" in
