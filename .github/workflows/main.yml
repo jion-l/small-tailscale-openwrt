@@ -11,7 +11,7 @@ on:
 env:
   SOFTWARE_NAME: "tailscaled"
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "386 amd64 arm64 geode mips mips64 mips64le mipsle riscv64"
+  BUILD_PLATFORMS: "386 amd64 arm64 mips mips64 mips64le mipsle"
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -64,7 +64,7 @@ jobs:
             GOOS=linux GOARCH=$platform go build ${{ env.GO_BUILD_FLAGS }} -o "$OUTPUT" ./cmd/tailscaled
             
             # Compress with UPX (skip unsupported platforms)
-            if [[ "$platform" != "mips64" && "$platform" != "mips64le" && "$platform" != "geode" ]]; then
+            if [[ "$platform" != "mips64" && "$platform" != "mips64le" ]]; then
               upx ${{ env.UPX_COMPRESSION }} "$OUTPUT"
             fi
             
