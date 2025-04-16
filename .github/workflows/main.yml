@@ -111,6 +111,14 @@ jobs:
 
 
           ls -lh tailscaled_*
+          
+      - name: Generate checksums
+        run: |
+          sha256sum tailscaled_* > SHA256SUMS.txt
+          md5sum tailscaled_* > MD5SUMS.txt
+          cat SHA256SUMS.txt
+          cat MD5SUMS.txt
+
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -124,6 +132,16 @@ jobs:
             - UPX-compressed combined binaries (tailscale+tailscaled)
             
             **Supported Architectures:** ${{ env.BUILD_PLATFORMS }}
+            **Checksums:**
+
+            SHA256 and MD5 checksums are included in `SHA256SUMS.txt` and `MD5SUMS.txt`.
+            
+            To verify:
+            
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            md5sum -c MD5SUMS.txt
+            ```
             
             **Usage:**
             ```
@@ -139,3 +157,5 @@ jobs:
           files: |
             tailscaled_*
             version.txt
+            SHA256SUMS.txt
+            MD5SUMS.txt
