@@ -88,7 +88,7 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         env:
-          TAG_SHORT: ${{ env.TAG#v }}
+          TAG_SHORT: ${{ env.TAG }}
         with:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
