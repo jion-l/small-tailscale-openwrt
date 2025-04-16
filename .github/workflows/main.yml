@@ -142,7 +142,8 @@ jobs:
             📦 架构支持：${{ env.BUILD_PLATFORMS }}
             
             🌟 包含:
-            - UPX压缩过的联合二进制运行文件 ( tailscale + tailscaled )
+            - 经UPX压缩过的联合二进制运行文件 ( tailscale + tailscaled ) [原理](https://tailscale.com/kb/1207/small-tailscale)
+            - 注: 由于UPX不支持mips64和mips64le,因此release中此两种架构未压缩
             
             📝 校验：
             ```bash
