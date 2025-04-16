@@ -10,7 +10,8 @@ on:
 
 env:
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "386 amd64 arm64 mips mips64 mips64le mipsle"
+  BUILD_PLATFORMS: "386"
+  #  amd64 arm64 mips mips64 mips64le mipsle
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
