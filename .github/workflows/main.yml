@@ -7,12 +7,13 @@ on:
       version:
         description: 'Tailscale version (leave empty for latest)'
         required: false
+
 permissions:
   contents: write
+
 env:
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "386"
-  #  amd64 arm64 geode mips mips64 mips64le mipsle riscv64
+  BUILD_PLATFORMS: "386 amd64 arm64"  # 精简架构列表用于测试
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -21,27 +22,36 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       TAG: ${{ steps.set_version.outputs.TAG }}
-      TAG_SHORT: ${{ steps.set_version.outputs.TAG_SHORT }}
+      TAG_EXISTS: ${{ steps.check_tag.outputs.EXISTS }}
     steps:
       - name: Set Version
         id: set_version
         run: |
           if [ -n "${{ github.event.inputs.version }}" ]; then
-            echo "TAG=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+            TAG="${{ github.event.inputs.version }}"
           else
             TAG=$(curl -s "https://api.github.com/repos/${{ env.REPO_OFFICIAL }}/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
-            echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
           fi
-          echo "TAG_SHORT=${TAG#v}" >> "$GITHUB_OUTPUT"  # 新增：去掉v前缀
+          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
           echo "Using version: $TAG"
 
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git ls-remote --tags origin "refs/tags/${{ steps.set_version.outputs.TAG }}" | grep -q "${{ steps.set_version.outputs.TAG }}"; then
+            echo "EXISTS=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.set_version.outputs.TAG }} already exists"
+          else
+            echo "EXISTS=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${{ steps.set_version.outputs.TAG }} does not exist"
+          fi
 
-  download_and_build:
+  build_and_release:
     needs: check_version
+    if: needs.check_version.outputs.TAG_EXISTS == 'false'
     runs-on: ubuntu-latest
     env:
       TAG: ${{ needs.check_version.outputs.TAG }}
-      TAG_SHORT: ${{ needs.check_version.outputs.TAG_SHORT }}
     steps:
       - name: Check Repository Owner
         run: |
@@ -49,13 +59,6 @@ jobs:
             echo "Repository owner check failed"
             exit 1
           }
-
-      - name: Download official TGZ packages
-        run: |
-          for arch in ${{ env.BUILD_PLATFORMS }}; do
-            curl -LO "https://pkgs.tailscale.com/stable/tailscale_${TAG#v}_${arch}.tgz"
-          done
-          ls -lh *.tgz
 
       - name: Checkout Tailscale source
         uses: actions/checkout@v4
@@ -74,21 +77,20 @@ jobs:
       - name: Build optimized binaries
         run: |
           # Create version file
-          echo "${TAG}" > version.txt
+          echo "${{ env.TAG }}" > version.txt
 
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $arch..."
-            binary_name="tailscaled_${{ env.TAG }}_${arch}"
+            binary_name="tailscaled_${TAG#v}_${arch}"
             
             # Build combined binary
             GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
             
-            # Apply UPX compression (skip unsupported platforms)
-            if [[ "$arch" != "mips64" && "$arch" != "mips64le" ]]; then
-              upx ${{ env.UPX_COMPRESSION }} "$binary_name"
-            fi
+            # Apply UPX compression
+            upx ${{ env.UPX_COMPRESSION }} "$binary_name"
           done
-          ls tailscaled_*
+
+          ls -lh tailscaled_*
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -96,21 +98,24 @@ jobs:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
           body: |
-
+            ## Optimized Tailscale Build ${{ env.TAG }}
+            
             **Includes:**
             - UPX-compressed combined binaries (tailscale+tailscaled)
             
-            **Combined Binary Usage:**
+            **Supported Architectures:** ${{ env.BUILD_PLATFORMS }}
+            
+            **Usage:**
             ```
             # As tailscaled
-            ./tailscaled [arguments]
+            ./tailscaled_[version]_[arch] [arguments]
             
             # As tailscale CLI (via symlink)
-            ln -s tailscaled tailscale
+            ln -s tailscaled_[version]_[arch] tailscale
             ./tailscale [command]
             ```
           draft: false
           prerelease: false
           files: |
-            tailscale*
+            tailscaled_*
             version.txt
