@@ -11,7 +11,7 @@ on:
 env:
   REPO_OFFICIAL: "tailscale/tailscale"
   BUILD_PLATFORMS: "386"
-  #  amd64 arm64 mips mips64 mips64le mipsle
+  #  amd64 arm64 geode mips mips64 mips64le mipsle riscv64
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -50,6 +50,7 @@ jobs:
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             curl -LO "https://pkgs.tailscale.com/stable/tailscale_${TAG#v}_${arch}.tgz"
           done
+          ls -lh *.tgz
 
       - name: Checkout Tailscale source
         uses: actions/checkout@v4
@@ -82,9 +83,12 @@ jobs:
               upx ${{ env.UPX_COMPRESSION }} "$binary_name"
             fi
           done
+          ls -lh combined_tailscaled_*
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
+        env:
+          TAG_SHORT: ${{ env.TAG#v }}
         with:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
@@ -104,11 +108,9 @@ jobs:
             ln -s combined_tailscaled_${TAG#v}_[arch] tailscale
             ./tailscale [command]
             ```
-            
-            **Note:** geode/mips64/mips64le binaries are uncompressed
           draft: false
           prerelease: false
           files: |
-            tailscale_${TAG#v}_*.tgz
-            combined_tailscaled_${TAG#v}_*
+            tailscale_${{ env.TAG#v }}_*.tgz
+            combined_tailscaled_${{ env.TAG#v }}_*
             version.txt
