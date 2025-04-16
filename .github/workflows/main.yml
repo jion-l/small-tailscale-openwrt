@@ -111,7 +111,7 @@ jobs:
                 export GOMIPS64=softfloat
                 ;;
             esac
-            go build -o "$binary" $GO_BUILD_FLAGS ./cmd/tailscaled
+            go build -o "$binary_name" $GO_BUILD_FLAGS ./cmd/tailscaled
           done
 
 
@@ -129,9 +129,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.TAG }}
-          name: "Tailscale ${{ env.TAG }} (Optimized)"
+          name: "Tailscale ${{ env.TAG }}"
           body: |
-            ## 🚀 Tailscale ${{ env.TAG }} (压缩版本)
+            ## 🚀 此为 Tailscale ${{ env.TAG }} 压缩版本
 
             📦 架构支持：${{ env.BUILD_PLATFORMS }}
             
