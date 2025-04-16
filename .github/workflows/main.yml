@@ -96,7 +96,7 @@ jobs:
 
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $arch..."
-            binary_name="tailscaled_${TAG#v}_${arch}"
+            binary_name="tailscaled_linux_${arch}"
           
             GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
           
