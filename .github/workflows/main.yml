@@ -98,16 +98,20 @@ jobs:
             echo "Building for $arch..."
             binary_name="tailscaled_linux_${arch}"
           
-            GOOS=linux GOARCH=$arch go build -o "$binary_name" ${{ env.GO_BUILD_FLAGS }} ./cmd/tailscaled
+            export CGO_ENABLED=0
+            export GOOS=linux
+            export GOARCH=$arch
           
+            # 特殊处理 MIPS 架构
             case "$arch" in
-              mips64 | mips64le | amd64)
-                echo "Skipping UPX compression for $arch (not supported)"
+              mips|mipsle)
+                export GOMIPS=softfloat
                 ;;
-              *)
-                upx ${{ env.UPX_COMPRESSION }} "$binary_name"
+              mips64|mips64le)
+                export GOMIPS64=softfloat
                 ;;
             esac
+            go build -o "$binary" $GO_BUILD_FLAGS ./cmd/tailscaled
           done
 
 
