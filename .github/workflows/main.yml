@@ -83,7 +83,7 @@ jobs:
               upx ${{ env.UPX_COMPRESSION }} "$binary_name"
             fi
           done
-          ls -lh combined_tailscaled_*
+          ls -lh tailscaled_*
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
