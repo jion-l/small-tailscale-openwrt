@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       TAG: ${{ steps.set_version.outputs.TAG }}
+      TAG_SHORT: ${{ steps.set_version.outputs.TAG_SHORT }}
     steps:
       - name: Set Version
         id: set_version
@@ -30,13 +31,16 @@ jobs:
             TAG=$(curl -s "https://api.github.com/repos/${{ env.REPO_OFFICIAL }}/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
             echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
           fi
+          echo "TAG_SHORT=${TAG#v}" >> "$GITHUB_OUTPUT"  # 新增：去掉v前缀
           echo "Using version: $TAG"
+
 
   download_and_build:
     needs: check_version
     runs-on: ubuntu-latest
     env:
       TAG: ${{ needs.check_version.outputs.TAG }}
+      TAG_SHORT: ${{ needs.check_version.outputs.TAG_SHORT }}
     steps:
       - name: Check Repository Owner
         run: |
@@ -73,7 +77,7 @@ jobs:
 
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $arch..."
-            binary_name="tailscaled_${ env.TAG }_${arch}"
+            binary_name="tailscaled_${{ env.TAG }}_${arch}"
             
             # Build combined binary
             GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
@@ -83,7 +87,7 @@ jobs:
               upx ${{ env.UPX_COMPRESSION }} "$binary_name"
             fi
           done
-          ls -lh tailscaled_*
+          ls tailscaled_*
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -91,9 +95,7 @@ jobs:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }} (Optimized)"
           body: |
-            ## Tailscale ${{ env.TAG }} - Optimized Build
-            # 版本 %${{ env.TAG }}% 已从上游同步
-            
+
             **Includes:**
             - UPX-compressed combined binaries (tailscale+tailscaled)
             
