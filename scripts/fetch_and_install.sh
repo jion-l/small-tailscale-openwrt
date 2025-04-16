@@ -66,14 +66,14 @@ install_tailscale() {
     if [ "$mode" = "local" ]; then
         mkdir -p /usr/local/bin
         mv "$tmp_file" /usr/local/bin/tailscaled
-        chmod +x /usr/local/bin/tailscaled
         ln -sf /usr/local/bin/tailscaled /usr/local/bin/tailscale
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscaled
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscale
         echo "✅ 已安装到 /usr/local/bin/"
     else
         mv "$tmp_file" /tmp/tailscaled
-        ln -sf /tmp/tailscaled /tmp/tailscale
+        ln -sf /tmp/tailscaled /usr/bin/tailscaled
+        ln -sf /tmp/tailscaled /usr/bin/tailscale
         echo "✅ 已安装到 /tmp (内存模式)"
     fi
 
