@@ -1,40 +1,58 @@
-# Tailscale OpenWrt 安装脚本包
+# Tailscale OpenWRT 一键管理套件
 
-本项目包含用于在 OpenWrt 或其他 Linux 系统上安装优化版 Tailscale 的脚本集合，支持本地/内存安装方式，并带有自动更新功能。
+## 📦 功能特性
+- 双模式安装：本地持久化 `/usr/local/bin` 或 内存安装 `/tmp`
+- 智能镜像加速：自动选择可用镜像源下载
+- 全自动更新：支持定时更新和手动更新
+- 完整卸载：一键清除所有相关文件和服务
 
-## 📦 包含的文件
-
-- `install.sh`：主安装脚本，可选择本地或内存方式安装。
-- `fetch_and_install.sh`：独立下载器/安装器，支持更新。
-- `autoupdate.sh`：用于开机自动检查并更新 Tailscale 可执行文件。
-
-## 🚀 安装方式
-
-### 方式一：本地安装
-
-脚本会将 tailscaled 和 tailscale 文件安装到 `/usr/local/bin/`，并创建软链接。支持自动更新功能（可启用或关闭）。
-
+## 🚀 快速开始
 ```bash
-wget -O install.sh https://raw.githubusercontent.com/CH3NGYZ/tailscale-openwrt/main/install.sh
-chmod +x install.sh
-./install.sh
+# 下载安装器
+wget -O /etc/tailscale/install.sh https://wget.la/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh
+chmod +x /etc/tailscale/install.sh
+
+# 执行安装（推荐本地安装+自动更新）
+/etc/tailscale/install.sh --auto-update --version=latest
 ```
 
-### 方式二：内存安装（适合只读系统，如 OpenWrt）
+## ⚙️ 管理命令
+| 命令 | 功能 |
+|------|------|
+| `/etc/init.d/tailscale start` | 启动服务 |
+| `/etc/init.d/tailscale stop` | 停止服务 |
+| `/etc/tailscale/autoupdate_ctl.sh on` | 启用自动更新 |
+| `/etc/tailscale/autoupdate_ctl.sh off` | 禁用自动更新 |
+| `/etc/tailscale/uninstall.sh` | 完全卸载 |
 
-脚本会在 `/tmp/` 中放置 tailscaled 和 tailscale 文件（软连接），每次开机需重新执行安装或自动执行。
+## 🔧 高级配置
+1. **指定安装版本**：
+   ```bash
+   /etc/tailscale/install.sh --version=v1.44.0
+   ```
 
-```bash
-wget -O install.sh https://raw.githubusercontent.com/CH3NGYZ/tailscale-openwrt/main/install.sh
-chmod +x install.sh
-./install.sh --tmp
+2. **内存安装模式**：
+   ```bash
+   /etc/tailscale/install.sh --tmp
+   ```
+
+3. **手动立即更新**：
+   ```bash
+   /etc/tailscale/autoupdate.sh
+   ```
+
+## 📂 文件结构
+```
+/etc/tailscale/
+├── install.sh           # 安装入口
+├── fetch_and_install.sh # 下载器
+├── autoupdate*          # 更新相关
+├── uninstall.sh         # 卸载脚本
+├── install.conf         # 安装配置
+└── mirrors.txt          # 镜像列表
 ```
 
-## 🔁 自动更新
-
-- 安装脚本会询问是否启用自动更新
-- 自动更新通过 `autoupdate.sh` 实现，可定时或在开机时运行
-- 可随时手动运行 `fetch_and_install.sh` 实现更新
-
----
-如需提交 Issue 或 PR，请前往 [CH3NGYZ/tailscale-openwrt](https://github.com/CH3NGYZ/tailscale-openwrt)。
+## ⚠️ 注意事项
+1. 内存安装模式重启后需重新下载
+2. 自动更新默认每天03:00执行
+3. 卸载脚本会删除所有相关文件和配置
