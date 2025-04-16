@@ -1,18 +1,16 @@
-name: Build Optimized Tailscaled
+name: Sync and Build Tailscale
 on:
   schedule:
     - cron: "10 23 * * *"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Tailscale version to build (leave empty for latest)'
+        description: 'Tailscale version (leave empty for latest)'
         required: false
 
 env:
-  SOFTWARE_NAME: "tailscaled"
   REPO_OFFICIAL: "tailscale/tailscale"
-  BUILD_PLATFORMS: "386"
-  #  amd64 arm64 mips mips64 mips64le mipsle
+  BUILD_PLATFORMS: "386 amd64 arm64 mips mips64 mips64le mipsle"
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
   UPX_COMPRESSION: "--lzma --best --no-progress"
 
@@ -33,77 +31,83 @@ jobs:
           fi
           echo "Using version: $TAG"
 
-  build:
+  download_and_build:
     needs: check_version
     runs-on: ubuntu-latest
     env:
       TAG: ${{ needs.check_version.outputs.TAG }}
     steps:
+      - name: Check Repository Owner
+        run: |
+          [ "${{ github.repository_owner }}" == "CH3NGYZ" ] || {
+            echo "Repository owner check failed"
+            exit 1
+          }
+
+      - name: Download official TGZ packages
+        run: |
+          for arch in ${{ env.BUILD_PLATFORMS }}; do
+            curl -LO "https://pkgs.tailscale.com/stable/tailscale_${TAG#v}_${arch}.tgz"
+          done
+
       - name: Checkout Tailscale source
         uses: actions/checkout@v4
         with:
           repository: ${{ env.REPO_OFFICIAL }}
           ref: ${{ env.TAG }}
 
-      - name: Setup Go
+      - name: Setup Go environment
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
 
       - name: Install UPX
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y upx
+        run: sudo apt-get update && sudo apt-get install -y upx
 
-      - name: Build for all platforms
+      - name: Build optimized binaries
         run: |
-          for platform in ${{ env.BUILD_PLATFORMS }}; do
-            echo "Building for $platform..."
+          # Create version file
+          echo "${TAG}" > version.txt
+
+          for arch in ${{ env.BUILD_PLATFORMS }}; do
+            echo "Building for $arch..."
+            binary_name="combined_tailscaled_${TAG#v}_${arch}"
             
             # Build combined binary
-            OUTPUT="${SOFTWARE_NAME}_${TAG#v}_${platform}"
-            GOOS=linux GOARCH=$platform go build ${{ env.GO_BUILD_FLAGS }} -o "$OUTPUT" ./cmd/tailscaled
+            GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
             
-            # Compress with UPX (skip unsupported platforms)
-            if [[ "$platform" != "mips64" && "$platform" != "mips64le" ]]; then
-              upx ${{ env.UPX_COMPRESSION }} "$OUTPUT"
+            # Apply UPX compression (skip unsupported platforms)
+            if [[ "$arch" != "mips64" && "$arch" != "mips64le" ]]; then
+              upx ${{ env.UPX_COMPRESSION }} "$binary_name"
             fi
-            
-            # Generate checksum
-            sha256sum "$OUTPUT" >> checksums.txt
           done
-
-          # Create version file
-          echo "$TAG" > version.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.TAG }}
-          name: "Optimized Tailscaled ${{ env.TAG }}"
+          name: "Tailscale ${{ env.TAG }} (Optimized)"
           body: |
-            Optimized Tailscaled Build ${{ env.TAG }}
+            ## Tailscale ${{ env.TAG }} - Optimized Build
             
-            This release contains UPX-compressed tailscaled binaries built with:
-            - Combined tailscale/tailscaled functionality
-            - `--extra-small` build flag
-            - Stripped debug symbols (-ldflags="-s -w")
-            - UPX LZMA compression
+            **Includes:**
+            - Original TGZ packages from tailscale.com
+            - UPX-compressed combined binaries (tailscale+tailscaled)
             
-            **Supported Architectures**: ${{ env.BUILD_PLATFORMS }}
-            
-            ### Usage
+            **Combined Binary Usage:**
             ```
             # As tailscaled
-            ./tailscaled_${{TAG#v}}_[arch] [arguments]
+            ./combined_tailscaled_${TAG#v}_[arch] [arguments]
             
             # As tailscale CLI (via symlink)
-            ln -s tailscaled_${TAG#v}_[arch] tailscale
+            ln -s combined_tailscaled_${TAG#v}_[arch] tailscale
             ./tailscale [command]
             ```
+            
+            **Note:** geode/mips64/mips64le binaries are uncompressed
           draft: false
           prerelease: false
           files: |
-            ${SOFTWARE_NAME}_${TAG#v}_*
-            checksums.txt
+            tailscale_${TAG#v}_*.tgz
+            combined_tailscaled_${TAG#v}_*
             version.txt
