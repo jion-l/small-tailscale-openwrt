@@ -87,7 +87,7 @@ jobs:
             GOOS=linux GOARCH=$arch go build ${{ env.GO_BUILD_FLAGS }} -o "$binary_name" ./cmd/tailscaled
           
             case "$arch" in
-              mips1 | mipsle1 | mips641 | mips64le1)
+              mips64 | mips64le)
                 echo "Skipping UPX compression for $arch (not supported)"
                 ;;
               *)
