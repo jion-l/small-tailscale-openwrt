@@ -7,7 +7,8 @@ on:
       version:
         description: 'Tailscale version (leave empty for latest)'
         required: false
-
+permissions:
+  contents: write
 env:
   REPO_OFFICIAL: "tailscale/tailscale"
   BUILD_PLATFORMS: "386"
