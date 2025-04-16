@@ -17,7 +17,6 @@ env:
   REPO_OFFICIAL: "tailscale/tailscale"
   BUILD_PLATFORMS: "amd64 386 arm arm64 mips mipsle mips64 mips64le"
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
-  UPX_COMPRESSION: "--lzma --best --no-progress"
 
 jobs:
   check_version:
@@ -99,7 +98,6 @@ jobs:
             export CGO_ENABLED=0
             export GOOS=linux
             export GOARCH=$arch
-
             # 特殊处理 MIPS 架构（使用软浮点）
             case "$arch" in
               mips|mipsle)
@@ -117,7 +115,7 @@ jobs:
                 ;;
               *)
                 if [[ -f "$binary_name" ]]; then
-                  upx ${UPX_COMPRESSION} "$binary_name"
+                  upx --lzma --best --no-progress "$binary_name"
                 else
                   echo "❌ 编译失败: $binary_name 不存在"
                 fi
@@ -139,7 +137,7 @@ jobs:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }}"
           body: |
-            ## 🚀 此为 Tailscale ${{ env.TAG }} 压缩版本
+            ## 🚀 此release为 Tailscale ${{ env.TAG }} 的UPX压缩版本
 
             📦 架构支持：${{ env.BUILD_PLATFORMS }}
             
