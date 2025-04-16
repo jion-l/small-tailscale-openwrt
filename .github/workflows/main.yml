@@ -90,18 +90,17 @@ jobs:
 
       - name: Build optimized binaries
         run: |
-          # Create version file
           echo "${{ env.TAG }}" > version.txt
 
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $arch..."
             binary_name="tailscaled_linux_${arch}"
-          
+
             export CGO_ENABLED=0
             export GOOS=linux
             export GOARCH=$arch
-          
-            # 特殊处理 MIPS 架构
+
+            # 特殊处理 MIPS 架构（使用软浮点）
             case "$arch" in
               mips|mipsle)
                 export GOMIPS=softfloat
@@ -110,15 +109,24 @@ jobs:
                 export GOMIPS64=softfloat
                 ;;
             esac
-            go build -o "$binary_name" $GO_BUILD_FLAGS ./cmd/tailscaled
-            if [[ "$arch" =~ ^(mips64|mips64le)$ ]]; then
-              echo "⚠️ 跳过 $arch 的 UPX 压缩"
-            else
-              upx $UPX_COMPRESSION "$binary_name"
+
+            # 编译
+            go build -o "$binary_name" "${GO_BUILD_FLAGS}" ./cmd/tailscaled
+
+            # UPX 压缩（跳过 mips64 和 mips64le）
+            case "$arch" in
+              mips64|mips64le)
+                echo "⚠️ 跳过 $arch 的 UPX 压缩"
+                ;;
+              *)
+                if [[ -f "$binary_name" ]]; then
+                  upx ${UPX_COMPRESSION} "$binary_name"
+                else
+                  echo "❌ 编译失败: $binary_name 不存在"
+                fi
+                ;;
+            esac
           done
-
-
-          ls -lh tailscaled_*
           
       - name: Generate checksums
         run: |
