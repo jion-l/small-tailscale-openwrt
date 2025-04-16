@@ -24,6 +24,12 @@ jobs:
       TAG: ${{ steps.set_version.outputs.TAG }}
       TAG_EXISTS: ${{ steps.check_tag.outputs.EXISTS }}
     steps:
+      - name: Check Repository Owner
+        run: |
+          [ "${{ github.repository_owner }}" == "CH3NGYZ" ] || {
+            echo "Repository owner check failed"
+            exit 1
+          }
       - name: Set Version
         id: set_version
         run: |
@@ -53,13 +59,6 @@ jobs:
     env:
       TAG: ${{ needs.check_version.outputs.TAG }}
     steps:
-      - name: Check Repository Owner
-        run: |
-          [ "${{ github.repository_owner }}" == "CH3NGYZ" ] || {
-            echo "Repository owner check failed"
-            exit 1
-          }
-
       - name: Checkout Tailscale source
         uses: actions/checkout@v4
         with:
