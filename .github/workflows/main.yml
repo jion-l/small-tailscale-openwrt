@@ -112,5 +112,5 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            tailscale_*
+            tailscale*
             version.txt
