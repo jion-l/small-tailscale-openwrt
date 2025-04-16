@@ -22,28 +22,26 @@ USE_PROCD=1
 START=90
 STOP=1
 
-TAILSCALED_BIN="/usr/local/bin/tailscaled"
-INSTALL_SCRIPT="/etc/tailscale/fetch_and_install.sh"
 
 ensure_tailscaled() {
   # 检查tailscaled是否存在且可执行
-  if [ ! -x "$TAILSCALED_BIN" ]; then
-    echo "未在$TAILSCALED_BIN找到tailscaled，尝试安装..."
+  if [ ! -x "/usr/local/bin/tailscaled" ]; then
+    echo "未在/usr/local/bin/tailscaled找到tailscaled，尝试安装..."
     
-    if [ -x "$INSTALL_SCRIPT" ]; then
-      if "$INSTALL_SCRIPT"; then
+    if [ -x "/etc/tailscale/fetch_and_install.sh" ]; then
+      if "/etc/tailscale/fetch_and_install.sh"; then
         echo "tailscaled安装成功"
       else
         echo "安装tailscaled失败"
         return 1
       fi
     else
-      echo "安装脚本$INSTALL_SCRIPT不存在或不可执行"
+      echo "安装脚本/etc/tailscale/fetch_and_install.sh不存在或不可执行"
       return 1
     fi
     
     # 验证安装是否成功
-    if [ ! -x "$TAILSCALED_BIN" ]; then
+    if [ ! -x "/usr/local/bin/tailscaled" ]; then
       echo "安装尝试后仍未找到tailscaled"
       return 1
     fi
