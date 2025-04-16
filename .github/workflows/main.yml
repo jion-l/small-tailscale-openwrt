@@ -101,29 +101,28 @@ jobs:
             echo "Building for $platform..."
             
             # Build the binary
+            binary_name="${SOFTWARE_NAME}-linux-${platform}"
             GOOS=linux GOARCH=$platform ./build_dist.sh \
               --extra-small --box \
-              -o "${env.SOFTWARE_NAME}-linux-$platform" ./cmd/tailscale ./cmd/tailscaled
+              -o "$binary_name" ./cmd/tailscale ./cmd/tailscaled
             
-            # Compress with UPX (skip unsupported platforms)
-            if [[ "$platform" != "mips64" && "$platform" != "mips64le" ]]; then
-              "${PWD}/upx" ${{ env.UPX_COMPRESSION }} "${env.SOFTWARE_NAME}-linux-$platform"
-            fi
+            # Compress with UPX
+            "${PWD}/upx" $UPX_COMPRESSION "$binary_name"
             
             # Rename to standard format
-            mv "${env.SOFTWARE_NAME}-linux-$platform" "${env.SOFTWARE_NAME}_${env.TAG#v}_$platform"
+            mv "$binary_name" "${SOFTWARE_NAME}_${TAG#v}_${platform}"
           done
 
       - name: Download pre-built TGZ packages
         run: |
           for platform in ${{ env.BUILD_PLATFORMS }}; do
-            curl --remote-name "https://pkgs.tailscale.com/stable/${env.SOFTWARE_NAME}_${env.TAG#v}_${platform}.tgz"
+            curl --remote-name "https://pkgs.tailscale.com/stable/${SOFTWARE_NAME}_${TAG#v}_${platform}.tgz"
           done
 
       - name: Create checksums
         run: |
-          sha256sum ${env.SOFTWARE_NAME}_* > "checksums.txt"
-          echo "Built version: ${env.TAG}" > "version.txt"
+          sha256sum ${SOFTWARE_NAME}_* > "checksums.txt"
+          echo "Built version: ${TAG}" > "version.txt"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -132,11 +131,11 @@ jobs:
           name: ${{ env.TAG }}
           body: |
             Tailscale ${{ env.TAG }} - Optimized Build
-
+            
             This release contains:
             - UPX-compressed binaries built from source
             - Original pre-built TGZ packages
-
+            
             Checksums:
             ```
             $(cat checksums.txt)
@@ -144,6 +143,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${env.SOFTWARE_NAME}_${env.TAG#v}_*
+            ${SOFTWARE_NAME}_${TAG#v}_*
             checksums.txt
             version.txt
