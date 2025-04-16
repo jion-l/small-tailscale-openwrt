@@ -15,6 +15,8 @@ echo "🗑️ 删除程序文件..."
 rm -f \
     /usr/local/bin/tailscale \
     /usr/local/bin/tailscaled \
+    /usr/bin/tailscale \
+    /usr/bin/tailscaled \
     /tmp/tailscale \
     /tmp/tailscaled
 
