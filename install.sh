@@ -28,7 +28,7 @@ webget() {
             wget $progress $redirect $certificate $timeout -O "$1" "$2"
             [ $? -eq 0 ] && result="200"
         else
-            log "Error: Neither curl nor wget available"
+            echo "Error: Neither curl nor wget available"
             return 1
         fi
     fi
@@ -40,7 +40,7 @@ webget() {
 mkdir -p "$CONFIG_DIR"
 
 # 下载资源
-log "Downloading installation resources..."
+echo "Downloading installation resources..."
 if ! webget "/tmp/mirrors.txt" "$MIRROR_LIST_URL" "echoon"; then
     echo "镜像列表下载失败"
     exit 1
