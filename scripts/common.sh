@@ -10,7 +10,6 @@ TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
 TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
-. "$CONFIG_DIR/notify_ctl.sh"
 
 # 初始化日志系统
 log_info() {
