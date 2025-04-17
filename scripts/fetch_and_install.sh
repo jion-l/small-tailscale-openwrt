@@ -21,6 +21,12 @@ get_latest_version() {
     echo "$version"
 }
 
+get_checksum() {
+    local sums_file=$1
+    local target_name=$2
+    grep " $target_name" "$sums_file" | awk '{print $1}'
+}
+
 # 下载文件
 download_file() {
     local url=$1
@@ -48,6 +54,29 @@ download_file() {
     fi
 }
 
+verify_checksum() {
+    local file=$1
+    local expected=$2
+
+    local actual=""
+    if [ ${#expected} -eq 64 ]; then
+        actual=$(sha256sum "$file" | awk '{print $1}')
+    elif [ ${#expected} -eq 32 ]; then
+        actual=$(md5sum "$file" | awk '{print $1}')
+    else
+        log_warn "⚠️ 未知校验长度，跳过校验"
+        return 0
+    fi
+
+    if [ "$expected" = "$actual" ]; then
+        log_info "✅ 校验通过"
+        return 0
+    else
+        log_warn "❌ 校验失败"
+        return 1
+    fi
+}
+
 # 主安装流程
 install_tailscale() {
     local version=$1
@@ -59,13 +88,32 @@ install_tailscale() {
     local download_url="CH3NGYZ/ts-test/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"
 
-    # 下载
+    log_info "⬇️ 准备校验文件..."
+    sha_file="/tmp/SHA256SUMS.$$"
+    md5_file="/tmp/MD5SUMS.$$"
+    pkg_name="tailscaled_linux_$arch"
+    download_base="CH3NGYZ/ts-test/releases/download/$version/"
+
+    # 下载校验文件
+    download_file "${download_base}SHA256SUMS.txt" "$sha_file" "$mirror_list" || log_warn "⚠️ 无法获取 SHA256 校验文件"
+    download_file "${download_base}MD5SUMS.txt" "$md5_file" "$mirror_list" || log_warn "⚠️ 无法获取 MD5 校验文件"
+
+    sha256=""
+    md5=""
+    [ -s "$sha_file" ] && sha256=$(get_checksum "$sha_file" "$pkg_name")
+    [ -s "$md5_file" ] && md5=$(get_checksum "$md5_file" "$pkg_name")
+
+    # 下载主程序并校验
     log_info "⬇️ 正在下载 Tailscale $version ($arch)..."
-    download_file "$download_url" "$tmp_file" "$mirror_list" || {
-        log_error "❌ 下载失败"
-        rm -f "$tmp_file"
-        exit 1
-    }
+    if ! download_file "$download_base$pkg_name" "$tmp_file" "$mirror_list" "$sha256"; then
+        log_warn "⚠️ SHA256 校验失败，尝试使用 MD5..."
+        if ! download_file "$download_base$pkg_name" "$tmp_file" "$mirror_list" "$md5"; then
+            log_error "❌ 校验失败，安装中止"
+            rm -f "$tmp_file"
+            exit 1
+        fi
+    fi
+
 
     # 安装
     chmod +x "$tmp_file"
