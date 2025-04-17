@@ -1,6 +1,22 @@
 #!/bin/sh
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
+# 如果配置文件不存在，初始化
+if [ ! -f "$NTF_CONF" ]; then
+    mkdir -p "$(dirname "$NTF_CONF")"
+    cat > "$NTF_CONF" <<EOF
+# 通知配置文件
+NOTIFY_SERVERCHAN=0
+SERVERCHAN_KEY=""
+
+NOTIFY_BARK=0
+BARK_KEY=""
+
+NOTIFY_NTFY=0
+NTFY_KEY=""
+EOF
+fi
+
 show_menu() {
     clear
     [ -f "$NTF_CONF" ] && . "$NTF_CONF"
@@ -58,10 +74,16 @@ edit_ntfy() {
 # 切换通知开关
 toggle_setting() {
     local setting=$1
-    current=$(grep "^$setting=" "$NTF_CONF" | cut -d= -f2)
-    new_value=$([ "$current" = "1" ] && echo "0" || echo "1")
-    sed -i "s|^$setting=.*|$setting=$new_value|" "$NTF_CONF"
+    if grep -q "^$setting=" "$NTF_CONF"; then
+        current=$(grep "^$setting=" "$NTF_CONF" | cut -d= -f2)
+        new_value=$([ "$current" = "1" ] && echo "0" || echo "1")
+        sed -i "s|^$setting=.*|$setting=$new_value|" "$NTF_CONF"
+    else
+        # 如果配置项不存在，则默认设置为开启(1)
+        echo "$setting=1" >> "$NTF_CONF"
+    fi
 }
+
 
 
 # 测试通知
