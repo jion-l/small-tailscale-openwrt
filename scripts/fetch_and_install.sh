@@ -18,7 +18,7 @@ get_arch() {
 get_latest_version() {
     local api_url="https://api.github.com/repos/CH3NGYZ/ts-test/releases/latest"
     local version=$(curl -m 10 -fsSL "$api_url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-    log_info "$version"
+    echo "$version"
 }
 
 # 下载文件
