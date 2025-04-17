@@ -2,7 +2,7 @@
 
 set -e
 
-. /etc/tailscale/common.sh
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
 echo "🛑 开始卸载Tailscale..."
 [ -f /etc/init.d/tailscale ] && {

@@ -2,9 +2,9 @@
 
 set -e
 # 加载共享库
-. /etc/tailscale/common.sh
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
 
-safe_source "$INST_CONF"
+
 
 # 架构映射
 get_arch() {

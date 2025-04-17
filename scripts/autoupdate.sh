@@ -2,7 +2,7 @@
 set -e
 
 # 加载共享库
-. /etc/tailscale/common.sh
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
 [ ! -f "$CONFIG_DIR/auto_update_enabled" ] && exit 0
 safe_source "$INST_CONF"

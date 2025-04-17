@@ -12,12 +12,14 @@ TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
-TMP_VALID_MIRRORS=$(mktemp /tmp/valid_mirrors.XXXXXX)
+TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
+
+rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 
 # 单个镜像测试函数
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
-    local tmp_out=$(mktemp /tmp/mirror_test.XXXXXX)
+    local tmp_out="/tmp/mirror_test.tmp"
 
     echo "测试 $mirror ..."
 
@@ -37,7 +39,7 @@ test_mirror() {
     rm -f "$tmp_out"
 }
 
-# 手动选择
+# 手动选择镜像
 manual_fallback() {
     send_notify "MIRROR_FAIL" "代理故障" "所有镜像均不可用！"
 
@@ -51,14 +53,14 @@ manual_fallback() {
                 if echo "$mirror" | grep -qE '^https?://'; then
                     echo "$mirror" >> "$MIRROR_LIST"
                     test_mirror "$mirror"
-                    sort -rn "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
+                    [ -s "$TMP_VALID_MIRRORS" ] && sort -rn "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
                     return 0
                 else
                     echo "地址必须以 http:// 或 https:// 开头"
                 fi
                 ;;
             2)
-                touch "$VALID_MIRRORS" # 空文件表示直连
+                touch "$VALID_MIRRORS"  # 空文件表示直连
                 return 1
                 ;;
             3)
@@ -69,13 +71,9 @@ manual_fallback() {
 }
 
 # 主流程
-rm -f "$TMP_VALID_MIRRORS"
-
 while read -r mirror; do
-    [ -n "$mirror" ] && test_mirror "$mirror" &
+    [ -n "$mirror" ] && test_mirror "$mirror"
 done < "$MIRROR_LIST"
-
-wait
 
 if [ -s "$TMP_VALID_MIRRORS" ]; then
     sort -rn "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"

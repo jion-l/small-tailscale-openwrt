@@ -2,7 +2,7 @@
 
 set -e
 
-. /etc/tailscale/common.sh
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
 # 参数解析
 AUTO_UPDATE=false

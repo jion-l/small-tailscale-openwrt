@@ -1,7 +1,7 @@
 #!/bin/sh
 
-. /etc/tailscale/common.sh
-safe_source "$INST_CONF"
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
+
 
 case "$1" in
     on)

@@ -2,9 +2,7 @@
 
 set -e
 
-. /etc/tailscale/common.sh
-# 加载配置
-safe_source "$INST_CONF"
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
 
 # 参数解析
 MODE="local"
