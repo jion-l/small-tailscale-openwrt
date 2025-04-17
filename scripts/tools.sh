@@ -92,7 +92,7 @@ send_notify() {
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
         curl -sS "https://ntfy.sh/$NTFY_KEY" \
             -H "Title: $title" \
-            -d "$content\n\n$extra_content"
+            -d "$content%5Cn%5Cn$extra_content"
         echo "✅ NTFY 通知已发送"
     fi
 
