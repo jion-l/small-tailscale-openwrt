@@ -5,7 +5,11 @@ CONFIG_DIR="/etc/tailscale"
 LOG_FILE="/var/log/tailscale_install.log"
 NTF_CONF="$CONFIG_DIR/notify.conf"
 INST_CONF="$CONFIG_DIR/install.conf"
-
+MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
+TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
+SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
+VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
+TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
 
 
 # 初始化日志系统
