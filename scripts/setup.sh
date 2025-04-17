@@ -75,12 +75,18 @@ if [ "$has_args" = false ]; then
             log_error "❌ GitHub API 请求失败，状态码: $HTTP_CODE"
             log_info "🔧 跳过版本号检查，继续安装"
         else
+            set -x  # 临时调试
+
             TAGS=$(jq -r '.[].tag_name' response.json)
             echo "VERSION: $VERSION"
             echo "HTTP_CODE: $HTTP_CODE"
             echo "TAGS:"
             echo "$TAGS"
-            TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION")
+
+            TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION" || true)  # <--- 防止 grep 没找到时退出
+
+            echo "TAG_CHECK: [$TAG_CHECK]"  # 看看是否为空
+
             if [ -z "$TAG_CHECK" ]; then
                 log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
                 log_info "🔧 可用的版本列表如下："
