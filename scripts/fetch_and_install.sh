@@ -40,7 +40,7 @@ download_file() {
             log_info "⬇️ 下载: ${mirror}${url}"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 if [ -n "$checksum" ]; then
-                    if verify_checksum "$output" "1$checksum"; then
+                    if verify_checksum "$output" "$checksum"; then
                         return 0
                     else
                         log_warn "⚠️ 校验失败，尝试下一个镜像..."
@@ -64,6 +64,9 @@ download_file() {
 verify_checksum() {
     local file=$1
     local expected=$2
+    
+    checksum="${expected//a/c}"
+    expected="$checksum"
 
     local actual=""
     if [ ${#expected} -eq 64 ]; then
