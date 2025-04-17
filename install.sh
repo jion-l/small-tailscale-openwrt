@@ -150,6 +150,9 @@ fi
 
 if [ "$success" -ne 1 ]; then
     echo "❌ 所有镜像与直连均失败，安装中止"
+    echo "当前可用镜像地址列表 /etc/tailscale/valid_mirrors.txt 为:"
+    cat /etc/tailscale/valid_mirrors.txt
+    echo "您可能需要运行 /etc/tailscale/test_mirrors.sh 更新代理地址"
     exit 1
 fi
 
