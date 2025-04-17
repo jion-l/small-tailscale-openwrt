@@ -4,63 +4,51 @@ set -e
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 echo "📥 已进入 setup_service.sh"
 
-# 参数解析
-MODE=""
-while [ $# -gt 0 ]; do
-    case "$1" in
-        --mode=*) MODE="${1#*=}"; shift ;;
-        *) echo "未知参数: $1"; exit 1 ;;
-    esac
-done
+# 加载配置文件
+safe_source "$INST_CONF" || { echo "❌ 无法加载配置文件 $INST_CONF"; exit 1; }
 
-# 尝试从配置文件读取 MODE
-[ -z "$MODE" ] && [ -f "$INST_CONF" ] && safe_source "$INST_CONF"
-MODE=${MODE:-local}
+# 确保配置文件中有 MODE
+if [ -z "$MODE" ]; then
+    echo "❌ 错误：未在配置文件中找到 MODE 设置"
+    exit 1
+fi
+
+echo "当前的 MODE 设置为: $MODE"
 
 # 生成服务文件
 cat > /etc/init.d/tailscale <<"EOF"
 #!/bin/sh /etc/rc.common
-
-# 版权声明 2020 Google LLC.
-# SPDX-License-Identifier: Apache-2.0
 
 USE_PROCD=1
 START=90
 STOP=1
 
 start_service() {
-  # 本地模式
-  if [ "$MODE" = "local" ]; then
-    echo "🧩 检测到 Local 模式，直接启动 Tailscale..."
-    TAILSCALED_BIN="/usr/local/bin/tailscaled"
+  # 确保已经加载了 INST_CONF 和其中的 MODE
+  [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+  safe_source "$INST_CONF"
 
+  echo "当前的 MODE 设置为: $MODE"
+
+  if [ "$MODE" = "local" ]; then
+    # 本地模式的启动逻辑
+    TAILSCALED_BIN="/usr/local/bin/tailscaled"
     procd_open_instance
     procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
     procd_set_param command "$TAILSCALED_BIN"
-
-    # 设置监听 VPN 数据包的端口
     procd_append_param command --port 41641
-
-    # OpenWRT 系统中 /var 是 /tmp 的符号链接，因此将持久状态写入其他位置
     procd_append_param command --state /etc/config/tailscaled.state
-
-    # 为 TLS 证书和 Taildrop 文件保持持久存储
     procd_append_param command --statedir /etc/tailscale/
-
     procd_set_param respawn
     procd_set_param stdout 1
     procd_set_param stderr 1
     procd_set_param logfile /var/log/tailscale.log
-
     procd_close_instance
 
-  # 临时模式
   elif [ "$MODE" = "tmp" ]; then
-    echo "🧩 检测到 tmp 模式，恢复开机自动安装最新 Tailscale..."
-
-    # 启动时重新下载并安装最新的 Tailscale
+    # 临时模式的启动逻辑
+    echo "🧩 使用 tmp 模式"
     /etc/tailscale/setup.sh --tmp --auto-update > /tmp/tailscale_boot.log 2>&1 &
-
   else
     echo "❌ 错误：未知模式 $MODE"
     exit 1
@@ -68,7 +56,6 @@ start_service() {
 }
 
 stop_service() {
-  # 尝试清理
   [ -x "/usr/local/bin/tailscaled" ] && /usr/local/bin/tailscaled --cleanup
   [ -x "/tmp/tailscaled" ] && /tmp/tailscaled --cleanup
   killall tailscaled 2>/dev/null

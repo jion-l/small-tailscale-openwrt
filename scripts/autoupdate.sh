@@ -7,7 +7,7 @@ set -e
 [ ! -f "$CONFIG_DIR/auto_update_enabled" ] && exit 0
 safe_source "$INST_CONF"
 safe_source "$NTF_CONF"
-
+echo "正在自动更新..."
 # 获取当前版本
 current=$(cat "$CONFIG_DIR/current_version" 2>/dev/null || echo "unknown")
 
