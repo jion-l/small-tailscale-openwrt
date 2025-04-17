@@ -55,18 +55,23 @@ if [ "$has_args" = false ]; then
     esac
 
     log_info
-    log_info "安装什么版本？(回车默认为最新,可输入具体版本号): "
+    log_info "请输入版本号 (留空使用 latest): "
     read version_input
     version_input="$(echo "$version_input" | xargs)"  # 去空格
-    if [[ "$version_input" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+
+    if [[ -z "$version_input" ]]; then
+        VERSION="latest"
+    elif [[ "$version_input" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         VERSION="v${version_input#v}"  # 确保是 v 开头
     else
-        VERSION="latest"
+        echo "无效的版本号格式: $version_input"
+        exit 1
     fi
 
+    if [[ "$VERSION" != "latest" ]]; then
+        echo "使用指定版本: $VERSION"
 
-    # 如果是交互模式输入了版本号
-    if echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+        # 如果是交互模式输入了版本号
         log_info "🔍 检查版本号是否存在于 GitHub Release 中..."
 
         HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/ts-test/releases")
@@ -82,6 +87,7 @@ if [ "$has_args" = false ]; then
             echo "HTTP_CODE: $HTTP_CODE"
             echo "TAGS:"
             echo "$TAGS"
+            rm -f response.json
 
             TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION" || true)  # <--- 防止 grep 没找到时退出
 
@@ -94,9 +100,6 @@ if [ "$has_args" = false ]; then
                 exit 1
             fi
         fi
-    else
-        log_info "🔍 输入的版本号不符合预期格式，请重新输入。"
-        exit 1
     fi
 fi
 
