@@ -64,7 +64,7 @@ echo "版本: $VERSION"
 # 停止服务之前，检查服务文件是否存在
 if [ -f /etc/init.d/tailscale ]; then
     echo "停止 tailscaled 服务..."
-    /etc/init.d/tailscale stop || echo "❌ 停止 tailscaled 服务失败，继续清理残留文件"
+    /etc/init.d/tailscale stop 2>/dev/null || echo "❌ 停止 tailscaled 服务失败，继续清理残留文件"
 else
     echo "⚠️ 未找到 tailscale 服务文件，跳过停止服务步骤"
 fi
