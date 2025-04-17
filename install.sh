@@ -36,11 +36,29 @@ webget() {
     [ "$result" = "200" ] && return 0 || return 1
 }
 
+# 使用有效镜像代理进行下载
+mirror_fetch() {
+    local real_url=$1
+    local output=$2
+    local mirror_list_file="$CONFIG_DIR/valid_mirrors.txt"
 
-mirror_fetch "$MIRROR_LIST_URL" "/tmp/mirrors.txt" || {
-    echo "❌ 下载镜像列表失败"
-    exit 1
+    if [ -f "$mirror_list_file" ]; then
+        while read -r mirror; do
+            mirror=$(echo "$mirror" | sed 's|/*$|/|')  # 去掉结尾斜杠
+            full_url="${mirror}${real_url}"
+            echo "Trying mirror: $full_url"
+            if webget "$output" "$full_url" "echooff"; then
+                return 0
+            fi
+        done < "$mirror_list_file"
+    fi
+
+    # 如果所有代理都失败，尝试直接下载
+    echo "Trying direct: $real_url"
+    webget "$output" "$real_url" "echooff"
 }
+
+
 
 mirror_fetch "$SCRIPTS_TGZ_URL" "/tmp/tailscale-openwrt-scripts.tar.gz" || {
     echo "❌ 下载脚本包失败"
