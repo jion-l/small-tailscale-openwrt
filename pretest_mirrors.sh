@@ -26,7 +26,7 @@ webget() {
     if command -v curl >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
-        result=$(curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout 10 $progress $redirect -ko "$1" "$2")
+        result=$(curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout 10 --max-time 10 $progress $redirect -ko "$1" "$2")
         [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
     elif command -v wget >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
