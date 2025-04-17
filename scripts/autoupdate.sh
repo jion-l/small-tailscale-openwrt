@@ -1,11 +1,6 @@
 #!/bin/sh
 
-CONFIG_DIR="/etc/tailscale"
-INST_CONF="$CONFIG_DIR/inst.conf"
-COMMON_SH="$CONFIG_DIR/common.sh"
-
-# 加载通用函数
-[ -f "$COMMON_SH" ] && . "$COMMON_SH"
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh 
 
 # 默认变量
 STARTUP=0
