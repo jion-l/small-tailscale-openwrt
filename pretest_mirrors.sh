@@ -56,8 +56,8 @@ test_mirror() {
     local start=$(date +%s.%N)
     if webget "$tmp_out" "${mirror}${TEST_URL}" "echooff" && grep -q "test ok" "$tmp_out"; then
         local end=$(date +%s.%N)
-        local latency=$(printf "%.2f" $(echo "$end - $start" | bc))
-        local score=$(echo "10 - $latency * 2" | bc | awk '{printf "%.1f", $0}')
+        local latency=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
+        local score=$(awk "BEGIN {printf \"%.1f\", 10 - ($latency * 2)}")
         echo "✅ $mirror  延迟: ${latency}s  评分: $score"
         echo "$(date +%s),$mirror,1,$latency,$score" >> "$SCORE_FILE"
         echo "$score $mirror" >> "$TMP_VALID_MIRRORS"
