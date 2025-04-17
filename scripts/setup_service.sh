@@ -28,12 +28,6 @@ start_service() {
   # 确保已经加载了 INST_CONF 和其中的 MODE
   [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
-  # 加在 start_service 的开始
-  if [ "$MODE" = "tmp" ] && [ -f /tmp/.tailscale_tmp_installed ]; then
-    log_info "⚠️ 检测到 tailscale 已经通过 setup.sh 启动，跳过重复调用"
-    return 0
-  fi
-
   log_info "🛠️ 加载服务启动配置..."
   safe_source "$INST_CONF"
 
@@ -61,13 +55,13 @@ start_service() {
 
     if [ "$AUTO_UPDATE" = "true" ]; then
         log_info "🔄 自动更新启用，安装 latest 版本"
-        /etc/tailscale/setup.sh --tmp --auto-update
+        /etc/tailscale/fetch_and_install.sh --mode="tmp" --version="latest" --mirror-list="$VALID_MIRRORS"
     else
         VERSION_FILE="$CONFIG_DIR/current_version"
         if [ -f "$VERSION_FILE" ]; then
             version=$(cat "$VERSION_FILE")
             log_info "📦 安装固定版本: $version"
-            /etc/tailscale/setup.sh --tmp --version="$version"
+            /etc/tailscale/fetch_and_install.sh --mode="tmp" --version="$version" --mirror-list="$VALID_MIRRORS"
         else
             log_error "❌ 无法读取已设定版本号 ($VERSION_FILE)"
             exit 1
