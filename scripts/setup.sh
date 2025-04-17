@@ -65,9 +65,10 @@ if [ "$has_args" = false ]; then
         TAGS=$(jq -r '.[].tag_name' response.json)
         rm -f response.json
 
-        log_info "📦 可用的版本列表："
-        echo "$TAGS" | awk '{ print "  - " $1 }'
-        echo
+        log_info "🔧 可用的版本列表如下："
+        echo "$TAGS" | awk '{ print "  " $1 }' | while read line; do
+            log_info "$line"
+        done
     fi
 
     # 🧑‍💻 用户输入
@@ -96,10 +97,6 @@ if [ "$has_args" = false ]; then
 
         if [ -z "$TAG_CHECK" ]; then
             log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
-            log_info "🔧 可用的版本列表如下："
-            echo "$TAGS" | awk '{ print "  " $1 }' | while read line; do
-                log_info "$line"
-            done
             exit 1
         fi
     fi
