@@ -39,8 +39,15 @@ download_file() {
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
             log_info "⬇️ 下载: ${mirror}${url}"
             if webget "$output" "${mirror}${url}" "echooff"; then
-                [ -n "$checksum" ] && verify_checksum "$output" "$checksum" || return 0
-                return 0
+                if [ -n "$checksum" ]; then
+                    if verify_checksum "$output" "$checksum"; then
+                        return 0
+                    else
+                        log_warn "⚠️ 校验失败，尝试下一个镜像..."
+                    fi
+                else
+                    return 0
+                fi
             fi
         done < "$mirror_list"
     fi
