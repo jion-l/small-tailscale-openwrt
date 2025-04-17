@@ -21,7 +21,7 @@ safe_source "$INST_CONF"
 # 未启用自动更新
 if [ ! -f "$CONFIG_DIR/auto_update_enabled" ]; then
   if [ "$MODE" = "local" ]; then
-    [ "$startup_flag" -eq 0 ] && echo "⚠️ 您未开启自动更新, 请运行 /etc/tailscale/update_ctl.sh 进行更改"
+    [ "$startup_flag" -eq 0 ] && echo "⚠️ 您未开启自动更新, 请运行 $CONFIG_DIR/update_ctl.sh 进行更改"
     exit 0
   elif [ "$MODE" = "tmp" ]; then
     log_info "🚫 TMP 模式禁用自动更新，仅尝试安装设定版本：$current"
@@ -31,7 +31,7 @@ if [ ! -f "$CONFIG_DIR/auto_update_enabled" ]; then
 fi
 
 # 查询远程最新版本
-remote="$(/etc/tailscale/fetch_and_install.sh --dry-run)"
+remote=$("$CONFIG_DIR/fetch_and_install.sh" --dry-run)
 
 # 本地记录的版本（用于判断是否已更新）
 recorded=""
