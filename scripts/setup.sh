@@ -81,10 +81,10 @@ TIMESTAMP=$(date +%s)
 EOF
 
 echo
-echo "🎉 \033[1;32m安装完成！\033[0m"
+echo "🎉 安装完成！"
 echo "🔧 启动命令："
-echo "   \033[1;34mtailscale up\033[0m"
+echo "   tailscale up"
 
 echo
 echo "🔧 管理更新："
-echo "   \033[1;34m/etc/tailscale/update_ctl.sh [on|off|status]\033[0m"
+echo "   /etc/tailscale/update_ctl.sh [on|off|status]"
