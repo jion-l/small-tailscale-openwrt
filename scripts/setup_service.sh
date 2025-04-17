@@ -55,8 +55,8 @@ start_service() {
 }
 
 stop_service() {
-  [ -x "/usr/local/bin/tailscaled" ] && /usr/local/bin/tailscaled --cleanup
-  [ -x "/tmp/tailscaled" ] && /tmp/tailscaled --cleanup
+  [ -x "/usr/local/bin/tailscaled" ] && /usr/local/bin/tailscaled --cleanup 2>/dev/null
+  [ -x "/tmp/tailscaled" ] && /tmp/tailscaled --cleanup 2>/dev/null
   killall tailscaled 2>/dev/null
 }
 EOF
