@@ -171,5 +171,5 @@ NOTIFY_EMERGENCY=1
 SERVERCHAN_KEY=""
 EOF
 
-echo "✅ 基础安装完成！请执行："
-echo "   /etc/tailscale/setup.sh [options]"
+echo "✅ 脚本包安装完成！请执行以下命令进行安装："
+echo "   /etc/tailscale/setup.sh"
