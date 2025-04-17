@@ -38,7 +38,7 @@ if [ -s "$TMP_VALID_MIRRORS" ]; then
     echo "✅ 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
 else
     # 所有镜像失败，发送通知
-    send_notify "MIRROR_FAIL" "镜像全失败" "请检查网络或手动配置代理"
+    send_notify "MIRROR_FAIL" "镜像全失效" "请手动配置代理"
     echo "❌ 所有镜像均失效"
     touch "$VALID_MIRRORS"  # 空文件表示直连备用
 fi
