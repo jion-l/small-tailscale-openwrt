@@ -99,21 +99,22 @@ send_notify() {
         fi
     }
 
-    # 仅在Server酱开关启用时发送通知
     if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
         # 使用 printf 来确保换行符被正确处理
         data="text=$title&desp=$(printf "%s\n%s" "$content" "$extra_content")"
         send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
     fi
 
-    # 仅在Bark开关启用时发送通知
     if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
         # 使用 printf 来确保换行符被正确处理
-        data="$(printf "%s\n%s" "$content" "$extra_content")"
-        send_via_curl_or_wget "https://api.day.app/$BARK_KEY/$title/$data" "$data" "GET" && echo "✅ Bark 通知已发送"
+        body=$(printf "%s\n%s" "$content" "$extra_content")
+        group="默认"  # 这里可以根据需要设置分组名称
+        copy="false"  # 是否启用复制功能，根据需要调整
+
+        data="body=$body&group=$group&copy=$copy"
+        send_via_curl_or_wget "$BARK_KEY" "$data" "POST" && echo "✅ Bark 通知已发送"
     fi
 
-    # 仅在ntfy开关启用时发送通知
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
         # 使用 printf 来确保换行符被正确处理
         data="$(printf "%s\n%s" "$content" "$extra_content")"

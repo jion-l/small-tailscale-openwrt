@@ -51,7 +51,7 @@ edit_key() {
 # 设置Bark的设备码
 edit_bark() {
     echo "请输入 Bark 设备码 (留空禁用):"
-    read -p "Bark设备码: " bark_key
+    read -p "Bark设备码 (格式: https://api.day.app/xxxxxxxxxxxx): " bark_key
     if grep -q "^BARK_KEY=" "$NTF_CONF"; then
         sed -i "s|^BARK_KEY=.*|BARK_KEY=\"$bark_key\"|" "$NTF_CONF"
     else

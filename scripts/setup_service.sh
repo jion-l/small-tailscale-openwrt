@@ -49,6 +49,9 @@ start_service() {
     procd_set_param logfile /var/log/tailscale.log
     procd_close_instance
 
+    # 本地模式自动更新逻辑
+    nohup "$CONFIG_DIR/autoupdate.sh" STARTUP=1 > /tmp/tailscale_update.log &
+
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️ 使用临时模式启动 Tailscale..."
 
@@ -66,20 +69,8 @@ start_service() {
         procd_set_param logfile /var/log/tailscale.log
         procd_close_instance
     else
-      if [ "$AUTO_UPDATE" = "true" ]; then
-          log_info "🔄 自动更新启用，安装 latest 版本"
-          /etc/tailscale/fetch_and_install.sh --mode="tmp" --version="latest" --mirror-list="$VALID_MIRRORS"
-      else
-          VERSION_FILE="$CONFIG_DIR/current_version"
-          if [ -f "$VERSION_FILE" ]; then
-              version=$(cat "$VERSION_FILE")
-              log_info "📦 安装固定版本: $version"
-              /etc/tailscale/fetch_and_install.sh --mode="tmp" --version="$version" --mirror-list="$VALID_MIRRORS"
-          else
-              log_error "❌ 无法读取已设定版本号 ($VERSION_FILE)"
-              exit 1
-          fi
-      fi
+      "$CONFIG_DIR/autoupdate.sh" STARTUP=1
+      
       if [ -x /tmp/tailscaled ]; then
         log_info "✅ 检测到文件已下载，直接启动 tailscaled..."
         procd_open_instance
