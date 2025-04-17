@@ -2,7 +2,7 @@
 
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-
+TIME_OUT=60
 echo "⚠️ 正在运行 opkg update, 请稍后..."
 opkg update > /dev/null 2>&1
 
@@ -48,13 +48,13 @@ webget() {
     if command -v curl >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
-        result=$(timeout 30 curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" $progress $redirect -ko "$1" "$2")
+        result=$(timeout $TIME_OUT curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" $progress $redirect -ko "$1" "$2")
         [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
     elif command -v wget >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
         [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
         local certificate='--no-check-certificate'
-        timeout 30 wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
+        timeout $TIME_OUT wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
         [ $? -eq 0 ] && result="200"
     else
         echo "Error: Neither curl nor wget available"
@@ -69,7 +69,7 @@ test_mirror() {
     local url_bin="${mirror}CH3NGYZ/ts-test/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/ts-test/releases/latest/download/$SUM_NAME"
 
-    echo "测试 $mirror, 最长需要30秒..."
+    echo "测试 $mirror, 最长需要 $TIME_OUT 秒..."
 
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
