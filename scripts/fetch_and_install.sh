@@ -12,12 +12,10 @@ get_arch() {
         x86_64) arch=amd64 ;;
         armv7l) arch=arm ;;
         aarch64|armv8l) arch=arm64 ;;
-        geode) arch=geode ;;
         mips) 
             arch=mips
             endianness=$(echo -n I | hexdump -o | awk '{ print (substr($2,6,1)=="1") ? "le" : "be"; exit }')
             ;;
-        riscv64) arch=riscv64 ;;
         *) 
             echo "不支持的架构: $arch_"
             exit 1
