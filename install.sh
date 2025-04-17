@@ -185,7 +185,4 @@ SERVERCHAN_KEY=""
 EOF
 
 echo "✅ 脚本包安装完成！请执行以下命令进行安装："
-echo "   /etc/tailscale/setup.sh"
-
-
-tailscale-helper
+echo "tailscale-helper"

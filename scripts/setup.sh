@@ -156,4 +156,5 @@ log_info "🛠️ 初始化服务..."
 log_info "⏰ 设置定时任务..."
 "$CONFIG_DIR/setup_cron.sh" --auto-update="$AUTO_UPDATE"
 
-tailscale-helper
+log_info "✅ Tailscale安装完成！您可以执行以下命令快捷操作："
+log_info "tailscale-helper"
