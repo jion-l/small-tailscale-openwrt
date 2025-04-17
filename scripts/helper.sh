@@ -79,6 +79,7 @@ handle_choice() {
 # 主循环
 while true; do
     show_menu
-    read -p "请输入你的选择: " choice
+    log_info "✅ 请输入你的选择"
+    read choice
     handle_choice "$choice"
 done
