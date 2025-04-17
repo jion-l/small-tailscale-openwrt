@@ -31,7 +31,7 @@ show_menu() {
     echo "5. 切换Bark通知开关         状态: $([ "$NOTIFY_BARK" = "1" ] && echo ✅ || echo ❌)"
     echo "6. 切换ntfy通知开关         状态: $([ "$NOTIFY_NTFY" = "1" ] && echo ✅ || echo ❌)"
     echo "7. 发送测试通知"
-    echo "8. 退出"
+    echo "0. 退出"
     echo "--------------------------------"
 }
 
@@ -120,8 +120,9 @@ show_config() {
 # 主菜单
 while :; do
     show_menu
-    read -p "请选择 [1-8]: " choice
+    read -p "请选择 [1-7]: " choice
     case $choice in
+        0) exit 0 ;;
         1) edit_key ;;
         2) edit_bark ;;
         3) edit_ntfy ;;
@@ -129,7 +130,6 @@ while :; do
         5) toggle_setting "NOTIFY_BARK" ;;
         6) toggle_setting "NOTIFY_NTFY" ;;
         7) test_notify ;;
-        8) exit 0 ;;
         *) echo "无效选择" ;;
     esac
 done
