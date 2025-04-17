@@ -163,6 +163,16 @@ tar -xzf "$SCRIPTS_PATH" -C "$CONFIG_DIR"
 # 设置权限
 chmod +x "$CONFIG_DIR"/*.sh
 
+# 创建helper的软连接
+ln -sf "$CONFIG_DIR/helper.sh" /usr/bin/tailscale-helper
+
+# 检查软链接是否创建成功
+if [ -L /usr/bin/tailscale-helper ]; then
+    echo "✅ 软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper, 您可以以后运行 tailscale-helper 来快捷操作"
+else
+    echo "❌ 创建软连接失败"
+fi
+
 # 初始化通知配置
 cat > "$CONFIG_DIR/notify.conf" <<'EOF'
 # 通知开关 (1=启用 0=禁用)
@@ -176,3 +186,6 @@ EOF
 
 echo "✅ 脚本包安装完成！请执行以下命令进行安装："
 echo "   /etc/tailscale/setup.sh"
+
+
+tailscale-helper
