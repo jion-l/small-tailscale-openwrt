@@ -23,14 +23,26 @@
 ```
 
 ## 🚀 快速安装
+### 1.先检测镜像可用性
 ```bash
-# 一键安装管理脚本
-mkdir -p /etc/tailscale && \
-curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/scripts/test_mirrors.sh | sh
+```
+或
+```bash
+wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/scripts/test_mirrors.sh | sh
 ```
 
+### 2.下载安装脚本包
 ```bash
-# 完成配置（本地安装+自动更新）
+wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+```
+或
+```bash
+curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+```
+### 3.开始安装
+```bash
+# （本地安装+自动更新）
 /etc/tailscale/setup.sh --auto-update
 ```
 

@@ -6,6 +6,7 @@ set -e
 . /etc/tailscale/common.sh
 
 CONFIG_DIR="/etc/tailscale"
+mkdir -p "$CONFIG_DIR"
 TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
@@ -20,7 +21,7 @@ test_mirror() {
     local tmp_out="/tmp/mirror_test.$$"
     
     log "Testing mirror: $mirror"
-    echo -n "测试 $mirror ... "
+    echo "测试 $mirror ... "
     
     local start=$(date +%s.%N)
     if webget "$tmp_out" "${mirror}${TEST_URL}" "echooff" && grep -q "test ok" "$tmp_out"; then
