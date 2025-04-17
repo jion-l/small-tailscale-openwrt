@@ -4,10 +4,9 @@ set -e
 # 加载共享库
 . /etc/tailscale/common.sh
 
-CONFIG_DIR="/etc/tailscale"
 [ ! -f "$CONFIG_DIR/auto_update_enabled" ] && exit 0
-safe_source "$CONFIG_DIR/install.conf"
-safe_source "$CONFIG_DIR/notify.conf"
+safe_source "$INST_CONF"
+safe_source "$NTF_CONF"
 
 # 修改通知发送部分
 send_update_notification() {

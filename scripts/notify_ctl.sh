@@ -1,7 +1,6 @@
 #!/bin/sh
 
-CONFIG_DIR="/etc/tailscale"
-CONFIG_FILE="$CONFIG_DIR/notify.conf"
+CONFIG_FILE="$NTF_CONF"
 
 show_menu() {
     clear

@@ -1,8 +1,7 @@
 #!/bin/sh
 set -e
 
-CONFIG_DIR="/etc/tailscale"
-safe_source "$CONFIG_DIR/notify.conf"
+safe_source "$NTF_CONF"
 
 
 # 清理旧记录

@@ -3,6 +3,8 @@
 
 CONFIG_DIR="/etc/tailscale"
 LOG_FILE="/var/log/tailscale_install.log"
+NTF_CONF="$CONFIG_DIR/notify.conf"
+INST_CONF="$CONFIG_DIR/install.conf"
 
 # 初始化日志系统
 init_log() {

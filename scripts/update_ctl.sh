@@ -1,7 +1,7 @@
 #!/bin/sh
 
 CONFIG_DIR="/etc/tailscale"
-safe_source "$CONFIG_DIR/install.conf"
+safe_source "$INST_CONF"
 
 case "$1" in
     on)

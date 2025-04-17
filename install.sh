@@ -2,8 +2,8 @@
 set -e
 
 CONFIG_DIR="/etc/tailscale"
-MIRROR_LIST_URL="https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
-SCRIPTS_TGZ_URL="https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
+MIRROR_LIST_URL="CH3NGYZ/ts-test/main/mirrors.txt"
+SCRIPTS_TGZ_URL="CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
 EXPECTED_CHECKSUM="预先计算的tar.gz包的SHA256校验和"
 
 webget() {

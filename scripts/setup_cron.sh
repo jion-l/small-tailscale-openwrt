@@ -2,7 +2,7 @@
 
 set -e
 
-CONFIG_DIR="/etc/tailscale"
+. /etc/tailscale/common.sh
 
 # 参数解析
 AUTO_UPDATE=false

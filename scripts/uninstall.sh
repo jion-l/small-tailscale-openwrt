@@ -2,6 +2,7 @@
 
 set -e
 
+. /etc/tailscale/common.sh
 CONFIG_DIR="/etc/tailscale"
 
 echo "🛑 开始卸载Tailscale..."

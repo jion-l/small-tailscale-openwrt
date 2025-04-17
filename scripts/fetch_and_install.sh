@@ -4,8 +4,7 @@ set -e
 # 加载共享库
 . /etc/tailscale/common.sh
 
-CONFIG_DIR="/etc/tailscale"
-safe_source "$CONFIG_DIR/install.conf"
+safe_source "$INST_CONF"
 
 # 架构映射
 get_arch() {

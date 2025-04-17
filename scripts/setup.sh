@@ -1,10 +1,10 @@
 #!/bin/sh
 
 set -e
-CONFIG_DIR="/etc/tailscale"
 
+. /etc/tailscale/common.sh
 # 加载配置
-safe_source "$CONFIG_DIR/install.conf"
+safe_source "$INST_CONF"
 
 # 参数解析
 MODE="local"
@@ -36,7 +36,7 @@ echo "⏰ 设置定时任务..."
 "$CONFIG_DIR/setup_cron.sh" --auto-update="$AUTO_UPDATE"
 
 # 保存配置
-cat > "$CONFIG_DIR/install.conf" <<EOF
+cat > "$INST_CONF" <<EOF
 MODE=$MODE
 AUTO_UPDATE=$AUTO_UPDATE
 VERSION=$VERSION

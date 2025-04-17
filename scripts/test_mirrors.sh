@@ -3,7 +3,7 @@
 set -e
 
 # 加载共享库
-. /etc/tailscale/common.sh
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
@@ -11,7 +11,6 @@ TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
-safe_source "$CONFIG_DIR/notify.conf"
 
 
 
@@ -20,7 +19,7 @@ test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
     local tmp_out="/tmp/mirror_test.$$"
     
-    log "Testing mirror: $mirror"
+    echo "Testing mirror: $mirror"
     echo "测试 $mirror ... "
     
     local start=$(date +%s.%N)
@@ -31,13 +30,13 @@ test_mirror() {
         echo "✅ ${latency}s (评分: $score)"
         echo "$(date +%s),$mirror,1,$latency,$score" >> "$SCORE_FILE"
         echo "$score $mirror" >> "$VALID_MIRRORS.tmp"
-        log "Mirror $mirror passed with latency ${latency}s, score $score"
+        echo "Mirror $mirror passed with latency ${latency}s, score $score"
         rm -f "$tmp_out"
         return 0
     else
         echo "❌ 失败"
         echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
-        log "Mirror $mirror failed"
+        echo "Mirror $mirror failed"
         rm -f "$tmp_out"
         return 1
     fi
