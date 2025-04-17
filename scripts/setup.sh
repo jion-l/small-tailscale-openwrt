@@ -11,9 +11,11 @@ safe_source "$INST_CONF" || log_error "⚠️ INST_CONF 未找到或无效，使
 MODE=""
 AUTO_UPDATE=""
 VERSION="latest"
+has_args=false  # 🔧 新增：标记是否传入了参数
 
 # 若有参数, 接受 --tmp为使用内存模式, --auto-update为自动更新
 while [ $# -gt 0 ]; do
+    has_args=true  # 🔧 有参数，关闭交互模式
     case "$1" in
         --tmp) MODE="tmp"; shift ;;
         --auto-update) AUTO_UPDATE=true; shift ;;
@@ -23,7 +25,7 @@ while [ $# -gt 0 ]; do
 done
 
 # 若无参数，进入交互模式
-if [ $# -eq 0 ]; then
+if [ "$has_args" = false ]; then
     log_info
     log_info "请选择安装模式："
     log_info "  1) 本地安装（默认）"
