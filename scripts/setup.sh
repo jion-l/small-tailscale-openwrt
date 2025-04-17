@@ -60,45 +60,36 @@ if [ "$has_args" = false ]; then
     if [ "$HTTP_CODE" -ne 200 ]; then
         log_error "❌ GitHub API 请求失败，状态码: $HTTP_CODE"
         log_info "🔧 无法获取可用版本号，将跳过版本校验"
-        TAGS=""
-    else
-        TAGS=$(jq -r '.[].tag_name' response.json)
-        rm -f response.json
-
-        log_info "🔧 可用的版本列表如下："
-        echo "$TAGS" | awk '{ print "  " $1 }' | while read line; do
-            log_info "$line"
-        done
-    fi
-
-    # 🧑‍💻 用户输入
-    log_info "请输入版本号 (留空使用 latest): "
-    read version_input
-    version_input="$(echo "$version_input" | xargs)"  # 去空格
-
-    if [[ -z "$version_input" ]]; then
         VERSION="latest"
-    elif [[ "$version_input" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        VERSION="v${version_input#v}"  # 确保是 v 开头
     else
-        log_error "❌ 无效的版本号格式: $version_input"
-        exit 1
-    fi
- 
-    if [[ "$VERSION" != "latest" ]]; then
-        log_info "🔧 使用指定版本: $VERSION"
-
-        TAGS=$(jq -r '.[].tag_name' response.json)
-
-        TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION" || true)  # <--- 防止 grep 没找到时退出
-
+        mapfile -t TAG_LIST < <(jq -r '.[].tag_name' response.json)
         rm -f response.json
 
-        if [ -z "$TAG_CHECK" ]; then
-            log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
-            exit 1
+        if [ ${#TAG_LIST[@]} -eq 0 ]; then
+            log_error "❌ 未找到任何版本标签"
+            VERSION="latest"
+        else
+            log_info "🔧 可用版本列表："
+            for i in "${!TAG_LIST[@]}"; do
+                printf "  [%d] %s\n" "$((i+1))" "${TAG_LIST[$i]}"
+            done
+
+            echo
+            read -p "请输入序号选择版本 (留空使用 latest): " index
+            index=$(echo "$index" | xargs)
+
+            if [[ -z "$index" ]]; then
+                VERSION="latest"
+            elif [[ "$index" =~ ^[0-9]+$ ]] && (( index >= 1 && index <= ${#TAG_LIST[@]} )); then
+                VERSION="${TAG_LIST[$((index-1))]}"
+                log_info "✅ 使用指定版本: $VERSION"
+            else
+                log_error "❌ 无效的选择：$index"
+                exit 1
+            fi
         fi
     fi
+
 fi
 
 # 兜底
