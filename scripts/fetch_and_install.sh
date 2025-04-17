@@ -1,7 +1,6 @@
 #!/bin/sh
 
 set -e
-# 加载共享库
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
 
 

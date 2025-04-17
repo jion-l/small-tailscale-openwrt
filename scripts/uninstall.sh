@@ -1,32 +1,35 @@
 #!/bin/sh
 
 set -e
-
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
-echo "🛑 开始卸载Tailscale..."
+log_info "🛑 开始卸载Tailscale..."
+
+# 停止并禁用 Tailscale 服务
 [ -f /etc/init.d/tailscale ] && {
     /etc/init.d/tailscale stop
     /etc/init.d/tailscale disable
     rm -f /etc/init.d/tailscale
 }
 
-echo "🗑️ 删除程序文件..."
-rm -f \
-    /usr/local/bin/tailscale \
-    /usr/local/bin/tailscaled \
-    /usr/bin/tailscale \
-    /usr/bin/tailscaled \
-    /tmp/tailscale \
-    /tmp/tailscaled
+log_info "🗑️ 删除所有相关文件..."
+# 删除所有可能的文件和目录
+rm -rf \
+    /etc/config/tailscale* \
+    /etc/init.d/tailscale* \
+    /usr/bin/tailscale* \
+    /usr/local/bin/tailscale* \
+    /tmp/tailscale* \
+    /tmp/tailscaled* \
+    /var/lib/tailscale*
 
-echo "🧹 清理定时任务..."
+# 删除 Tailscale 网络接口
+ip link delete tailscale0 2>/dev/null || true
+
+# 清理定时任务
+log_info "🧹 清理定时任务..."
 sed -i "\|$CONFIG_DIR/|d" /etc/crontabs/root
 /etc/init.d/cron restart
 
-echo "🔐 保留以下配置："
-echo "   - 镜像列表: $CONFIG_DIR/mirrors.txt"
-echo "   - 通知配置: $CONFIG_DIR/notify.conf"
-echo "   - 版本记录: $CONFIG_DIR/current_version"
-
-echo "🎉 卸载完成！如需完全清理，请手动删除 $CONFIG_DIR 目录"
+log_info "🎉 完全卸载完成！"
+log_info "    你可能需要使用 /etc/tailscale/setup.sh 重新安装."

@@ -1,7 +1,5 @@
 #!/bin/sh
 
-CONFIG_FILE="$NTF_CONF"
-
 show_menu() {
     clear
     echo "🛠️ 通知配置管理"
@@ -18,18 +16,18 @@ show_menu() {
 
 edit_key() {
     read -p "请输入Server酱SendKey (留空禁用): " key
-    sed -i "s|^SERVERCHAN_KEY=.*|SERVERCHAN_KEY=\"$key\"|" "$CONFIG_FILE"
+    sed -i "s|^SERVERCHAN_KEY=.*|SERVERCHAN_KEY=\"$key\"|" "$NTF_CONF"
 }
 
 toggle_setting() {
     local setting=$1
-    current=$(grep "^$setting=" "$CONFIG_FILE" | cut -d= -f2)
+    current=$(grep "^$setting=" "$NTF_CONF" | cut -d= -f2)
     new_value=$([ "$current" = "1" ] && echo "0" || echo "1")
-    sed -i "s|^$setting=.*|$setting=$new_value|" "$CONFIG_FILE"
+    sed -i "s|^$setting=.*|$setting=$new_value|" "$NTF_CONF"
 }
 
 test_notify() {
-    . "$CONFIG_FILE"
+    . "$NTF_CONF"
     [ -z "$SERVERCHAN_KEY" ] && {
         echo "❌ 未配置SendKey"
         return
@@ -43,7 +41,7 @@ test_notify() {
 show_config() {
     echo "当前通知配置:"
     echo "--------------------------------"
-    grep -v '^#' "$CONFIG_FILE" | while read -r line; do
+    grep -v '^#' "$NTF_CONF" | while read -r line; do
         name=${line%%=*}
         value=${line#*=}
         case "$name" in

@@ -5,16 +5,20 @@ CONFIG_DIR="/etc/tailscale"
 LOG_FILE="/var/log/tailscale_install.log"
 NTF_CONF="$CONFIG_DIR/notify.conf"
 INST_CONF="$CONFIG_DIR/install.conf"
+MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
+TEST_URL="https://github.com/CH3NGYZ/ts-test/raw/main/test_connection.txt"
+SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
+VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
+TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
+
 
 # 初始化日志系统
-init_log() {
-    mkdir -p "$(dirname "$LOG_FILE")"
-    [ ! -f "$LOG_FILE" ] && touch "$LOG_FILE"
+log_info() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔧 INFO: $1"
 }
 
-# 记录日志
-log() {
-    echo "[$(date '+%Y-%m-%d %T')] $1" >> "$LOG_FILE"
+log_error() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ❌ ERROR: $1"
 }
 
 # 安全加载配置文件

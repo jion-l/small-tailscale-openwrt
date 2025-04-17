@@ -1,18 +1,7 @@
 #!/bin/sh
 
 set -e
-
-# 加载共享函数
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
-
-CONFIG_DIR="/etc/tailscale"
-mkdir -p "$CONFIG_DIR"
-
-TEST_URL="https://github.com/CH3NGYZ/ts-test/raw/main/test_connection.txt"
-MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
-SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
-VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
-TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
 
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 

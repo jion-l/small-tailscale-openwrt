@@ -1,18 +1,8 @@
 #!/bin/sh
 
 set -e
-
-# 加载共享库
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
-# 定义日志输出函数
-log_info() {
-    echo "🔧 INFO: $1"
-}
-
-log_error() {
-    echo "❌ ERROR: $1"
-}
 
 # 如果没有 auto_update_enabled 文件，跳过更新
 [ ! -f "$CONFIG_DIR/auto_update_enabled" ] && exit 0
