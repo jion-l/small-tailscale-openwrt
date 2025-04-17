@@ -64,9 +64,7 @@ download_file() {
 verify_checksum() {
     local file=$1
     local expected=$2
-    
-    checksum="${expected//a/c}"
-    expected="$checksum"
+
 
     local actual=""
     if [ ${#expected} -eq 64 ]; then
