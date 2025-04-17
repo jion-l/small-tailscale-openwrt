@@ -10,7 +10,7 @@ TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
 TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
-
+. "$CONFIG_DIR/notify_ctl.sh"
 
 # 初始化日志系统
 log_info() {
@@ -67,20 +67,37 @@ webget() {
     [ "$result" = "200" ] && return 0 || return 1
 }
 
-# 发送通知
+# 发送通知的通用函数
 send_notify() {
-    [ -z "$SERVERCHAN_KEY" ] && return
-    local event_type="NOTIFY_$1"
-    eval "local notify_enabled=\$$event_type"
-    [ "$notify_enabled" = "1" ] || return
+    local title="$1"
+    local content="$2"
+    local extra_content="$3"
 
-    if command -v curl >/dev/null 2>&1; then
+    . "$NTF_CONF"  # 引入配置文件
+
+    # 仅在Server酱开关启用时发送通知
+    if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
         curl -sS "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" \
-            -d "text=Tailscale$2" \
-            -d "desp=$3\n时间: $(date '+%F %T')" > /dev/null
-    else
-        wget -qO- "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" \
-            --post-data="text=Tailscale$2&desp=$3\n时间: $(date '+%F %T')" > /dev/null
+            -d "text=$title" \
+            -d "desp=$content\n$extra_content"
+        echo "✅ Server酱 通知已发送"
     fi
-    log "Sent notification: $1 - $2"
+
+    # 仅在Bark开关启用时发送通知
+    if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
+        curl -sS "https://api.day.app/$BARK_KEY/$title/$content\n$extra_content"
+        echo "✅ Bark 通知已发送"
+    fi
+
+    # 仅在ntfy开关启用时发送通知
+    if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
+        curl -sS "https://ntfy.sh/$NTFY_KEY" \
+            -d "$title" \
+            -d "$content\n$extra_content"
+        echo "✅ NTFY 通知已发送"
+    fi
+
+    if [ "$NOTIFY_SERVERCHAN" != "1" ] && [ "$NOTIFY_BARK" != "1" ] && [ "$NOTIFY_NTFY" != "1" ]; then
+        echo "❌ 未启用任何通知方式"
+    fi
 }
