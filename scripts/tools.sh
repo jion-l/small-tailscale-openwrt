@@ -67,6 +67,7 @@ webget() {
 }
 
 # 发送通知的通用函数
+# 发送通知的通用函数
 send_notify() {
     local title="$1"
     local content="$2"
@@ -74,26 +75,49 @@ send_notify() {
 
     . "$NTF_CONF"  # 引入配置文件
 
+    # 检查是否有 curl 可用，如果没有则降级为 wget
+    send_via_curl_or_wget() {
+        local url="$1"
+        local data="$2"
+        local method="$3"
+
+        if command -v curl > /dev/null; then
+            if [ "$method" = "POST" ]; then
+                curl -sS -X POST "$url" -d "$data"
+            else
+                curl -sS "$url" -d "$data"
+            fi
+        elif command -v wget > /dev/null; then
+            if [ "$method" = "POST" ]; then
+                echo "$data" | wget --quiet --method=POST --body-file=- "$url"
+            else
+                wget --quiet --post-data="$data" "$url"
+            fi
+        else
+            echo "❌ curl 和 wget 都不可用，无法发送通知"
+            return 1
+        fi
+    }
+
     # 仅在Server酱开关启用时发送通知
     if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
-        curl -sS "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" \
-            -d "text=$title" \
-            -d "desp=$content\n$extra_content"
-        echo "✅ Server酱 通知已发送"
+        # 使用 printf 来确保换行符被正确处理
+        data="text=$title&desp=$(printf "%s\n%s" "$content" "$extra_content")"
+        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
     fi
 
     # 仅在Bark开关启用时发送通知
     if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
-        curl -sS "https://api.day.app/$BARK_KEY/$title/$content\n$extra_content"
-        echo "✅ Bark 通知已发送"
+        # 使用 printf 来确保换行符被正确处理
+        data="$(printf "%s\n%s" "$content" "$extra_content")"
+        send_via_curl_or_wget "https://api.day.app/$BARK_KEY/$title/$data" "$data" "GET" && echo "✅ Bark 通知已发送"
     fi
 
     # 仅在ntfy开关启用时发送通知
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
-        curl -sS "https://ntfy.sh/$NTFY_KEY" \
-            -H "Title: $title" \
-            -d "$content%5Cn%5Cn$extra_content"
-        echo "✅ NTFY 通知已发送"
+        # 使用 printf 来确保换行符被正确处理
+        data="$(printf "%s\n%s" "$content" "$extra_content")"
+        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$data" "POST" && echo "✅ NTFY 通知已发送"
     fi
 
     if [ "$NOTIFY_SERVERCHAN" != "1" ] && [ "$NOTIFY_BARK" != "1" ] && [ "$NOTIFY_NTFY" != "1" ]; then
