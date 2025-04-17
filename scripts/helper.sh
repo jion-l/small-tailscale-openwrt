@@ -6,7 +6,7 @@
 if [ -s "$VALID_MIRRORS" ]; then
     custom_proxy=$(head -n 1 "$VALID_MIRRORS")
 else
-    custom_proxy="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/"
+    custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
 fi
 
 
