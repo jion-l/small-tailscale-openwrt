@@ -12,18 +12,6 @@ SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
 safe_source "$CONFIG_DIR/notify.conf"
 
-# 发送通知
-send_notify() {
-    [ -z "$SERVERCHAN_KEY" ] && return
-    local event_type="NOTIFY_$1"
-    eval "local notify_enabled=\$$event_type"
-    [ "$notify_enabled" = "1" ] || return
-
-    curl -sS "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
-        -d "text=Tailscale$2" \
-        -d "desp=$3\n时间: $(date '+%F %T')" > /dev/null
-}
-
 
 
 # 修改测试函数

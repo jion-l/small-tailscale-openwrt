@@ -32,7 +32,7 @@ webget() {
     if command -v curl >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
-        result=$(curl -w %{http_code} --connect-timeout 10 $progress $redirect -ko "$1" "$2")
+        result=$(curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout 10 $progress $redirect -ko "$1" "$2")
         [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
     else
         if command -v wget >/dev/null 2>&1; then
@@ -40,7 +40,7 @@ webget() {
             [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
             local certificate='--no-check-certificate'
             local timeout='--timeout=10'
-            wget $progress $redirect $certificate $timeout -O "$1" "$2"
+            wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate $timeout -O "$1" "$2"
             [ $? -eq 0 ] && result="200"
         else
             log "Error: Neither curl nor wget available"
