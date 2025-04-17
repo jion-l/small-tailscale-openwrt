@@ -116,7 +116,12 @@ echo
 echo "🎉 安装完成！"
 echo "🔧 启动命令："
 echo "   tailscale up"
-
 echo
-echo "🔧 管理更新："
+echo "🔧 管理自动更新："
 echo "   /etc/tailscale/update_ctl.sh [on|off|status]"
+echo
+echo "🔧 管理server酱推送："
+echo "   /etc/tailscale/notify_ctl.sh"
+echo
+echo "🔧 管切换安装模式(重新安装)："
+echo "   /etc/tailscale/setup.sh"

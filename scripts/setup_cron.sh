@@ -33,10 +33,6 @@ log_info() {
 log_info "清除旧的定时任务配置..."
 sed -i "\|$CONFIG_DIR/|d" /etc/crontabs/root || { echo "❌ 清除旧配置失败"; exit 1; }
 
-# 添加镜像维护任务
-log_info "添加镜像维护任务..."
-echo "0 4 * * * $CONFIG_DIR/mirror_maintenance.sh" >> /etc/crontabs/root || { echo "❌ 添加镜像维护任务失败"; exit 1; }
-
 # 添加自动更新任务
 if [ "$AUTO_UPDATE" = "true" ]; then
     log_info "启用自动更新任务..."
