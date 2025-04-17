@@ -55,6 +55,28 @@ MODE=${MODE:-local}
 AUTO_UPDATE=${AUTO_UPDATE:-false}
 VERSION=${VERSION:-latest}
 
+# 停止服务之前，检查服务文件是否存在
+if [ -f /etc/init.d/tailscale ]; then
+    echo "停止 tailscaled 服务..."
+    /etc/init.d/tailscale stop || echo "❌ 停止 tailscaled 服务失败，继续清理残留文件"
+else
+    echo "⚠️ 未找到 tailscale 服务文件，跳过停止服务步骤"
+fi
+
+# 删除残留文件
+echo "清理残留文件..."
+if [ "$MODE" = "local" ]; then
+    # 删除本地安装的残留文件，不删除/etc/tailscale
+    rm -f /usr/local/bin/tailscale
+    rm -f /usr/local/bin/tailscaled
+fi
+
+if [ "$MODE" = "tmp" ]; then
+    # 删除/tmp中的残留文件
+    rm -f /tmp/tailscale
+    rm -f /tmp/tailscaled
+fi
+
 # 安装开始
 echo "🚀 开始安装 Tailscale..."
 "$CONFIG_DIR/fetch_and_install.sh" \
