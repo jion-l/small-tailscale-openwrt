@@ -103,6 +103,14 @@ MODE=${MODE:-local}
 AUTO_UPDATE=${AUTO_UPDATE:-false}
 VERSION=${VERSION:-latest}
 
+cat > "$INST_CONF" <<EOF
+# 安装配置记录
+MODE=$MODE
+AUTO_UPDATE=$AUTO_UPDATE
+VERSION=$VERSION
+TIMESTAMP=$(date +%s)
+EOF
+
 # 显示当前配置
 log_info
 log_info "🎯 当前安装配置："
@@ -151,13 +159,7 @@ log_info "⏰ 设置定时任务..."
 # 保存配置
 log_info "💾 保存配置文件..."
 mkdir -p "$(dirname "$INST_CONF")"
-cat > "$INST_CONF" <<EOF
-# 安装配置记录
-MODE=$MODE
-AUTO_UPDATE=$AUTO_UPDATE
-VERSION=$VERSION
-TIMESTAMP=$(date +%s)
-EOF
+
 
 # 安装完成
 log_info
