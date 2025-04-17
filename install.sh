@@ -1,18 +1,30 @@
 #!/bin/sh
-
 set -e
+
+# 加载共享库
+. /etc/tailscale/common.sh
+init_log
 
 CONFIG_DIR="/etc/tailscale"
 MIRROR_LIST_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
 SCRIPTS_TGZ_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
+EXPECTED_CHECKSUM="预先计算的tar.gz包的SHA256校验和"
 
 # 创建目录
 mkdir -p "$CONFIG_DIR"
 
 # 下载资源
-echo "📥 下载安装资源..."
-curl -sSL -o "/tmp/mirrors.txt" "$MIRROR_LIST_URL"
-curl -sSL -o "/tmp/tailscale-scripts.tar.gz" "$SCRIPTS_TGZ_URL"
+log "Downloading installation resources..."
+if ! webget "/tmp/mirrors.txt" "$MIRROR_LIST_URL" "echoon"; then
+    log "镜像列表下载失败"
+    exit 1
+fi
+
+if ! webget "/tmp/tailscale-scripts.tar.gz" "$SCRIPTS_TGZ_URL" "echoon"; then
+    log "脚本包下载失败"
+    exit 1
+fi
+
 /etc/tailscale/test_mirrors.sh
 # 解压脚本
 echo "📦 解压脚本包..."

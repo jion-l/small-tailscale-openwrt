@@ -4,7 +4,7 @@ set -e
 CONFIG_DIR="/etc/tailscale"
 
 # 加载配置
-[ -f "$CONFIG_DIR/install.conf" ] && . "$CONFIG_DIR/install.conf"
+safe_source "$CONFIG_DIR/install.conf"
 
 # 参数解析
 MODE="local"

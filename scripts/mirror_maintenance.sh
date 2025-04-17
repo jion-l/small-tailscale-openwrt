@@ -2,7 +2,7 @@
 set -e
 
 CONFIG_DIR="/etc/tailscale"
-[ -f "$CONFIG_DIR/notify.conf" ] && . "$CONFIG_DIR/notify.conf"
+safe_source "$CONFIG_DIR/notify.conf"
 
 # 发送通知
 send_notify() {

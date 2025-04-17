@@ -2,12 +2,15 @@
 
 set -e
 
+# 加载共享库
+. /etc/tailscale/common.sh
+
 CONFIG_DIR="/etc/tailscale"
 TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
-[ -f "$CONFIG_DIR/notify.conf" ] && . "$CONFIG_DIR/notify.conf"
+safe_source "$CONFIG_DIR/notify.conf"
 
 # 发送通知
 send_notify() {
@@ -21,23 +24,32 @@ send_notify() {
         -d "desp=$3\n时间: $(date '+%F %T')" > /dev/null
 }
 
-# 测试镜像
+
+
+# 修改测试函数
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
+    local tmp_out="/tmp/mirror_test.$$"
+    
+    log "Testing mirror: $mirror"
     echo -n "测试 $mirror ... "
     
     local start=$(date +%s.%N)
-    if curl -m 5 -fsSL "${mirror}${TEST_URL}" | grep -q "test ok"; then
+    if webget "$tmp_out" "${mirror}${TEST_URL}" "echooff" && grep -q "test ok" "$tmp_out"; then
         local end=$(date +%s.%N)
         local latency=$(printf "%.2f" $(echo "$end - $start" | bc))
         local score=$(echo "10 - $latency * 2" | bc | awk '{printf "%.1f", $0}')
         echo "✅ ${latency}s (评分: $score)"
         echo "$(date +%s),$mirror,1,$latency,$score" >> "$SCORE_FILE"
-        echo "$score $mirror"
+        echo "$score $mirror" >> "$VALID_MIRRORS.tmp"
+        log "Mirror $mirror passed with latency ${latency}s, score $score"
+        rm -f "$tmp_out"
         return 0
     else
         echo "❌ 失败"
         echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
+        log "Mirror $mirror failed"
+        rm -f "$tmp_out"
         return 1
     fi
 }

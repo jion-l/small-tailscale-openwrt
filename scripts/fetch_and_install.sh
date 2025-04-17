@@ -1,9 +1,11 @@
 #!/bin/sh
 
 set -e
+# 加载共享库
+. /etc/tailscale/common.sh
 
 CONFIG_DIR="/etc/tailscale"
-[ -f "$CONFIG_DIR/install.conf" ] && . "$CONFIG_DIR/install.conf"
+safe_source "$CONFIG_DIR/install.conf"
 
 # 架构映射
 get_arch() {
@@ -27,19 +29,26 @@ download_file() {
     local url=$1
     local output=$2
     local mirror_list=${3:-}
+    local checksum=${4:-}
 
     if [ -f "$mirror_list" ]; then
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
-            echo "尝试镜像: $mirror"
-            if curl -m 20 -fsSL "${mirror}${url}" -o "$output"; then
+            log "Trying mirror: $mirror"
+            if webget "$output" "${mirror}${url}" "echooff"; then
+                [ -n "$checksum" ] && verify_checksum "$output" "$checksum" || return 0
                 return 0
             fi
         done < "$mirror_list"
     fi
 
-    echo "尝试直连GitHub..."
-    curl -m 30 -fsSL "$url" -o "$output"
+    log "Trying direct connection..."
+    if webget "$output" "$url" "echooff"; then
+        [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
+        return 0
+    else
+        return 1
+    fi
 }
 
 # 主安装流程

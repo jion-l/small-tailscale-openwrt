@@ -1,22 +1,26 @@
 #!/bin/sh
-
 set -e
+
+# 加载共享库
+. /etc/tailscale/common.sh
 
 CONFIG_DIR="/etc/tailscale"
 [ ! -f "$CONFIG_DIR/auto_update_enabled" ] && exit 0
-[ -f "$CONFIG_DIR/install.conf" ] && . "$CONFIG_DIR/install.conf"
-[ -f "$CONFIG_DIR/notify.conf" ] && . "$CONFIG_DIR/notify.conf"
+safe_source "$CONFIG_DIR/install.conf"
+safe_source "$CONFIG_DIR/notify.conf"
 
-# 发送通知
-send_notify() {
-    [ -z "$SERVERCHAN_KEY" ] && return
-    local event_type="NOTIFY_$1"
-    eval "local notify_enabled=\$$event_type"
-    [ "$notify_enabled" = "1" ] || return
-
-    curl -sS "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
-        -d "text=Tailscale$2" \
-        -d "desp=$3\n时间: $(date '+%F %T')" > /dev/null
+# 修改通知发送部分
+send_update_notification() {
+    local title=$1
+    local message=$2
+    if command -v curl >/dev/null 2>&1; then
+        curl -sS "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
+            -d "text=Tailscale$title" \
+            -d "desp=$message\n时间: $(date '+%F %T')" > /dev/null
+    else
+        wget -qO- "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
+            --post-data="text=Tailscale$title&desp=$message\n时间: $(date '+%F %T')" > /dev/null
+    fi
 }
 
 # 获取当前版本
