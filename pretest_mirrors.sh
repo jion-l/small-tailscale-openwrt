@@ -3,7 +3,8 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
-opkg update
+echo "⚠️ 正在运行 opkg update, 请稍后..."
+opkg update > /dev/null 2>&1
 
 # 检查并安装包
 required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout"
