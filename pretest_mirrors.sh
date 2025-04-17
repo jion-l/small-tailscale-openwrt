@@ -2,7 +2,7 @@
 
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-TIME_OUT=10
+TIME_OUT=30
 echo "⚠️ 正在运行 opkg update, 请稍后..."
 opkg update > /dev/null 2>&1
 
