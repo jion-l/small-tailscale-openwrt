@@ -55,6 +55,12 @@ MODE=${MODE:-local}
 AUTO_UPDATE=${AUTO_UPDATE:-false}
 VERSION=${VERSION:-latest}
 
+echo
+echo "🎯 当前安装配置："
+echo "安装模式: $MODE"
+echo "启用自动更新: $AUTO_UPDATE"
+echo "版本: $VERSION"
+
 # 停止服务之前，检查服务文件是否存在
 if [ -f /etc/init.d/tailscale ]; then
     echo "停止 tailscaled 服务..."
