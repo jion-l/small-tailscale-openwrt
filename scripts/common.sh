@@ -17,6 +17,10 @@ log_info() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔧 INFO: $1"
 }
 
+log_warn() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔧 WARN: $1"
+}
+
 log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ❌ ERROR: $1"
 }
@@ -27,7 +31,7 @@ safe_source() {
     if [ -f "$file" ] && [ -s "$file" ]; then
         . "$file"
     else
-        echo "⚠️ 配置文件 $file 不存在或为空"
+        log_warn "⚠️ 配置文件 $file 不存在或为空"
     fi
 }
 

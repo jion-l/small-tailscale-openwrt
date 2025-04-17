@@ -5,7 +5,7 @@ set -e
 log_info "加载公共函数..."
 
 log_info "加载配置文件..."
-safe_source "$INST_CONF" || log_error "⚠️ INST_CONF 未找到或无效，使用默认配置"
+safe_source "$INST_CONF" || log_warn "⚠️ INST_CONF 未找到或无效，使用默认配置"
 
 # 默认值
 MODE=""
@@ -77,9 +77,9 @@ log_info
 # 停止服务之前，检查服务文件是否存在
 if [ -f /etc/init.d/tailscale ]; then
     log_info "🔴 停止 tailscaled 服务..."
-    /etc/init.d/tailscale stop 2>/dev/null || log_error "⚠️ 停止 tailscaled 服务失败，继续清理残留文件"
+    /etc/init.d/tailscale stop 2>/dev/null || log_warn "⚠️ 停止 tailscaled 服务失败，继续清理残留文件"
 else
-    log_error "⚠️ 未找到 tailscale 服务文件，跳过停止服务步骤"
+    log_warn "⚠️ 未找到 tailscale 服务文件，跳过停止服务步骤"
 fi
 
 # 清理残留文件

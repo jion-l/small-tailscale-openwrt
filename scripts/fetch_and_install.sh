@@ -72,7 +72,7 @@ verify_checksum() {
         log_info "✅ 校验通过"
         return 0
     else
-        log_warn "❌ 校验失败"
+        log_error "❌ 校验失败"
         return 1
     fi
 }
