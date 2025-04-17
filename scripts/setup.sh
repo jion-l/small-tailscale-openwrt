@@ -31,7 +31,7 @@ if [ "$has_args" = false ]; then
     log_info "  1) 本地安装（默认）"
     log_info "  2) 内存安装"
     log_info "  3) 退出"
-    printf "请输入选项 [1/2/3]: "
+    log_info "请输入选项 [1/2/3]: "
     read mode_input
 
     case "$mode_input" in
@@ -45,7 +45,7 @@ if [ "$has_args" = false ]; then
     log_info "  1) 是（默认）"
     log_info "  2) 否"
     log_info "  3) 退出"
-    printf "请输入选项 [1/2/3]: "
+    log_info "请输入选项 [1/2/3]: "
     read update_input
 
     case "$update_input" in
@@ -55,7 +55,7 @@ if [ "$has_args" = false ]; then
     esac
 
     log_info
-    printf "安装什么版本？(回车默认为最新,可输入纯数字具体版本号,例如:1.80.3): "
+    log_info "安装什么版本？(回车默认为最新,可输入纯数字具体版本号,例如:1.80.3): "
     read version_input
     version_input="$(echo "$version_input" | xargs)"  # 去空格
     if [[ "$version_input" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
