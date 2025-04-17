@@ -3,6 +3,11 @@
 set -e
 . /etc/tailscale/tools.sh || { log_error "❌ 加载 tools.sh 失败"; exit 1; }
 log_info "加载公共函数..."
+# 加在 setup.sh 最上方（在加载 tools.sh 之后）
+if [ "$MODE" = "tmp" ] && [ -f /tmp/.tailscale_tmp_installed ]; then
+    log_info "⚠️ Tailscale 已安装，跳过 setup.sh 重复调用"
+    exit 0
+fi
 
 log_info "加载配置文件..."
 safe_source "$INST_CONF" || log_warn "⚠️ INST_CONF 未找到或无效，使用默认配置"
@@ -147,6 +152,10 @@ log_info "🚀 开始安装 Tailscale..."
     --mode="$MODE" \
     --version="$VERSION" \
     --mirror-list="$VALID_MIRRORS"
+
+if [ "$MODE" = "tmp" ]; then
+    touch /tmp/.tailscale_tmp_installed
+fi
 
 # 初始化服务
 log_info "🛠️ 初始化服务..."

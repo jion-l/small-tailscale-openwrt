@@ -27,6 +27,13 @@ STOP=1
 start_service() {
   # 确保已经加载了 INST_CONF 和其中的 MODE
   [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
+  
+  # 加在 start_service 的开始
+  if [ "$MODE" = "tmp" ] && [ -f /tmp/.tailscale_tmp_installed ]; then
+    log_info "⚠️ 检测到 tailscale 已经通过 setup.sh 启动，跳过重复调用"
+    return 0
+  fi
+
   log_info "🛠️ 加载服务启动配置..."
   safe_source "$INST_CONF"
 
@@ -69,20 +76,18 @@ start_service() {
 
     if [ "$AUTO_UPDATE" = "true" ]; then
         log_info "🔄 自动更新启用，安装 latest 版本"
-        /etc/tailscale/setup.sh --tmp --auto-update > /tmp/tailscale_boot.log
+        /etc/tailscale/setup.sh --tmp --auto-update
     else
         VERSION_FILE="$CONFIG_DIR/current_version"
         if [ -f "$VERSION_FILE" ]; then
             version=$(cat "$VERSION_FILE")
             log_info "📦 安装固定版本: $version"
-            /etc/tailscale/setup.sh --tmp --version="$version" > /tmp/tailscale_boot.log
+            /etc/tailscale/setup.sh --tmp --version="$version"
         else
             log_error "❌ 无法读取已设定版本号 ($VERSION_FILE)"
             exit 1
         fi
     fi
-
-
     log_info "🛠️ 临时模式已启动，日志文件：/tmp/tailscale_boot.log"
   else
     log_error "❌ 错误：未知模式 $MODE"
@@ -95,12 +100,12 @@ stop_service() {
   log_info "🛑 停止服务..."
   # 确保正确停止 tailscaled
   if [ -x "/usr/local/bin/tailscaled" ]; then
-    /usr/local/bin/tailscaled --cleanup 2>/dev/null || log_warn "⚠️ 清理失败: /usr/local/bin/tailscaled"
+    /usr/local/bin/tailscaled --cleanup || log_warn "⚠️ 清理失败: /usr/local/bin/tailscaled"
   fi
   if [ -x "/tmp/tailscaled" ]; then
-    /tmp/tailscaled --cleanup 2>/dev/null || log_warn "⚠️ 清理失败: /tmp/tailscaled"
+    /tmp/tailscaled --cleanup || log_warn "⚠️ 清理失败: /tmp/tailscaled"
   fi
-  killall tailscaled 2>/dev/null || log_warn "⚠️ 未能停止 tailscaled 服务"
+  killall tailscaled || log_warn "⚠️ 未能停止 tailscaled 服务"
 }
 EOF
 
@@ -114,7 +119,7 @@ log_info "🛠️ 启用 Tailscale 服务..."
 
 # 启动服务并不显示任何状态输出
 log_info "🛠️ 启动服务..."
-/etc/init.d/tailscale start > /dev/null 2>&1 || { log_error "❌ 重启服务失败" > /dev/null 2>&1; }
+/etc/init.d/tailscale start  || { log_error "❌ 重启服务失败" > /dev/null 2>&1; }
 
 # 完成
 log_info "🎉 Tailscale 服务已启动!"
