@@ -49,9 +49,21 @@ start_service() {
     procd_close_instance
 
   elif [ "$MODE" = "tmp" ]; then
-    # 临时模式的启动逻辑
     log_info "🛠️ 使用临时模式启动 Tailscale..."
-    /etc/tailscale/setup.sh --tmp --auto-update > /tmp/tailscale_boot.log 2>&1 &
+    if [ "$AUTO_UPDATE" = "true" ]; then
+        log_info "🔄 自动更新启用，安装 latest 版本"
+        /etc/tailscale/setup.sh --tmp --auto-update > /tmp/tailscale_boot.log
+    else
+        VERSION_FILE="$CONFIG_DIR/current_version"
+        if [ -f "$VERSION_FILE" ]; then
+            version=$(cat "$VERSION_FILE")
+            log_info "📦 安装固定版本: $version"
+            /etc/tailscale/setup.sh --tmp --version="$version" > /tmp/tailscale_boot.log
+        else
+            log_error "❌ 无法读取已设定版本号 ($VERSION_FILE)"
+            exit 1
+        fi
+    fi
     log_info "🛠️ 临时模式已启动，日志文件：/tmp/tailscale_boot.log"
   else
     log_error "❌ 错误：未知模式 $MODE"

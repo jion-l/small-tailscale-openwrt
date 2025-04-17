@@ -12,6 +12,16 @@ MODE=""
 AUTO_UPDATE=""
 VERSION="latest"
 
+# 若有参数, 接受 --tmp为使用内存模式, --auto-update为自动更新
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --tmp) MODE="tmp"; shift ;;
+        --auto-update) AUTO_UPDATE=true; shift ;;
+        --version=*) VERSION="${1#*=}"; shift ;;
+        *) log_error "未知参数: $1"; exit 1 ;;
+    esac
+done
+
 # 若无参数，进入交互模式
 if [ $# -eq 0 ]; then
     log_info
