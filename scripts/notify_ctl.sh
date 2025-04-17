@@ -33,7 +33,7 @@ test_notify() {
         echo "❌ 未配置SendKey"
         return
     }
-    curl -sS "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
+    curl -sS "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" \
         -d "text=Tailscale测试通知" \
         -d "desp=这是测试消息\n时间: $(date '+%F %T')"
     echo "✅ 测试通知已发送"

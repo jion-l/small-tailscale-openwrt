@@ -71,11 +71,11 @@ send_notify() {
     [ "$notify_enabled" = "1" ] || return
 
     if command -v curl >/dev/null 2>&1; then
-        curl -sS "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
+        curl -sS "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" \
             -d "text=Tailscale$2" \
             -d "desp=$3\n时间: $(date '+%F %T')" > /dev/null
     else
-        wget -qO- "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
+        wget -qO- "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" \
             --post-data="text=Tailscale$2&desp=$3\n时间: $(date '+%F %T')" > /dev/null
     fi
     log "Sent notification: $1 - $2"
