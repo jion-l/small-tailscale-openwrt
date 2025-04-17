@@ -118,7 +118,7 @@ echo "🔧 启动命令："
 echo "   tailscale up"
 echo
 echo "🔧 管理自动更新："
-echo "   /etc/tailscale/update_ctl.sh [on|off|status]"
+echo "   /etc/tailscale/update_ctl.sh"
 echo
 echo "🔧 自动排序可用镜像代理："
 echo "   /etc/tailscale/test_mirrors.sh"
