@@ -67,7 +67,6 @@ webget() {
 }
 
 # 发送通知的通用函数
-# 发送通知的通用函数
 send_notify() {
     local title="$1"
     local content="$2"
@@ -80,18 +79,19 @@ send_notify() {
         local url="$1"
         local data="$2"
         local method="$3"
+        local headers="$4"
 
         if command -v curl > /dev/null; then
             if [ "$method" = "POST" ]; then
-                curl -sS -X POST "$url" -d "$data"
+                curl -sS -X POST "$url" -d "$data" -H "$headers"
             else
-                curl -sS "$url" -d "$data"
+                curl -sS "$url" -d "$data" -H "$headers"
             fi
         elif command -v wget > /dev/null; then
             if [ "$method" = "POST" ]; then
-                echo "$data" | wget --quiet --method=POST --body-file=- "$url"
+                echo "$data" | wget --quiet --method=POST --body-file=- --header="$headers" "$url"
             else
-                wget --quiet --post-data="$data" "$url"
+                wget --quiet --post-data="$data" --header="$headers" "$url"
             fi
         else
             echo "❌ curl 和 wget 都不可用，无法发送通知"
@@ -117,10 +117,12 @@ send_notify() {
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
         # 使用 printf 来确保换行符被正确处理
         data="$(printf "%s\n%s" "$content" "$extra_content")"
-        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$data" "POST" && echo "✅ NTFY 通知已发送"
+        headers="Title: $title"
+        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$data" "POST" "$headers" && echo "✅ NTFY 通知已发送"
     fi
 
     if [ "$NOTIFY_SERVERCHAN" != "1" ] && [ "$NOTIFY_BARK" != "1" ] && [ "$NOTIFY_NTFY" != "1" ]; then
         echo "❌ 未启用任何通知方式"
     fi
 }
+
