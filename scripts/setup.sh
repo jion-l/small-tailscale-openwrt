@@ -72,7 +72,6 @@ if [ "$has_args" = false ]; then
     fi
 
     # 🧑‍💻 用户输入
-    log_info
     log_info "请输入版本号 (留空使用 latest): "
     read version_input
     version_input="$(echo "$version_input" | xargs)"  # 去空格
