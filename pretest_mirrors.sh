@@ -126,6 +126,7 @@ manual_fallback() {
 }
 
 # 下载镜像列表
+echo "🛠️ 正在下载镜像列表, 请耐心等待..."
 if webget "$MIRROR_LIST" "$MIRROR_FILE_URL" "echooff"; then
     echo "✅ 已更新镜像列表"
 else
