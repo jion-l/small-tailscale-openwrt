@@ -63,7 +63,7 @@ if [ "$has_args" = false ]; then
         VERSION="latest"
     else
         TAGS_TMP="/tmp/.tags.$$"
-        jq -r '.[].tag_name' response.json > "$TAGS_TMP"
+        grep '"tag_name":' response.json | sed -E 's/.*"tag_name": *"([^"]+)".*/\1/' > "$TAGS_TMP"
         rm -f response.json
 
         if [ ! -s "$TAGS_TMP" ]; then
