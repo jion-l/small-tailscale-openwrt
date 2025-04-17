@@ -67,7 +67,7 @@ if [ "$has_args" = false ]; then
         echo "无效的版本号格式: $version_input"
         exit 1
     fi
-
+ 
     if [[ "$VERSION" != "latest" ]]; then
         echo "使用指定版本: $VERSION"
 
