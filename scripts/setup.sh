@@ -57,8 +57,13 @@ if [ "$has_args" = false ]; then
     log_info
     printf "安装什么版本？(回车默认为最新,可输入纯数字具体版本号,例如:1.80.3): "
     read version_input
-    VERSION="$(echo "v$version_input" | xargs)"  # 去除空格
-    [ -z "$VERSION" ] && VERSION="latest"
+    version_input="$(echo "$version_input" | xargs)"  # 去空格
+    if [[ "$version_input" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        VERSION="v${version_input#v}"  # 确保是 v 开头
+    else
+        VERSION="latest"
+    fi
+
 
     # 如果是交互模式输入了版本号
     if echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
