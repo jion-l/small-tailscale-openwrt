@@ -8,7 +8,7 @@ set -e
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
 MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/main/mirrors.txt"
-TEST_URL="https://github.com/CH3NGYZ/ts-test/raw/main/test_connection.txt"
+TEST_URL="CH3NGYZ/ts-test/raw/main/test_connection.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
