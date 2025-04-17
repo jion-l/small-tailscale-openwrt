@@ -163,22 +163,27 @@ log_info "🎉 安装完成！"
 log_info "🔧 启动命令："
 log_info "   tailscale up"
 log_info
-log_info "🔧 管理自动更新："
+log_info "🔧 管理Tailscale自动更新："
 log_info "   /etc/tailscale/update_ctl.sh"
 log_info
-log_info "🔧 查看当前最新版本："
+log_info "🔧 查看Tailscal当前最新版本："
 log_info "   /etc/tailscale/fetch_and_install.sh --dry-run"
 log_info
-log_info "🔧 自动排序可用镜像代理："
-log_info "   /etc/tailscale/test_mirrors.sh"
-log_info
-log_info "🔧 管理server酱推送："
+log_info "🔧 管理推送："
 log_info "   /etc/tailscale/notify_ctl.sh"
 log_info
 log_info "🔧 切换安装模式(重新安装)："
 log_info "   /etc/tailscale/setup.sh"
 log_info
-log_info "🔧 拉取最新镜像地址："
+log_info "🔧 自动检测并排序mirrors.txt："
+log_info "   /etc/tailscale/test_mirrors.sh"
+log_info
+log_info "🔧 拉取最新mirrors.txt："
 log_info "   curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh"
 log_info "   或"
 log_info "   wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh"
+log_info
+log_info "🔧 拉取最新脚本包："
+log_info "   curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh"
+log_info "   或"
+log_info "   wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh"
