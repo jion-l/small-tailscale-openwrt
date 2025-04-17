@@ -17,10 +17,10 @@ log_info "🗑️ 删除所有相关文件..."
 rm -rf \
     /etc/config/tailscale* \
     /etc/init.d/tailscale* \
-    /usr/bin/tailscale* \
+    /usr/bin/tailscale \
+    /usr/bin/tailscaled \
     /usr/local/bin/tailscale* \
-    /tmp/tailscale* \
-    /tmp/tailscaled* \
+    /tmp/tailscaled \
     /var/lib/tailscale*
 
 # 删除 Tailscale 网络接口
