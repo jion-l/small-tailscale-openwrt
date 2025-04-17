@@ -19,8 +19,14 @@ log() {
 
 # 安全加载配置文件
 safe_source() {
-    [ -f "$1" ] && . "$1"
+    local file="$1"
+    if [ -f "$file" ] && [ -s "$file" ]; then
+        . "$file"
+    else
+        echo "⚠️ 配置文件 $file 不存在或为空"
+    fi
 }
+
 
 # 通用下载函数 (兼容curl/wget)
 webget() {

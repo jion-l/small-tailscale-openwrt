@@ -2,7 +2,7 @@
 
 set -e
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
-
+echo "📥 已进入 setup_service.sh"
 # 参数解析
 MODE="local"
 while [ $# -gt 0 ]; do
