@@ -45,7 +45,7 @@ fi
 log_info "发现新版本: $current -> $latest"
 log_info "正在执行更新..."
 
-if "$CONFIG_DIR/fetch_and_install.sh" --version="$latest" --mode="$MODE" --mirror-list="$CONFIG_DIR/valid_mirrors.txt"; then
+if "$CONFIG_DIR/fetch_and_install.sh" --version="$latest" --mode="$MODE" --mirror-list="$VALID_MIRRORS"; then
     log_info "自动更新成功，正在重启 Tailscale..."
     /etc/init.d/tailscale restart
     send_notify "UPDATE" "更新成功" "✅ 从 $current 升级到 $latest"

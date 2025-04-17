@@ -146,7 +146,7 @@ log_info "🚀 开始安装 Tailscale..."
 "$CONFIG_DIR/fetch_and_install.sh" \
     --mode="$MODE" \
     --version="$VERSION" \
-    --mirror-list="$CONFIG_DIR/valid_mirrors.txt"
+    --mirror-list="$VALID_MIRRORS"
 
 # 初始化服务
 log_info "🛠️ 初始化服务..."

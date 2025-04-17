@@ -75,7 +75,7 @@ start_service() {
         if [ -f "$VERSION_FILE" ]; then
             version=$(cat "$VERSION_FILE")
             log_info "📦 安装固定版本: $version"
-            /etc/tailscale/setup.sh --tmp --version="$version" > /tmp/tailscale_boot.log
+            /etc/tailscale/setup.sh --tmp --version="$version"  > /tmp/tailscale_boot.log
         else
             log_error "❌ 无法读取已设定版本号 ($VERSION_FILE)"
             exit 1
