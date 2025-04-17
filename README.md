@@ -25,11 +25,11 @@
 ## 🚀 快速安装
 ### 1.先检测镜像可用性
 ```bash
-wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/scripts/test_mirrors.sh | sh
+wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh | sh
 ```
 或
 ```bash
-curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/scripts/test_mirrors.sh | sh
+curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh | sh
 ```
 
 ### 2.下载安装脚本包
