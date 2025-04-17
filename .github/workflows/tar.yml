@@ -16,20 +16,24 @@ jobs:
       - name: Checkout current repo
         uses: actions/checkout@v4
 
-      - name: Check Out Repository
-        uses: actions/checkout@v2
-        
-      - name: Create tarball
+      - name: Create tarball and checksums
         run: |
           mkdir -p package
           cp scripts/* package/
           tar -czvf tailscale-openwrt-scripts.tar.gz -C package .
-          
+
+          # 生成 SHA256 和 MD5 文件
+          SHA256=$(sha256sum tailscale-openwrt-scripts.tar.gz | awk '{print $1}')
+          MD5=$(md5sum tailscale-openwrt-scripts.tar.gz | awk '{print $1}')
+
+          # 替换 install.sh 中的 SHA256 和 MD5 校验值
+          sed -i "s|EXPECTED_CHECKSUM_SHA256=.*|EXPECTED_CHECKSUM_SHA256=\"$SHA256\"|" scripts/install.sh
+          sed -i "s|EXPECTED_CHECKSUM_MD5=.*|EXPECTED_CHECKSUM_MD5=\"$MD5\"|" scripts/install.sh
+
       - name: Copy tarball to openwrt repo
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "GitHub Actions"
-          git add tailscale-openwrt-scripts.tar.gz
+          git add tailscale-openwrt-scripts.tar.gz scripts/install.sh
           git commit -m "$(date -u +'%Y-%m-%d %H:%M:%S' -d '+8 hours')"
           git push origin HEAD:main
-
