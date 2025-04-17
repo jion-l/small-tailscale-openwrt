@@ -1,6 +1,7 @@
 name: Auto Package Tailscale Scripts
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "scripts/*"
