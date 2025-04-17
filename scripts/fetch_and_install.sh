@@ -96,8 +96,10 @@ install_tailscale() {
 
     # 下载校验文件
     download_file "${download_base}SHA256SUMS.txt" "$sha_file" "$mirror_list" || log_warn "⚠️ 无法获取 SHA256 校验文件"
+    cat "${download_base}SHA256SUMS.txt"
     download_file "${download_base}MD5SUMS.txt" "$md5_file" "$mirror_list" || log_warn "⚠️ 无法获取 MD5 校验文件"
-
+    cat "${download_base}MD5SUMS.txt"
+    
     sha256=""
     md5=""
     [ -s "$sha_file" ] && sha256=$(get_checksum "$sha_file" "$pkg_name")
