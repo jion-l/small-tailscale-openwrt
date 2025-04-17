@@ -6,8 +6,8 @@ MIRROR_LIST_URL="CH3NGYZ/ts-test/main/mirrors.txt"
 SCRIPTS_TGZ_URL="CH3NGYZ/ts-test/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 
 # 预先计算的校验和
-EXPECTED_CHECKSUM_SHA256="072e3f75206e88b80d5b0a3d445132e3d6d5e09c27a17446fbbb10850332ef46"
-EXPECTED_CHECKSUM_MD5="9b0e54a347da690e069e93f7413a929d"
+EXPECTED_CHECKSUM_SHA256="715f51b3d634c84d85b222ef5503420eaea6ceb054518aaeef8c8baab2a0f694"
+EXPECTED_CHECKSUM_MD5="11db404cf907728905a094e5dd1012fa"
 
 # 校验函数，接收三个参数：文件路径、校验类型（sha256/md5）、预期值
 verify_checksum() {
