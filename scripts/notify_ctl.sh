@@ -3,6 +3,7 @@
 
 # 如果配置文件不存在，初始化
 if [ ! -f "$NTF_CONF" ]; then
+    echo "⚠️ 未找到通知配置文件, 新建一个"
     mkdir -p "$(dirname "$NTF_CONF")"
     cat > "$NTF_CONF" <<EOF
 # 通知配置文件
