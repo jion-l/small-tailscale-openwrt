@@ -71,6 +71,10 @@ if [ "$has_args" = false ]; then
             log_info "🔧 跳过版本号检查，继续安装"
         else
             TAGS=$(jq -r '.[].tag_name' response.json)
+            echo "VERSION: $VERSION"
+            echo "HTTP_CODE: $HTTP_CODE"
+            echo "TAGS:"
+            echo "$TAGS"
             TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION")
             if [ -z "$TAG_CHECK" ]; then
                 log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
@@ -79,7 +83,6 @@ if [ "$has_args" = false ]; then
                 exit 1
             fi
         fi
-
     else
         log_info "🔍 输入的版本号不符合预期格式，请重新输入。"
         exit 1
