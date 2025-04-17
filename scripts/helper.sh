@@ -65,16 +65,16 @@ handle_choice() {
             ;;
         7)
             if [ "$download_tool" = "curl" ]; then
-                curl -o /tmp/pretest_mirrors.sh -L "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                curl -o /tmp/pretest_mirrors.sh -L "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
-                wget -O /tmp/pretest_mirrors.sh "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                wget -O /tmp/pretest_mirrors.sh "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
             ;;
         8)
             if [ "$download_tool" = "curl" ]; then
-                curl -sSL "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh" | sh
+                curl -sSL "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
             else
-                wget -O- "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh" | sh
+                wget -O- "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
             fi
             ;;
         9)
