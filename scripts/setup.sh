@@ -55,9 +55,9 @@ if [ "$has_args" = false ]; then
     esac
 
     log_info
-    printf "是否安装最新版本？(回车默认最新，或输入具体版本号): "
+    printf "是否安装最新版本？(回车默认最新，或输入纯数字具体版本号): "
     read version_input
-    VERSION="$(echo "$version_input" | xargs)"  # 去除空格
+    VERSION="$(echo "v$version_input" | xargs)"  # 去除空格
     [ -z "$VERSION" ] && VERSION="latest"
 fi
 
