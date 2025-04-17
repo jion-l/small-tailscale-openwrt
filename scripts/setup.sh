@@ -2,7 +2,12 @@
 
 set -e
 
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
+echo "加载公共函数..."
+. /etc/tailscale/common.sh || { echo "❌ 加载 common.sh 失败"; exit 1; }
+
+echo "加载配置文件..."
+safe_source "$INST_CONF" || echo "⚠️ INST_CONF 未找到或无效，使用默认配置"
+
 
 # 参数解析
 MODE="local"
