@@ -66,5 +66,5 @@ EOF
 chmod +x /etc/init.d/tailscale
 /etc/init.d/tailscale enable
 
-# 启动服务
-/etc/init.d/tailscale restart || /etc/init.d/tailscale start
+# 启动服务并不显示任何状态输出
+/etc/init.d/tailscale restart > /dev/null 2>&1 || /etc/init.d/tailscale start > /dev/null 2>&1
