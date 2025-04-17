@@ -3,8 +3,6 @@
 set -e
 # 加载共享库
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
-echo "📥 已进入 fetch_and_install.sh"
-
 
 
 # 架构映射
@@ -34,7 +32,7 @@ download_file() {
     if [ -f "$mirror_list" ]; then
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
-            log "Trying mirror: $mirror"
+            echo "Trying mirror: $mirror"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 [ -n "$checksum" ] && verify_checksum "$output" "$checksum" || return 0
                 return 0
@@ -42,7 +40,7 @@ download_file() {
         done < "$mirror_list"
     fi
 
-    log "Trying direct connection..."
+    echo "Trying direct connection..."
     if webget "$output" "$url" "echooff"; then
         [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
         return 0
@@ -111,14 +109,14 @@ if [ "$VERSION" = "latest" ]; then
         echo "❌ 获取最新版本失败"
         exit 1
     }
-    echo "最新版本: $VERSION"
 fi
 
-# 干跑模式
+# 干跑模式（只输出版本号）
 if [ "$DRY_RUN" = "true" ]; then
     echo "$VERSION"
     exit 0
 fi
+
 
 # 执行安装
 install_tailscale "$VERSION" "$MODE" "$MIRROR_LIST"
