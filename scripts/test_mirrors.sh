@@ -2,7 +2,11 @@
 
 set -e
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
-
+MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
+TEST_URL="https://github.com/CH3NGYZ/ts-test/raw/main/test_connection.txt"
+SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
+VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
+TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 
 # 镜像测试函数（同之前）
