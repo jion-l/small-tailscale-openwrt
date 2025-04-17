@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
 
-# 加载共享库
-. /etc/tailscale/common.sh
-init_log
-
 CONFIG_DIR="/etc/tailscale"
 MIRROR_LIST_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
 SCRIPTS_TGZ_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
@@ -20,7 +16,7 @@ if ! webget "/tmp/mirrors.txt" "$MIRROR_LIST_URL" "echoon"; then
     exit 1
 fi
 
-if ! webget "/tmp/tailscale-scripts.tar.gz" "$SCRIPTS_TGZ_URL" "echoon"; then
+if ! webget "/tmp/tailscale-openwrt-scripts.tar.gz" "$SCRIPTS_TGZ_URL" "echoon"; then
     log "脚本包下载失败"
     exit 1
 fi
@@ -28,7 +24,7 @@ fi
 /etc/tailscale/test_mirrors.sh
 # 解压脚本
 echo "📦 解压脚本包..."
-tar -xzf "/tmp/tailscale-scripts.tar.gz" -C "$CONFIG_DIR"
+tar -xzf "/tmp/tailscale-openwrt-scripts.tar.gz" -C "$CONFIG_DIR"
 mv "/tmp/mirrors.txt" "$CONFIG_DIR/mirrors.txt"
 
 # 设置权限
