@@ -8,19 +8,6 @@ set -e
 safe_source "$INST_CONF"
 safe_source "$NTF_CONF"
 
-# 修改通知发送部分
-send_update_notification() {
-    local title=$1
-    local message=$2
-    if command -v curl >/dev/null 2>&1; then
-        curl -sS "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
-            -d "text=Tailscale$title" \
-            -d "desp=$message\n时间: $(date '+%F %T')" > /dev/null
-    else
-        wget -qO- "https://sct.ftqq.com/$SERVERCHAN_KEY.send" \
-            --post-data="text=Tailscale$title&desp=$message\n时间: $(date '+%F %T')" > /dev/null
-    fi
-}
 
 # 获取当前版本
 current=$(cat "$CONFIG_DIR/current_version" 2>/dev/null || echo "unknown")

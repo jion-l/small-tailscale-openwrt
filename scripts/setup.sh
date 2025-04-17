@@ -44,6 +44,8 @@ TIMESTAMP=$(date +%s)
 EOF
 
 echo "🎉 安装完成！"
-echo "🔧 管理命令："
-echo "   /etc/init.d/tailscale [start|stop|restart]"
+echo "🔧 启动命令："
+echo "   tailscale up"
+
+echo "🔧 管理更新："
 echo "   /etc/tailscale/update_ctl.sh [on|off|status]"

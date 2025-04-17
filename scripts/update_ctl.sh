@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CONFIG_DIR="/etc/tailscale"
+. /etc/tailscale/common.sh
 safe_source "$INST_CONF"
 
 case "$1" in

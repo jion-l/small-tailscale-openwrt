@@ -51,7 +51,7 @@ manual_fallback() {
         read -p "请选择: " choice
         case $choice in
             1)
-                read -p "输入镜像URL (如 https://mirror.example.com/): " mirror
+                read -p "输入镜像URL (如 https://mirror.example.com/https://github.com/): " mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if [[ "$mirror" =~ ^https?:// ]]; then
                     echo "$mirror" >> "$MIRROR_LIST"

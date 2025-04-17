@@ -58,7 +58,7 @@ install_tailscale() {
 
     local arch=$(get_arch)
     local pkg_name="tailscaled_linux_$arch"
-    local download_url="https://github.com/CH3NGYZ/ts-test/releases/download/$version/$pkg_name"
+    local download_url="CH3NGYZ/ts-test/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"
 
     # 下载
