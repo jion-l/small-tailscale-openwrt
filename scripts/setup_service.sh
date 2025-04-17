@@ -2,9 +2,20 @@
 
 set -e
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
-echo "📥 已进入 setup_service.sh"
+
 # 参数解析
-MODE="local"
+MODE=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --mode=*) MODE="${1#*=}"; shift ;;
+        *) echo "未知参数: $1"; exit 1 ;;
+    esac
+done
+
+# 尝试从配置文件读取 MODE
+[ -z "$MODE" ] && [ -f "$INST_CONF" ] && safe_source "$INST_CONF"
+MODE=${MODE:-local}
+
 while [ $# -gt 0 ]; do
     case "$1" in
         --mode=*) MODE="${1#*=}"; shift ;;
@@ -99,7 +110,22 @@ EOF
 chmod +x /etc/init.d/tailscale
 /etc/init.d/tailscale enable
 
-# 启动服务
+# 启动服务或创建 tmp 模式的自恢复脚本
 if [ "$MODE" = "local" ]; then
     /etc/init.d/tailscale restart || /etc/init.d/tailscale start
+else
+    echo "🧩 检测到 tmp 模式，创建开机恢复脚本..."
+    cat > /etc/init.d/tailscale_boot_recover <<"EOF"
+#!/bin/sh /etc/rc.common
+START=10
+
+start() {
+    echo "⏳ 正在恢复 tmp 模式下的 tailscale..."
+    /etc/tailscale/setup.sh --tmp --auto-update > /tmp/tailscale_boot.log 2>&1 &
+}
+EOF
+
+    chmod +x /etc/init.d/tailscale_boot_recover
+    /etc/init.d/tailscale_boot_recover enable
 fi
+
