@@ -5,12 +5,10 @@
 ## 📦 文件结构
 ```
 /etc/tailscale/
-├── install.sh             # 基础安装
-├── setup.sh               # 主配置脚本
-├── fetch_and_install.sh   # 下载安装器
+├── setup.sh               # 安装脚本
+├── fetch_and_install.sh   # 下载器
 ├── test_mirrors.sh        # 代理检测
 ├── autoupdate.sh          # 自动更新
-├── mirror_maintenance.sh  # 镜像维护
 ├── setup_service.sh       # 服务配置
 ├── setup_cron.sh          # 定时任务
 ├── notify_ctl.sh          # 通知管理
@@ -97,7 +95,7 @@ wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-
 > 注意：默认会保留脚本目录
 
 ## ⚠️ 注意事项
-1. 内存安装模式(`--tmp`)重启后需重新下载,但由于proxy不稳定, 可能会出现下载失败的情况, 因此建议您还是本地安装
+1. 内存安装模式重启后需重新下载,但由于proxy不稳定, 可能会出现下载失败的情况, 因此建议您还是本地安装
 2. 首次使用建议配置通知
 
 ## 😍 鸣谢
