@@ -45,7 +45,7 @@ webget() {
             wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate $timeout -O "$1" "$2"
             [ $? -eq 0 ] && result="200"
         else
-            log "Error: Neither curl nor wget available"
+            echo "Error: Neither curl nor wget available"
             return 1
         fi
     fi

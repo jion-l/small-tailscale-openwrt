@@ -16,6 +16,36 @@ TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
 
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 
+webget() {
+    # 参数说明：
+    # $1 下载路径
+    # $2 下载URL
+    # $3 输出控制 (echooff/echoon)
+    # $4 重定向控制 (rediroff)
+    local result=""
+    
+    if command -v curl >/dev/null 2>&1; then
+        [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
+        [ -z "$4" ] && local redirect='-L' || local redirect=''
+        result=$(curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout 10 $progress $redirect -ko "$1" "$2")
+        [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
+    else
+        if command -v wget >/dev/null 2>&1; then
+            [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
+            [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
+            local certificate='--no-check-certificate'
+            local timeout='--timeout=10'
+            wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate $timeout -O "$1" "$2"
+            [ $? -eq 0 ] && result="200"
+        else
+            echo "Error: Neither curl nor wget available"
+            return 1
+        fi
+    fi
+    
+    [ "$result" = "200" ] && return 0 || return 1
+}
+
 # 单个镜像测试函数
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
@@ -24,7 +54,7 @@ test_mirror() {
     echo "测试 $mirror ..."
 
     local start=$(date +%s.%N)
-    if webget "$tmp_out" "${mirror}${TEST_URL}" "echooff" && grep -q "test ok" "$tmp_out"; then
+    if webget "$tmp_out" "${mirror}/${TEST_URL}" "echooff" && grep -q "test ok" "$tmp_out"; then
         local end=$(date +%s.%N)
         local latency=$(printf "%.2f" $(echo "$end - $start" | bc))
         local score=$(echo "10 - $latency * 2" | bc | awk '{printf "%.1f", $0}')
