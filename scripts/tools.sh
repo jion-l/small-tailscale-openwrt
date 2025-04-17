@@ -1,5 +1,5 @@
 #!/bin/sh
-# /etc/tailscale/common.sh
+# /etc/tailscale/tools.sh
 
 CONFIG_DIR="/etc/tailscale"
 LOG_FILE="/var/log/tailscale_install.log"

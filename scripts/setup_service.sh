@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 # 加载配置文件
 log_info "🛠️ 加载配置文件..."
@@ -26,7 +26,7 @@ STOP=1
 
 start_service() {
   # 确保已经加载了 INST_CONF 和其中的 MODE
-  [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+  [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
   log_info "🛠️ 加载服务启动配置..."
   safe_source "$INST_CONF"
 
@@ -89,7 +89,7 @@ start_service() {
 }
 
 stop_service() {
-  [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+  [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
   log_info "🛑 停止服务..."
   # 确保正确停止 tailscaled
   if [ -x "/usr/local/bin/tailscaled" ]; then

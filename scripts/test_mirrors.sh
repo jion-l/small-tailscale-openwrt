@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 

@@ -3,7 +3,7 @@
 set -e
 
 # 加载共享库
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"

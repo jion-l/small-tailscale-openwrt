@@ -1,5 +1,5 @@
 #!/bin/sh
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 show_menu() {
     clear

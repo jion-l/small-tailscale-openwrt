@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 # 参数解析
 AUTO_UPDATE=false

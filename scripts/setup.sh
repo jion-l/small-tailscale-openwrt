@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-. /etc/tailscale/common.sh || { log_error "❌ 加载 common.sh 失败"; exit 1; }
+. /etc/tailscale/tools.sh || { log_error "❌ 加载 tools.sh 失败"; exit 1; }
 log_info "加载公共函数..."
 
 log_info "加载配置文件..."

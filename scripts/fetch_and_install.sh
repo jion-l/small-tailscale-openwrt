@@ -1,7 +1,7 @@
 #!/bin/sh
 
 set -e
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh && safe_source "$INST_CONF"
 
 
 # 架构映射

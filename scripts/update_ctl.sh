@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh && safe_source "$INST_CONF"
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh && safe_source "$INST_CONF"
 
 # 如果没有传参，提示用户输入数字
 if [ $# -eq 0 ]; then
