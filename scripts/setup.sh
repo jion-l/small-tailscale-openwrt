@@ -123,5 +123,8 @@ echo
 echo "🔧 管理server酱推送："
 echo "   /etc/tailscale/notify_ctl.sh"
 echo
-echo "🔧 管切换安装模式(重新安装)："
+echo "🔧 切换安装模式(重新安装)："
 echo "   /etc/tailscale/setup.sh"
+echo
+echo "🔧 拉取最新镜像地址："
+echo "   wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh"
