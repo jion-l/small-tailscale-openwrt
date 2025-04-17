@@ -50,6 +50,23 @@ start_service() {
 
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️ 使用临时模式启动 Tailscale..."
+
+    if [ -x /tmp/tailscaled ]; then
+        log_info "✅ 检测到临时文件已存在，直接启动 tailscaled..."
+        procd_open_instance
+        procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
+        procd_set_param command /tmp/tailscaled
+        procd_append_param command --port 41641
+        procd_append_param command --state /etc/config/tailscaled.state
+        procd_append_param command --statedir /etc/tailscale/
+        procd_set_param respawn
+        procd_set_param stdout 1
+        procd_set_param stderr 1
+        procd_set_param logfile /var/log/tailscale.log
+        procd_close_instance
+        return 0
+    fi
+
     if [ "$AUTO_UPDATE" = "true" ]; then
         log_info "🔄 自动更新启用，安装 latest 版本"
         /etc/tailscale/setup.sh --tmp --auto-update > /tmp/tailscale_boot.log
