@@ -1,4 +1,4 @@
-# Tailscale OpenWRT 一键安装方案
+# 小型化 Tailscale 在 OpenWRT 上的一键安装方案
 
 # 安装已经可以使用了,自动更新等功能性脚本还有待维护
 
