@@ -62,34 +62,40 @@ if [ "$has_args" = false ]; then
         log_info "🔧 无法获取可用版本号，将跳过版本校验"
         VERSION="latest"
     else
-        mapfile -t TAG_LIST < <(jq -r '.[].tag_name' response.json)
+        TAGS_TMP="/tmp/.tags.$$"
+        jq -r '.[].tag_name' response.json > "$TAGS_TMP"
         rm -f response.json
 
-        if [ ${#TAG_LIST[@]} -eq 0 ]; then
+        if [ ! -s "$TAGS_TMP" ]; then
             log_error "❌ 未找到任何版本标签"
             VERSION="latest"
         else
             log_info "🔧 可用版本列表："
-            for i in "${!TAG_LIST[@]}"; do
-                printf "  [%d] %s\n" "$((i+1))" "${TAG_LIST[$i]}"
-            done
+            i=1
+            while read -r tag; do
+                echo "  [$i] $tag"
+                eval "TAG_$i=\"$tag\""
+                i=$((i + 1))
+            done < "$TAGS_TMP"
+            total=$((i - 1))
 
             echo
             read -p "请输入序号选择版本 (留空使用 latest): " index
             index=$(echo "$index" | xargs)
 
-            if [[ -z "$index" ]]; then
+            if [ -z "$index" ]; then
                 VERSION="latest"
-            elif [[ "$index" =~ ^[0-9]+$ ]] && (( index >= 1 && index <= ${#TAG_LIST[@]} )); then
-                VERSION="${TAG_LIST[$((index-1))]}"
+            elif echo "$index" | grep -qE '^[0-9]+$' && [ "$index" -ge 1 ] && [ "$index" -le "$total" ]; then
+                eval "VERSION=\$TAG_$index"
                 log_info "✅ 使用指定版本: $VERSION"
             else
                 log_error "❌ 无效的选择：$index"
                 exit 1
             fi
+
+            rm -f "$TAGS_TMP"
         fi
     fi
-
 fi
 
 # 兜底
