@@ -95,7 +95,7 @@ start_service() {
         procd_close_instance
       fi
     fi
-    log_info "🛠️ 临时模式已启动，日志文件：/tmp/tailscale_boot.log"
+    log_info "🛠️ 临时模式已启动，日志文件：/var/log/tailscale.log"
   else
     log_error "❌ 错误：未知模式 $MODE"
     exit 1
