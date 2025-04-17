@@ -31,5 +31,6 @@ log_info "🧹 清理定时任务..."
 sed -i "\|$CONFIG_DIR/|d" /etc/crontabs/root
 /etc/init.d/cron restart
 
-log_info "🎉 完全卸载完成！"
-log_info "    你可能需要使用 /etc/tailscale/setup.sh 重新安装."
+log_info "🎉 Tailscale卸载完成！"
+log_info "    如需删除安装脚本,请运行  rm -rf /etc/tailscale"
+log_info "    重装Tailscale , 请运行  /etc/tailscale/setup.sh."
