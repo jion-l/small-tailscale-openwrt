@@ -28,7 +28,7 @@ done
 
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
-MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/main/mirrors.txt"
+MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
@@ -153,4 +153,4 @@ fi
 
 rm -f "$TMP_VALID_MIRRORS"
 
-curl -sSL https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/install.sh | sh
+curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
