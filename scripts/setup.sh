@@ -55,7 +55,7 @@ if [ "$has_args" = false ]; then
     esac
 
     log_info
-    log_info "安装什么版本？(回车默认为最新,可输入纯数字具体版本号,例如:1.80.3): "
+    log_info "安装什么版本？(回车默认为最新,可输入具体版本号): "
     read version_input
     version_input="$(echo "$version_input" | xargs)"  # 去空格
     if [[ "$version_input" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
