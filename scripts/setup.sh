@@ -119,6 +119,9 @@ log_info
 log_info "🔧 管理自动更新："
 log_info "   /etc/tailscale/update_ctl.sh"
 log_info
+log_info "🔧 查看当前最新版本："
+log_info "   /etc/tailscale/fetch_and_install.sh --dry-run"
+log_info
 log_info "🔧 自动排序可用镜像代理："
 log_info "   /etc/tailscale/test_mirrors.sh"
 log_info
