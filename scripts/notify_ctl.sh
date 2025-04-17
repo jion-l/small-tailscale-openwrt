@@ -15,7 +15,8 @@ show_menu() {
 }
 
 edit_key() {
-    read -p "请输入Server酱SendKey (留空禁用): " key
+    echo "可以从 https://sct.ftqq.com/sendkey 获取 SendKey"
+    read -p "请输入Server酱SendKey (留空禁用) : " key
     sed -i "s|^SERVERCHAN_KEY=.*|SERVERCHAN_KEY=\"$key\"|" "$NTF_CONF"
 }
 
