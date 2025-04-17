@@ -5,7 +5,8 @@ set -e
 
 
 # 如果没有 auto_update_enabled 文件，跳过更新
-[ ! -f "$CONFIG_DIR/auto_update_enabled" ] && exit 0
+[ ! -f "$CONFIG_DIR/auto_update_enabled" ] && { echo "⚠️ 您未开启自动更新, 请运行 /etc/tailscale/update_ctl.sh 进行更改"; exit 0; }
+
 
 # 加载配置文件
 safe_source "$INST_CONF" || { log_error "无法加载配置文件 $INST_CONF"; exit 1; }
@@ -44,7 +45,7 @@ fi
 log_info "发现新版本: $current -> $latest"
 log_info "正在执行更新..."
 
-if "$CONFIG_DIR/fetch_and_install.sh" --version="$latest" --mode="$MODE"; then
+if "$CONFIG_DIR/fetch_and_install.sh" --version="$latest" --mode="$MODE" --mirror-list="$CONFIG_DIR/valid_mirrors.txt"; then
     log_info "自动更新成功，正在重启 Tailscale..."
     /etc/init.d/tailscale restart
     send_notify "UPDATE" "更新成功" "✅ 从 $current 升级到 $latest"

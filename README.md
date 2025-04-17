@@ -57,9 +57,7 @@ wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-
 ## ⚙️ 版本管理
 ```bash
 # 安装特定版本
-/etc/tailscale/fetch_and_install.sh --version=v1.44.0
-
-
+/etc/tailscale/setup.sh
 ```
 
 ## 📡 代理配置
