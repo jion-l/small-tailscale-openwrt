@@ -2,6 +2,26 @@
 
 set -e
 
+opkg update
+
+# 检查并安装包
+required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout"
+for package in $required_packages; do
+    # 检查包是否已安装
+    if ! opkg list-installed | grep -q "$package"; then
+        echo "⚠️ 包 $package 未安装，开始安装..."
+        opkg install "$package"
+        if [ $? -ne 0 ]; then
+            echo "❌ 安装 $package 失败，跳过该包"
+            continue
+        else
+            echo "✅ 包 $package 安装成功"
+        fi
+    else
+        echo "✅ 包 $package 已安装，跳过"
+    fi
+done
+
 # 加载共享库
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
@@ -21,19 +41,19 @@ SUM_PATH="/tmp/$SUM_NAME"
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 
 # 下载函数
+# 下载函数
 webget() {
     local result=""
     if command -v curl >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
-        result=$(curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout 10 --max-time 10 $progress $redirect -ko "$1" "$2")
+        result=$(timeout 30 curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" $progress $redirect -ko "$1" "$2")
         [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
     elif command -v wget >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
         [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
         local certificate='--no-check-certificate'
-        local timeout='--timeout=10'
-        wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate $timeout -O "$1" "$2"
+        timeout 30 wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
         [ $? -eq 0 ] && result="200"
     else
         echo "Error: Neither curl nor wget available"
