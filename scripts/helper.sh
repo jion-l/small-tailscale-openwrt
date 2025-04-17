@@ -3,6 +3,13 @@
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
+if [ -s "$VALID_MIRRORS" ]; then
+    custom_proxy=$(head -n 1 "$VALID_MIRRORS")
+else
+    custom_proxy="https://ghproxy.ch3ng.top/"
+fi
+
+
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
     if command -v curl > /dev/null 2>&1; then
@@ -58,16 +65,16 @@ handle_choice() {
             ;;
         7)
             if [ "$download_tool" = "curl" ]; then
-                curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
+                curl -o /tmp/pretest_mirrors.sh -L "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
-                wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
+                wget -O /tmp/pretest_mirrors.sh "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
             ;;
         8)
             if [ "$download_tool" = "curl" ]; then
-                curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+                curl -sSL "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh" | sh
             else
-                wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+                wget -O- "${custom_proxy}https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh" | sh
             fi
             ;;
         9)
