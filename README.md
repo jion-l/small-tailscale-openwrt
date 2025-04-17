@@ -29,7 +29,7 @@ wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-
 ```
 或
 ```bash
-wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/scripts/test_mirrors.sh | sh
+curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/scripts/test_mirrors.sh | sh
 ```
 
 ### 2.下载安装脚本包
