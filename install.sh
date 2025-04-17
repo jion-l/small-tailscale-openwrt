@@ -114,7 +114,7 @@ if [ -f "$CONFIG_DIR/valid_mirrors.txt" ]; then
     while read -r mirror; do
         mirror=$(echo "$mirror" | sed 's|/*$|/|')
         full_url="${mirror}${SCRIPTS_TGZ_URL}"
-        echo "🌐 尝试镜像: $full_url"
+        echo "⬇️  尝试镜像: $full_url"
 
         if webget "$SCRIPTS_PATH" "$full_url" "echooff"; then
             if verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
@@ -135,7 +135,7 @@ fi
 
 # 所有镜像失败后尝试直连
 if [ "$success" -ne 1 ]; then
-    echo "🌐 尝试直连: $SCRIPTS_TGZ_URL"
+    echo "⬇️  尝试直连: $SCRIPTS_TGZ_URL"
     if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
        verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
         success=1
