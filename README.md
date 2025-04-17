@@ -42,8 +42,7 @@ wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-
 ```
 ### 3.开始安装
 ```bash
-# （本地安装+自动更新）
-/etc/tailscale/setup.sh --auto-update
+/etc/tailscale/setup.sh
 ```
 
 ## 🔧 日常管理
