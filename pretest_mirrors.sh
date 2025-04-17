@@ -1,6 +1,7 @@
 #!/bin/sh
 
 set -e
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 opkg update
 
@@ -23,7 +24,6 @@ for package in $required_packages; do
 done
 
 # 加载共享库
-[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
@@ -68,7 +68,7 @@ test_mirror() {
     local url_bin="${mirror}CH3NGYZ/ts-test/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/ts-test/releases/latest/download/$SUM_NAME"
 
-    echo "测试 $mirror ..."
+    echo "测试 $mirror, 最长需要30秒..."
 
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
