@@ -7,7 +7,7 @@ set -e
 
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
-
+MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/main/mirrors.txt"
 TEST_URL="https://github.com/CH3NGYZ/ts-test/raw/main/test_connection.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
@@ -97,6 +97,19 @@ manual_fallback() {
         esac
     done
 }
+
+# 下载最新镜像列表
+if webget "$MIRROR_LIST" "$MIRROR_FILE_URL" "echooff"; then
+    echo "✅ 已更新镜像列表"
+else
+    echo "⚠️ 无法下载镜像列表，尝试使用旧版本（如果存在）"
+    [ -s "$MIRROR_LIST" ] || {
+        echo "❌ 没有可用镜像列表，且下载失败"
+        manual_fallback
+        exit 1
+    }
+fi
+
 
 # 主流程
 while read -r mirror; do
