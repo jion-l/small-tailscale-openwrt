@@ -40,7 +40,7 @@ download_file() {
             log_info "⬇️ 下载: ${mirror}${url}"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 if [ -n "$checksum" ]; then
-                    if verify_checksum "$output" "$checksum"; then
+                    if verify_checksum "$output" "1$checksum"; then
                         return 0
                     else
                         log_warn "⚠️ 校验失败，尝试下一个镜像..."
