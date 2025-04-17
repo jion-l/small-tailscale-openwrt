@@ -1,5 +1,5 @@
 #!/bin/sh
-. "$NTF_CONF"
+[ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
 
 show_menu() {
     clear
