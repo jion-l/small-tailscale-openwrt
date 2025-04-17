@@ -18,19 +18,22 @@ get_download_tool() {
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
 
-# 用户选择菜单函数
 show_menu() {
+    log_info 
+    log_info 
     log_info "请选择操作："
-    log_info "1. 安装Tailscale (包括重装)"
+    log_info "1. 安装 Tailscale (包括重装)"
     log_info "2. 启动 Tailscale"
-    log_info "3. 管理Tailscale自动更新"
-    log_info "4. 查看Tailscale当前最新版本"
+    log_info "3. 管理 Tailscale 自动更新"
+    log_info "4. 查看 Tailscale 最新版本"
     log_info "5. 管理推送"
-    log_info "6. 自动检测并排序mirrors.txt"
-    log_info "7. 拉取最新mirrors.txt"
-    log_info "8. 拉取最新脚本包"
+    log_info "6. 排序代理池"
+    log_info "7. 更新代理池"
+    log_info "8. 更新脚本包"
+    log_info "9. 卸载 Tailscale"
     log_info "0. 退出"
 }
+
 
 # 处理用户选择
 handle_choice() {
@@ -67,6 +70,9 @@ handle_choice() {
                 wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
             fi
             ;;
+        9)
+            /etc/tailscale/uninstall.sh
+            ;;
         0)
             exit 0
             ;;
@@ -79,7 +85,7 @@ handle_choice() {
 # 主循环
 while true; do
     show_menu
-    log_info "✅ 请输入你的选择"
+    log_info "✅ 请输入你的选择:"
     read choice
     handle_choice "$choice"
 done
