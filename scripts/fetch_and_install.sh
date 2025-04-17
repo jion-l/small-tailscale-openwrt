@@ -60,9 +60,13 @@ verify_checksum() {
 
     local actual=""
     if [ ${#expected} -eq 64 ]; then
+        log_info "⬇️ Expected SHA256: $sha256"
         actual=$(sha256sum "$file" | awk '{print $1}')
+        log_info "⬇️  Actual  SHA256: $sha256"
     elif [ ${#expected} -eq 32 ]; then
+        log_info "⬇️ Expected MD5: $md5"
         actual=$(md5sum "$file" | awk '{print $1}')
+        log_info "⬇️  Actual  MD5: $md5"
     else
         log_warn "⚠️ 未知校验长度，跳过校验"
         return 0
@@ -102,8 +106,7 @@ install_tailscale() {
     md5=""
     [ -s "$sha_file" ] && sha256=$(get_checksum "$sha_file" "$pkg_name")
     [ -s "$md5_file" ] && md5=$(get_checksum "$md5_file" "$pkg_name")
-    echo $md5
-    echo $sha256
+
 
     # 下载主程序并校验
     log_info "⬇️ 正在下载 Tailscale $version ($arch)..."
