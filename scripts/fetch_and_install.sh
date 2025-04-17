@@ -37,7 +37,7 @@ download_file() {
     if [ -f "$mirror_list" ]; then
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
-            log_info "⬇️ 镜像: $mirror"
+            log_info "⬇️ 下载: ${mirror}${url}"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 [ -n "$checksum" ] && verify_checksum "$output" "$checksum" || return 0
                 return 0
