@@ -62,11 +62,21 @@ if [ "$has_args" = false ]; then
     # 如果是交互模式输入了版本号
     if echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
         log_info "🔍 检查版本号是否存在于 GitHub Release 中..."
-        TAG_CHECK=$(curl -s "https://api.github.com/repos/tailscale/tailscale/releases/tags/${VERSION}" | grep -o '"tag_name":')
+
+        # 获取所有 GitHub Release tags
+        TAGS=$(curl -s "https://api.github.com/repos/tailscale/tailscale/releases" | jq -r '.[].tag_name')
+
+        # 如果 tag 存在，检查用户输入的版本号是否在其中
+        TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION")
+
         if [ -z "$TAG_CHECK" ]; then
             log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
+            log_info "🔧 可用的版本列表如下："
+            echo "$TAGS" | awk '{ print "  " $1 }'  # 格式化输出所有可用版本
             exit 1
         fi
+    else
+        log_info "🔍 输入的版本号不符合预期格式，跳过版本检查。"
     fi
 fi
 
