@@ -3,7 +3,7 @@ set -e
 
 CONFIG_DIR="/etc/tailscale"
 MIRROR_LIST_URL="CH3NGYZ/ts-test/main/mirrors.txt"
-SCRIPTS_TGZ_URL="CH3NGYZ/ts-test/main/tailscale-openwrt-scripts.tar.gz"
+SCRIPTS_TGZ_URL="CH3NGYZ/ts-test/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 
 # 预先计算的校验和
 EXPECTED_CHECKSUM_SHA256="92af889fb8fc8864479a916be70ae7d1e0ea7efed42535a1540e775f66d6974e"
