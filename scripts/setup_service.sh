@@ -2,7 +2,6 @@
 
 set -e
 [ -f /etc/tailscale/common.sh ] && . /etc/tailscale/common.sh
-echo "📥 已进入 setup_service.sh"
 
 # 加载配置文件
 safe_source "$INST_CONF" || { echo "❌ 无法加载配置文件 $INST_CONF"; exit 1; }
