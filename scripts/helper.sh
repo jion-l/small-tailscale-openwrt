@@ -65,7 +65,7 @@ handle_choice() {
             ;;
         7)
             if [ "$download_tool" = "curl" ]; then
-                curl -o /tmp/pretest_mirrors.sh -L "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
                 wget -O /tmp/pretest_mirrors.sh "${custom_proxy}https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
