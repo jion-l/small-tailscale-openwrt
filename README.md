@@ -99,6 +99,6 @@ wget -O- https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-
 2. 首次使用建议配置通知
 
 ## 😍 鸣谢
-1.[glinet-tailscale-updater](https://github.com/Admonstrator/glinet-tailscale-updater)
-2.[golang](https://github.com/golang/go)
-3.[UPX](https://github.com/upx/upx)
+1. [glinet-tailscale-updater](https://github.com/Admonstrator/glinet-tailscale-updater)
+2. [golang](https://github.com/golang/go)
+3. [UPX](https://github.com/upx/upx)
