@@ -59,24 +59,34 @@ if [ "$has_args" = false ]; then
     read version_input
     VERSION="$(echo "v$version_input" | xargs)"  # 去除空格
     [ -z "$VERSION" ] && VERSION="latest"
+
     # 如果是交互模式输入了版本号
     if echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
         log_info "🔍 检查版本号是否存在于 GitHub Release 中..."
 
-        # 获取所有 GitHub Release tags
-        TAGS=$(curl -s "https://api.github.com/repos/tailscale/tailscale/releases" | jq -r '.[].tag_name')
+        # 获取所有 GitHub Release tags，并检查是否返回了非 200 状态码
+        RESPONSE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/ts-test/releases")
+        HTTP_CODE=$(echo "$RESPONSE" | tail -n1)  # 获取 HTTP 状态码
 
-        # 如果 tag 存在，检查用户输入的版本号是否在其中
-        TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION")
+        # 如果状态码不是 200，跳过版本号检查
+        if [ "$HTTP_CODE" -ne 200 ]; then
+            log_error "❌ GitHub API 请求失败，状态码: $HTTP_CODE"
+            log_info "🔧 跳过版本号检查，继续安装"
+        else
+            # 获取所有的 GitHub Release tags
+            TAGS=$(cat response.json | jq -r '.[].tag_name')
+            TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION")
 
-        if [ -z "$TAG_CHECK" ]; then
-            log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
-            log_info "🔧 可用的版本列表如下："
-            echo "$TAGS" | awk '{ print "  " $1 }'  # 格式化输出所有可用版本
-            exit 1
+            if [ -z "$TAG_CHECK" ]; then
+                log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
+                log_info "🔧 可用的版本列表如下："
+                echo "$TAGS" | awk '{ print "  " $1 }'  # 格式化输出所有可用版本
+                exit 1
+            fi
         fi
     else
-        log_info "🔍 输入的版本号不符合预期格式，跳过版本检查。"
+        log_info "🔍 输入的版本号不符合预期格式，请重新输入。"
+        exit 1
     fi
 fi
 
