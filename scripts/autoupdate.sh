@@ -24,16 +24,23 @@ safe_source "$NTF_CONF" || { log_error "无法加载通知配置文件 $NTF_CONF
 log_info "正在自动更新..."
 
 # 获取当前版本
-current=$(cat "$CONFIG_DIR/current_version" 2>/dev/null || echo "unknown")
+if [ -f "$CONFIG_DIR/current_version" ]; then
+    current=$(cat "$CONFIG_DIR/current_version")
+else
+    current="unknown"
+fi
+
 
 log_info "当前版本: $current"
 
 # 获取最新版本
-latest=$("$CONFIG_DIR/fetch_and_install.sh" --dry-run 2>/dev/null || echo "")
-if [ -z "$latest" ]; then
+if latest=$("$CONFIG_DIR/fetch_and_install.sh" --dry-run 2>/dev/null); then
+    log_info "最新版本: $latest"
+else
     log_error "无法获取最新版本，跳过更新"
     exit 0
 fi
+
 
 log_info "最新版本: $latest"
 
