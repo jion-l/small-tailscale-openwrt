@@ -18,7 +18,7 @@ get_arch() {
 get_latest_version() {
     local api_url="https://api.github.com/repos/CH3NGYZ/ts-test/releases/latest"
     local version=$(curl -m 10 -fsSL "$api_url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-    echo "$version"
+    log_info "$version"
 }
 
 # 下载文件
@@ -31,7 +31,7 @@ download_file() {
     if [ -f "$mirror_list" ]; then
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
-            echo "Trying mirror: $mirror"
+            log_info "尝试镜像: $mirror"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 [ -n "$checksum" ] && verify_checksum "$output" "$checksum" || return 0
                 return 0
@@ -39,7 +39,7 @@ download_file() {
         done < "$mirror_list"
     fi
 
-    echo "Trying direct connection..."
+    log_info "尝试直接连接..."
     if webget "$output" "$url" "echooff"; then
         [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
         return 0
@@ -60,9 +60,9 @@ install_tailscale() {
     local tmp_file="/tmp/tailscaled.$$"
 
     # 下载
-    echo "⬇️ 下载Tailscale $version ($arch)..."
+    log_info "⬇️ 正在下载 Tailscale $version ($arch)..."
     download_file "$download_url" "$tmp_file" "$mirror_list" || {
-        echo "❌ 下载失败"
+        log_error "❌ 下载失败"
         rm -f "$tmp_file"
         exit 1
     }
@@ -75,12 +75,12 @@ install_tailscale() {
         ln -sf /usr/local/bin/tailscaled /usr/local/bin/tailscale
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscaled
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscale
-        echo "✅ 已安装到 /usr/local/bin/"
+        log_info "✅ 安装到 /usr/local/bin/"
     else
         mv "$tmp_file" /tmp/tailscaled
         ln -sf /tmp/tailscaled /usr/bin/tailscaled
         ln -sf /tmp/tailscaled /usr/bin/tailscale
-        echo "✅ 已安装到 /tmp (内存模式)"
+        log_info "✅ 安装到 /tmp (内存模式)"
     fi
 
     echo "$version" > "$CONFIG_DIR/current_version"
@@ -98,14 +98,14 @@ while [ $# -gt 0 ]; do
         --version=*) VERSION="${1#*=}"; shift ;;
         --mirror-list=*) MIRROR_LIST="${1#*=}"; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
-        *) echo "未知参数: $1"; exit 1 ;;
+        *) log_error "未知参数: $1"; exit 1 ;;
     esac
 done
 
 # 处理版本
 if [ "$VERSION" = "latest" ]; then
     VERSION=$(get_latest_version) || {
-        echo "❌ 获取最新版本失败"
+        log_error "❌ 获取最新版本失败"
         exit 1
     }
 fi
@@ -115,7 +115,6 @@ if [ "$DRY_RUN" = "true" ]; then
     echo "$VERSION"
     exit 0
 fi
-
 
 # 执行安装
 install_tailscale "$VERSION" "$MODE" "$MIRROR_LIST"
