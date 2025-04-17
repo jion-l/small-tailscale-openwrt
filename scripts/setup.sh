@@ -156,10 +156,6 @@ log_info "🛠️ 初始化服务..."
 log_info "⏰ 设置定时任务..."
 "$CONFIG_DIR/setup_cron.sh" --auto-update="$AUTO_UPDATE"
 
-# 保存配置
-log_info "💾 保存配置文件..."
-mkdir -p "$(dirname "$INST_CONF")"
-
 
 # 安装完成
 log_info
