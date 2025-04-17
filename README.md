@@ -21,7 +21,7 @@
 ```
 
 ## 🚀 快速安装
-### 1.先检测镜像可用性
+### 1.检测镜像 & 下载脚本包
 ```bash
 curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
 ```
@@ -30,17 +30,19 @@ curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/
 wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
 ```
 
-### 2.下载安装脚本包
+### 2.手动下载安装脚本包
 ```bash
+# 如自动下载安装脚本包时出现异常, 但又不想再次检测代理, 您可以运行:
 curl -sSL https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/install.sh | sh
 ```
 或
 ```bash
+# 如自动下载安装脚本包时出现异常, 但又不想再次检测代理, 您可以运行:
 wget -O- https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/install.sh | sh
 ```
 ### 3.开始安装
 ```bash
-/etc/tailscale/setup.sh
+tailscale-helper
 ```
 
 ## 🔧 日常管理

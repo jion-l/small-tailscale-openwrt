@@ -152,3 +152,5 @@ else
 fi
 
 rm -f "$TMP_VALID_MIRRORS"
+
+curl -sSL https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/install.sh | sh
