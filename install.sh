@@ -69,7 +69,6 @@ mirror_fetch "$SCRIPTS_TGZ_URL" "/tmp/tailscale-openwrt-scripts.tar.gz" || {
 # 解压脚本
 echo "📦 解压脚本包..."
 tar -xzf "/tmp/tailscale-openwrt-scripts.tar.gz" -C "$CONFIG_DIR"
-mv "/tmp/mirrors.txt" "$CONFIG_DIR/mirrors.txt"
 
 # 设置权限
 chmod +x "$CONFIG_DIR"/*.sh
