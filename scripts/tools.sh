@@ -91,7 +91,7 @@ send_notify() {
     # 仅在ntfy开关启用时发送通知
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
         curl -sS "https://ntfy.sh/$NTFY_KEY" \
-            -d "$title" \
+            -H "Title: $title" \
             -d "$content\n$extra_content"
         echo "✅ NTFY 通知已发送"
     fi
