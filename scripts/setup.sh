@@ -59,6 +59,15 @@ if [ "$has_args" = false ]; then
     read version_input
     VERSION="$(echo "v$version_input" | xargs)"  # 去除空格
     [ -z "$VERSION" ] && VERSION="latest"
+    # 如果是交互模式输入了版本号
+    if echo "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+        log_info "🔍 检查版本号是否存在于 GitHub Release 中..."
+        TAG_CHECK=$(curl -s "https://api.github.com/repos/tailscale/tailscale/releases/tags/${VERSION}" | grep -o '"tag_name":')
+        if [ -z "$TAG_CHECK" ]; then
+            log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
+            exit 1
+        fi
+    fi
 fi
 
 # 兜底
