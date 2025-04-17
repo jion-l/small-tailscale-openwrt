@@ -8,8 +8,6 @@ MODE=""
 ARCH=""
 current=""
 remote=""
-VALID_MIRRORS="$CONFIG_DIR/mirrors.txt"
-VERSION_FILE="$CONFIG_DIR/current_version"
 
 # 处理启动参数
 [ "$STARTUP" = "1" ] && startup_flag=1 || startup_flag=0
@@ -33,11 +31,7 @@ if [ ! -f "$CONFIG_DIR/auto_update_enabled" ]; then
 fi
 
 # 查询远程最新版本
-remote="$(
-  "$CONFIG_DIR/webget" --url "https://pkgs.tailscale.com/stable/" \
-    | grep -oE 'tailscale_[0-9]+\.[0-9]+\.[0-9]+' \
-    | head -n 1 | sed 's/tailscale_//'
-)"
+remote="$(/etc/tailscale/fetch_and_install.sh --dry-run)"
 
 # 本地记录的版本（用于判断是否已更新）
 recorded=""
