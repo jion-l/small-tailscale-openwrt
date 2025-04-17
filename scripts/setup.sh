@@ -55,30 +55,32 @@ MODE=${MODE:-local}
 AUTO_UPDATE=${AUTO_UPDATE:-false}
 VERSION=${VERSION:-latest}
 
+# 显示当前配置
 echo
 echo "🎯 当前安装配置："
 echo "安装模式: $MODE"
 echo "启用自动更新: $AUTO_UPDATE"
 echo "版本: $VERSION"
+echo
 
 # 停止服务之前，检查服务文件是否存在
 if [ -f /etc/init.d/tailscale ]; then
-    echo "停止 tailscaled 服务..."
-    /etc/init.d/tailscale stop 2>/dev/null || echo "❌ 停止 tailscaled 服务失败，继续清理残留文件"
+    echo "🔴 停止 tailscaled 服务..."
+    /etc/init.d/tailscale stop 2>/dev/null || echo "⚠️ 停止 tailscaled 服务失败，继续清理残留文件"
 else
     echo "⚠️ 未找到 tailscale 服务文件，跳过停止服务步骤"
 fi
 
-# 删除残留文件
-echo "清理残留文件..."
+# 清理残留文件
+echo "🧹 清理残留文件..."
 if [ "$MODE" = "local" ]; then
-    # 删除本地安装的残留文件，不删除/etc/tailscale
+    echo "🗑️ 删除本地安装的残留文件..."
     rm -f /usr/local/bin/tailscale
     rm -f /usr/local/bin/tailscaled
 fi
 
 if [ "$MODE" = "tmp" ]; then
-    # 删除/tmp中的残留文件
+    echo "🗑️ 删除/tmp中的残留文件..."
     rm -f /tmp/tailscale
     rm -f /tmp/tailscaled
 fi
@@ -99,6 +101,7 @@ echo "⏰ 设置定时任务..."
 "$CONFIG_DIR/setup_cron.sh" --auto-update="$AUTO_UPDATE"
 
 # 保存配置
+echo "💾 保存配置文件..."
 mkdir -p "$(dirname "$INST_CONF")"
 cat > "$INST_CONF" <<EOF
 # 安装配置记录
@@ -108,6 +111,7 @@ VERSION=$VERSION
 TIMESTAMP=$(date +%s)
 EOF
 
+# 安装完成
 echo
 echo "🎉 安装完成！"
 echo "🔧 启动命令："
