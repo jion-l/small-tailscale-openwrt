@@ -127,4 +127,6 @@ echo "🔧 切换安装模式(重新安装)："
 echo "   /etc/tailscale/setup.sh"
 echo
 echo "🔧 拉取最新镜像地址："
+echo "   curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh"
+echo "   或"
 echo "   wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh"
