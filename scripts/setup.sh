@@ -54,6 +54,23 @@ if [ "$has_args" = false ]; then
         *) AUTO_UPDATE=true ;;
     esac
 
+    # 🧩 拉取 release tag 列表
+    HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/ts-test/releases")
+
+    if [ "$HTTP_CODE" -ne 200 ]; then
+        log_error "❌ GitHub API 请求失败，状态码: $HTTP_CODE"
+        log_info "🔧 无法获取可用版本号，将跳过版本校验"
+        TAGS=""
+    else
+        TAGS=$(jq -r '.[].tag_name' response.json)
+        rm -f response.json
+
+        log_info "📦 可用的版本列表："
+        echo "$TAGS" | awk '{ print "  - " $1 }'
+        echo
+    fi
+
+    # 🧑‍💻 用户输入
     log_info
     log_info "请输入版本号 (留空使用 latest): "
     read version_input
@@ -71,29 +88,19 @@ if [ "$has_args" = false ]; then
     if [[ "$VERSION" != "latest" ]]; then
         log_info "🔧 使用指定版本: $VERSION"
 
-        # 如果是交互模式输入了版本号
-        log_info "🔍 检查版本号是否存在于 GitHub Release 中..."
+        TAGS=$(jq -r '.[].tag_name' response.json)
 
-        HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/ts-test/releases")
+        TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION" || true)  # <--- 防止 grep 没找到时退出
 
-        if [ "$HTTP_CODE" -ne 200 ]; then
-            log_error "❌ GitHub API 请求失败，状态码: $HTTP_CODE"
-            log_info "🔧 跳过版本号检查，继续安装"
-        else
-            TAGS=$(jq -r '.[].tag_name' response.json)
+        rm -f response.json
 
-            TAG_CHECK=$(echo "$TAGS" | grep -w "$VERSION" || true)  # <--- 防止 grep 没找到时退出
-
-            rm -f response.json
-
-            if [ -z "$TAG_CHECK" ]; then
-                log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
-                log_info "🔧 可用的版本列表如下："
-                echo "$TAGS" | awk '{ print "  " $1 }' | while read line; do
-                    log_info "$line"
-                done
-                exit 1
-            fi
+        if [ -z "$TAG_CHECK" ]; then
+            log_error "❌ 版本 ${VERSION} 不存在于 GitHub Release 中，请检查输入"
+            log_info "🔧 可用的版本列表如下："
+            echo "$TAGS" | awk '{ print "  " $1 }' | while read line; do
+                log_info "$line"
+            done
+            exit 1
         fi
     fi
 fi
