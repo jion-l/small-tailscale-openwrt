@@ -5,7 +5,7 @@
 
 # 如果配置文件不存在，初始化
 if [ ! -f "$NTF_CONF" ]; then
-    echo "⚠️ 未找到通知配置文件, 新建一个"
+    log_warn "⚠️ 未找到通知配置文件, 新建一个"
     mkdir -p "$(dirname "$NTF_CONF")"
     cat > "$NTF_CONF" <<EOF
 # 通知配置文件
@@ -38,25 +38,25 @@ show_menu() {
     mirror_fail_status=$([ "$NOTIFY_MIRROR_FAIL" = "1" ] && echo "✅" || echo "❌")
     emergency_status=$([ "$NOTIFY_EMERGENCY" = "1" ] && echo "✅" || echo "❌")
 
-    echo "🛠️ 通知配置管理"
-    echo "--------------------------------"
-    echo "1. 设置Server酱SendKey      当前: ${SERVERCHAN_KEY}"
-    echo "2. 设置Bark的设备码         当前: ${BARK_KEY}"
-    echo "3. 设置ntfy的订阅码         当前: ${NTFY_KEY}"
-    echo "4. 切换Server酱通知开关     状态: $serverchan_status"
-    echo "5. 切换Bark通知开关         状态: $bark_status"
-    echo "6. 切换ntfy通知开关         状态: $ntfy_status"
-    echo "7. 切换更新成功通知开关      状态: $update_status"
-    echo "8. 切换镜像失效通知开关      状态: $mirror_fail_status"
-    echo "9. 切换更新失败通知开关      状态: $emergency_status"
-    echo "10. 发送测试通知"
-    echo "0. 退出"
-    echo "--------------------------------"
+    log_info "🛠️ 通知配置管理"
+    log_info "--------------------------------"
+    log_info "1. 设置Server酱SendKey      当前: ${SERVERCHAN_KEY}"
+    log_info "2. 设置Bark的设备码         当前: ${BARK_KEY}"
+    log_info "3. 设置ntfy的订阅码         当前: ${NTFY_KEY}"
+    log_info "4. 切换Server酱通知开关     状态: $serverchan_status"
+    log_info "5. 切换Bark通知开关         状态: $bark_status"
+    log_info "6. 切换ntfy通知开关         状态: $ntfy_status"
+    log_info "7. 切换更新成功通知开关     状态: $update_status"
+    log_info "8. 切换镜像失效通知开关     状态: $mirror_fail_status"
+    log_info "9. 切换更新失败通知开关     状态: $emergency_status"
+    log_info "🔔 10. 发送测试通知"
+    log_info "🚪 0. 退出"
+    log_info "--------------------------------"
 }
 
 # 设置Server酱的SendKey
 edit_key() {
-    echo "可以从 https://sct.ftqq.com/sendkey 获取 Server酱 SendKey"
+    log_info "🔑 可以从 https://sct.ftqq.com/sendkey 获取 Server酱 SendKey"
     read -p "请输入 Server酱 SendKey: " key
     if grep -q "^SERVERCHAN_KEY=" "$NTF_CONF"; then
         sed -i "s|^SERVERCHAN_KEY=.*|SERVERCHAN_KEY=\"$key\"|" "$NTF_CONF"
@@ -107,7 +107,7 @@ edit_notify_option() {
     if [ "$new_value" = "0" ] || [ "$new_value" = "1" ]; then
         sed -i "s|^$option=.*|$option=$new_value|" "$NTF_CONF"
     else
-        echo "❌ 无效输入，保留原值。"
+        log_error "❌ 无效输入，保留原值。"
     fi
 }
 
@@ -121,7 +121,7 @@ while :; do
     show_menu
     read -p "请选择 [1-10]: " choice
     case $choice in
-        0) exit 0 ;;
+        0) log_info "🚪 退出脚本" && exit 0 ;;
         1) edit_key ;;
         2) edit_bark ;;
         3) edit_ntfy ;;
@@ -132,6 +132,6 @@ while :; do
         8) edit_notify_option "NOTIFY_MIRROR_FAIL" ;;
         9) edit_notify_option "NOTIFY_EMERGENCY" ;;
         10) test_notify ;;
-        *) echo "无效选择" ;;
+        *) log_warn "❌ 无效选择，请重新输入" ;;
     esac
 done

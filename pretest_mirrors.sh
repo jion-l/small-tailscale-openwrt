@@ -19,7 +19,21 @@ SUM_PATH="/tmp/$SUM_NAME"
 
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 
-# 下载函数
+log_info() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
+    [ $# -eq 2 ] || echo
+}
+
+log_warn() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] $1"
+    [ $# -eq 2 ] || echo
+}
+
+log_error() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1"
+    [ $# -eq 2 ] || echo
+}
+
 # 下载函数
 webget() {
     local result=""
@@ -35,19 +49,19 @@ webget() {
         timeout $TIME_OUT wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
         [ $? -eq 0 ] && result="200"
     else
-        echo "Error: Neither curl nor wget available"
+        log_error "❌ 错误：curl 和 wget 都不可用"
         return 1
     fi
     [ "$result" = "200" ] && return 0 || return 1
 }
 
-# 镜像测试函数（下载并验证tailscaled）
+# 镜像测试函数（下载并验证 tailscaled）
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
-    echo "测试 $mirror, 最长需要 $TIME_OUT 秒..."
+    log_info "⏳ 测试 $mirror，最长需要 $TIME_OUT 秒..."
 
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
@@ -59,16 +73,16 @@ test_mirror() {
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
-            echo "✅ $mirror 下载成功，用时 ${dl_time}s"
-            echo "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
+            log_info "✅ $mirror 下载成功，用时 ${dl_time}s"
+            log_info "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
             echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
-            echo "❌ $mirror 校验失败"
-            echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
+            log_warn "❌ $mirror 校验失败"
+            log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
-        echo "❌ $mirror 下载失败"
-        echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
+        log_warn "❌ $mirror 下载失败"
+        log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
     rm -f "$BIN_PATH" "$SUM_PATH"
@@ -76,7 +90,8 @@ test_mirror() {
 
 # 手动回退逻辑
 manual_fallback() {
-    echo "1) 手动输入镜像  2) 使用直连  3) 退出"
+    log_info "🧩 手动选择镜像源："
+    log_info "1) ✍️ 手动输入镜像  2) 🌐 使用直连  3) ❌ 退出"
     while :; do
         read -p "请选择: " choice
         case $choice in
@@ -89,7 +104,7 @@ manual_fallback() {
                     [ -s "$TMP_VALID_MIRRORS" ] && sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
                     return 0
                 else
-                    echo "地址必须以 http:// 或 https:// 开头"
+                    log_warn "⚠️ 地址必须以 http:// 或 https:// 开头"
                 fi
                 ;;
             2)
@@ -104,13 +119,13 @@ manual_fallback() {
 }
 
 # 下载镜像列表
-echo "🛠️ 正在下载镜像列表, 请耐心等待..."
+log_info "🛠️ 正在下载镜像列表，请耐心等待..."
 if webget "$MIRROR_LIST" "$MIRROR_FILE_URL" "echooff"; then
-    echo "✅ 已更新镜像列表"
+    log_info "✅ 已更新镜像列表"
 else
-    echo "⚠️ 无法下载镜像列表，尝试使用旧版本（如果存在）"
+    log_warn "⚠️ 无法下载镜像列表，尝试使用旧版本（如果存在）"
     [ -s "$MIRROR_LIST" ] || {
-        echo "❌ 没有可用镜像列表，且下载失败"
+        log_error "❌ 没有可用镜像列表，且下载失败"
         manual_fallback
         exit 1
     }
@@ -124,11 +139,13 @@ done < "$MIRROR_LIST"
 # 排序并保存最佳镜像
 if [ -s "$TMP_VALID_MIRRORS" ]; then
     sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
-    echo "✅ 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
+    log_info "🏆 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
 else
     manual_fallback
 fi
 
 rm -f "$TMP_VALID_MIRRORS"
 
+# 安装主程序
+log_info "📦 正在启动安装脚本..."
 curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/install.sh | sh

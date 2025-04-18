@@ -11,7 +11,7 @@ test_mirror() {
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
-    echo "测试 $mirror, 最长需要 $TIME_OUT 秒..."
+    log_info "🌐 测试镜像 $mirror, 最长需要 $TIME_OUT 秒..."
 
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
@@ -23,15 +23,15 @@ test_mirror() {
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
-            echo "✅ $mirror 下载成功，用时 ${dl_time}s"
+            log_info "✅ $mirror 下载成功，用时 ${dl_time}s"
             echo "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
             echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
-            echo "❌ $mirror 校验失败"
+            log_error "❌ $mirror 校验失败"
             echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
-        echo "❌ $mirror 下载失败"
+        log_error "❌ $mirror 下载失败"
         echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
