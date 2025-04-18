@@ -55,7 +55,6 @@ start_service() {
 
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️ 启动 Tailscale (临时模式)..."
-
     if [ -x /tmp/tailscaled ]; then
         log_info "✅ 检测到文件已存在，直接启动 tailscaled..."
         procd_open_instance
@@ -70,10 +69,8 @@ start_service() {
         procd_set_param logfile /var/log/tailscale.log
         procd_close_instance
     else
-      if [ "$STARTUP" = "1" ]; then
-        log_info "🛠️ 开机tmp启动，执行 autoupdate..., 日志:/tmp/tailscale_update.log"
-        "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log &
-
+      log_info "🛠️ 开机tmp启动，执行 autoupdate..., 日志:/tmp/tailscale_update.log"
+      "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log &
       if [ -x /tmp/tailscaled ]; then
         log_info "✅ 检测到文件已下载，直接启动 tailscaled..."
         procd_open_instance
