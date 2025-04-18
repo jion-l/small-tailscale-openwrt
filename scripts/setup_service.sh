@@ -91,12 +91,12 @@ stop_service() {
   log_info "🛑 停止服务..."
   # 确保正确停止 tailscaled
   if [ -x "/usr/local/bin/tailscaled" ]; then
-    /usr/local/bin/tailscaled --cleanup  2>&1 & || log_warn "⚠️ 清理失败: /usr/local/bin/tailscaled"
+    /usr/local/bin/tailscaled --cleanup >/dev/null 2>&1 || log_warn "⚠️ 清理失败: /usr/local/bin/tailscaled"
   fi
   if [ -x "/tmp/tailscaled" ]; then
-    /tmp/tailscaled --cleanup  2>&1 & || log_warn "⚠️ 清理失败: /tmp/tailscaled"
+    /tmp/tailscaled --cleanup >/dev/null 2>&1 || log_warn "⚠️ 清理失败: /tmp/tailscaled"
   fi
-  killall tailscaled  2>&1 & || log_warn "⚠️ 未能停止 tailscaled 服务"
+  killall tailscaled >/dev/null 2>&1 || log_warn "⚠️ 未能停止 tailscaled 服务"
 }
 EOF
 
