@@ -27,12 +27,9 @@ STOP=1
 start_service() {
   # 确保已经加载了 INST_CONF 和其中的 MODE
   [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-
   log_info "🛠️ 加载服务启动配置..."
   safe_source "$INST_CONF"
-
   log_info "🛠️ 当前的 MODE 为: $MODE"
-
   if [ "$MODE" = "local" ]; then
     # 本地模式的启动逻辑
     TAILSCALED_BIN="/usr/local/bin/tailscaled"
@@ -48,11 +45,9 @@ start_service() {
     procd_set_param stderr 1
     procd_set_param logfile /var/log/tailscale.log
     procd_close_instance
-
     # 本地模式自动更新
-    log_info "🛠️ 本地模式自动更新, 日志:/tmp/tailscale_update.log"
-    nohup "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log &
-
+    log_info "🛠️ 本地模式将运行自动更新, 日志:/tmp/tailscale_update.log"
+    nohup "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log 2>&1 &
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️ 启动 Tailscale (临时模式)..."
     if [ -x /tmp/tailscaled ]; then
