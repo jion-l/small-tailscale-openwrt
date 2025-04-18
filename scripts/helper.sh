@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.32"
+SCRIPT_VERSION="v1.0.33"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -183,9 +183,13 @@ handle_choice() {
             ;;
         10)
             if [ "$download_tool" = "curl" ]; then
-                curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                curl -sSL -o "$MIRROR_LIST" "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.sh"
             else
-                wget -O /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                wget -O "$MIRROR_LIST" "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
+            fi
+            if [ $? -ne 0 ]; then
+                log_error "❌  mirrors.txt下载失败, 请手动将 ${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh 文件内容复制到本地 $MIRROR_LIST 中"
+                exit 0
             fi
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
@@ -198,7 +202,7 @@ handle_choice() {
             fi
 
             if [ $? -ne 0 ]; then
-                log_error "❌  脚本更新失败, 请检查网络或代理是否截断了文件, 如果是代理的问题, 你可以手动修改代理 $CONFIG_DIR/mirrors.txt 后再执行一遍 [7] "
+                log_error "❌  脚本更新失败, 脚本内置作者的代理失效"
                 exit 0
             fi
 
