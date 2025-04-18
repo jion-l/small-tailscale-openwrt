@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.14"
+SCRIPT_VERSION="v1.0.15"
 
 get_remote_version() {
         remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
@@ -76,9 +76,52 @@ handle_choice() {
             sleep 3
             ;;
         2)
-            tailscale up
-            log_info "✅ tailscale up 命令运行成功"
-            sleep 3
+            tmp_log="/tmp/tailscale_up.log"
+            : > "$tmp_log"  # 清空日志文件
+
+            # 后台启动 tailscale up，输出重定向到日志
+            tailscale up >"$tmp_log" 2>&1 &
+            up_pid=$!
+
+            log_info "🚀 tailscale up 已启动，正在监控输出..."
+
+            auth_detected=false
+            fail_detected=false
+
+            # 实时监控输出
+            tail -n 0 -F "$tmp_log" | while read -r line; do
+                echo "$line" | grep -q "not found" && {
+                    log_error "❌ tailscale 未安装或命令未找到"
+                    kill $up_pid 2>/dev/null
+                    break
+                }
+
+                echo "$line" | grep -qi "failed" && {
+                    log_error "❌ tailscale up 执行失败：$line"
+                    fail_detected=true
+                    kill $up_pid 2>/dev/null
+                    break
+                }
+
+                echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
+                    auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
+                    log_info "📎 tailscale 等待认证，请访问以下网址登录：$auth_url"
+                    auth_detected=true
+                    # 不退出，继续等 tailscale up 自然完成
+                }
+
+                # tailscale up 正常结束则 break（监控它是否还活着）
+                if ! ps -p $up_pid > /dev/null; then
+                    if [[ $auth_detected != true && $fail_detected != true ]]; then
+                        if [[ -s "$tmp_log" ]]; then
+                            log_info "✅ tailscale up 执行完成：$(cat "$tmp_log")"
+                        else
+                            log_info "✅ tailscale up 执行完成，无输出"
+                        fi
+                    fi
+                    break
+                fi
+            done
             ;;
         3)
             /etc/tailscale/update_ctl.sh
