@@ -68,13 +68,16 @@ webget() {
 
 # 发送通知的通用函数
 send_notify() {
-    local title="$1"
-    local content="$2"
-    local extra_content="$3"
+    local host_name="$(uci get system.@system[0].hostname 2>/dev/null || echo OpenWrt)"
+    local title="$host_name Tailscale通知"
+    local user_title="$1"
+    shift
+    local body_content="$(printf "%s\n" "$@")"
+    local content="$(printf "%s\n\n%s" "$user_title" "$body_content")"
 
     . "$NTF_CONF"  # 引入配置文件
 
-    # 检查是否有 curl 可用，如果没有则降级为 wget
+    # 通用发送函数（curl 优先，wget 兼容）
     send_via_curl_or_wget() {
         local url="$1"
         local data="$2"
@@ -99,31 +102,30 @@ send_notify() {
         fi
     }
 
+    # Server酱
     if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
-        # 使用 printf 来确保换行符被正确处理
-        data="text=$title&desp=$(printf "%s\n%s" "$content" "$extra_content")"
+        data="text=$title&desp=$content"
         send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
     fi
 
+    # Bark
     if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
-        # 使用 printf 来确保换行符被正确处理
-        body=$(printf "%s\n%s" "$content" "$extra_content")
-        group="默认"  # 这里可以根据需要设置分组名称
-        copy="false"  # 是否启用复制功能，根据需要调整
-
-        data="body=$body&group=$group&copy=$copy"
+        group="默认"
+        copy="false"
+        data="body=$content&group=$group&copy=$copy"
         send_via_curl_or_wget "$BARK_KEY" "$data" "POST" && echo "✅ Bark 通知已发送"
     fi
 
+    # ntfy
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
-        # 使用 printf 来确保换行符被正确处理
-        data="$(printf "%s\n%s" "$content" "$extra_content")"
         headers="Title: $title"
-        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$data" "POST" "$headers" && echo "✅ NTFY 通知已发送"
+        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$content" "POST" "$headers" && echo "✅ NTFY 通知已发送"
     fi
 
+    # 无任何通知方式启用
     if [ "$NOTIFY_SERVERCHAN" != "1" ] && [ "$NOTIFY_BARK" != "1" ] && [ "$NOTIFY_NTFY" != "1" ]; then
         echo "❌ 未启用任何通知方式"
     fi
 }
+
 

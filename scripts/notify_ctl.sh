@@ -115,7 +115,7 @@ edit_notify_option() {
 
 # 测试通知
 test_notify() {
-    send_notify "Tailscale测试通知" "✅ 这是测试消息" "时间: $(date '+%F %T')"
+    send_notify "✅ 这是测试消息" "时间: $(date '+%F %T')"
 }
 
 # 查看当前配置

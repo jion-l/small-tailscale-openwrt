@@ -32,6 +32,7 @@ MODE=""
 AUTO_UPDATE=""
 VERSION="latest"
 ARCH=$(get_arch)
+HOST_NAME=$(uci show system.@system[0].hostname | awk -F"'" '{print $2}')
 
 has_args=false  # 🔧 新增：标记是否传入了参数
 
@@ -131,15 +132,19 @@ MODE=$MODE
 AUTO_UPDATE=$AUTO_UPDATE
 VERSION=$VERSION
 ARCH=$ARCH
+HOST_NAME=$HOST_NAME
 TIMESTAMP=$(date +%s)
 EOF
 
 # 显示当前配置
 log_info
 log_info "🎯 当前安装配置："
-log_info "安装模式: $MODE"
-log_info "启用自动更新: $AUTO_UPDATE"
+log_info "模式: $MODE"
+log_info "更新: $AUTO_UPDATE"
 log_info "版本: $VERSION"
+log_info "架构: $ARCH"
+log_info "昵称: $HOST_NAME"
+
 log_info
 
 # 停止服务之前，检查服务文件是否存在

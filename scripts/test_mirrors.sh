@@ -12,7 +12,7 @@ test_mirror() {
     local sha_url="${mirror}CH3NGYZ/ts-test/releases/latest/download/SHA256SUMS.txt"
     local tmp_bin="/tmp/tailscaled_test"
     local tmp_sha="/tmp/sha256sums_test"
-    local score latency
+    local latency
 
     echo "测试 $mirror ..."
 
@@ -25,17 +25,16 @@ test_mirror() {
         if [ "$expected_sha" = "$actual_sha" ]; then
             local end=$(date +%s.%N)
             latency=$(printf "%.2f" $(echo "$end - $start" | bc))
-            score=$(echo "10 - $latency * 2" | bc | awk '{printf "%.1f", $0}')
-            echo "✅ $mirror 校验通过，延迟: ${latency}s，评分: $score"
-            echo "$(date +%s),$mirror,1,$latency,$score" >> "$SCORE_FILE"
+            echo "✅ $mirror 校验通过，延迟: ${latency}s"
+            echo "$(date +%s),$mirror,1,$latency" >> "$SCORE_FILE"
             echo "$latency $mirror" >> "$TMP_VALID_MIRRORS"
         else
             echo "❌ $mirror 校验失败"
-            echo "$(date +%s),$mirror,0,998,0" >> "$SCORE_FILE"
+            echo "$(date +%s),$mirror,0,998" >> "$SCORE_FILE"
         fi
     else
         echo "❌ $mirror 下载失败"
-        echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
+        echo "$(date +%s),$mirror,0,999" >> "$SCORE_FILE"
     fi
 
     rm -f "$tmp_bin" "$tmp_sha"
@@ -65,7 +64,7 @@ if [ -s "$TMP_VALID_MIRRORS" ]; then
 else
     # 如果启用镜像失效通知，发送通知
     if should_notify_mirror_fail; then
-        send_notify "❌ MIRROR_FAIL" "镜像全部失效" "请手动配置代理"
+        send_notify "❌ 所有镜像均失效" "请手动配置代理"
     fi
     echo "❌ 所有镜像均失效"
     touch "$VALID_MIRRORS"
