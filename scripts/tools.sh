@@ -66,14 +66,13 @@ webget() {
     [ "$result" = "200" ] && return 0 || return 1
 }
 
-# 发送通知的通用函数
 send_notify() {
     local host_name="$(uci get system.@system[0].hostname 2>/dev/null || echo OpenWrt)"
     local title="$host_name Tailscale通知"
     local user_title="$1"
     shift
     local body_content="$(printf "%s\n" "$@")"
-    local content="$(printf "%s\n\n%s" "$user_title" "$body_content")"
+    local content="$(printf "%s\n%s" "$user_title" "$body_content")"
 
     . "$NTF_CONF"  # 引入配置文件
 
@@ -127,5 +126,3 @@ send_notify() {
         echo "❌ 未启用任何通知方式"
     fi
 }
-
-
