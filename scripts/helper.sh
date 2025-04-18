@@ -160,7 +160,7 @@ handle_choice() {
                 wget -O- "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             fi
             log_info "✅ 脚本更新完毕，正在重新加载..."
-            sleep 1
+            sleep 3
             exec tailscale-helper
             ;;
 
