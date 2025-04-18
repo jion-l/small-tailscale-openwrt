@@ -10,7 +10,6 @@ MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
 TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
-SCRIPT_VERSION="v1.0.3"
 
 # 初始化日志系统
 log_info() {

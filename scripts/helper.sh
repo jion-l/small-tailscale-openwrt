@@ -23,22 +23,22 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-
+SCRIPT_VERSION="v1.0.4"
 show_menu() {
     echo
     log_info "🎉 欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
     log_info "请选择操作："
-    log_info "1️⃣  📥 安装 / 重装 Tailscale"
-    log_info "2️⃣  🚀 启动 Tailscale"
-    log_info "3️⃣  🔄 管理 Tailscale 自动更新"
-    log_info "4️⃣  📦 查看本地 Tailscale 存在版本"
-    log_info "5️⃣  🌐 查看远程 Tailscale 最新版本"
-    log_info "6️⃣  🔔 管理推送通知"
-    log_info "7️⃣  📊 排序代理池"
-    log_info "8️⃣  ♻️ 更新代理池"
-    log_info "9️⃣  🛠️ 更新脚本包"
-    log_info "🔟  ❌ 卸载 Tailscale"
-    log_info "0️⃣  🚪 退出"
+    log_info "1)  📥 安装 / 重装 Tailscale"
+    log_info "2)  🚀 启动 Tailscale"
+    log_info "3)  🔄 管理 Tailscale 自动更新"
+    log_info "4)  📦 查看本地 Tailscale 存在版本"
+    log_info "5)  🌐 查看远程 Tailscale 最新版本"
+    log_info "6)  🔔 管理推送通知"
+    log_info "7)  📊 排序代理池"
+    log_info "8)  ♻️ 更新代理池"
+    log_info "9)  🛠️ 更新脚本包"
+    log_info "10) ❌ 卸载 Tailscale"
+    log_info "0)  🚪 退出"
 }
 
 
