@@ -46,9 +46,9 @@ show_menu() {
     echo "4. 切换Server酱通知开关     状态: $serverchan_status"
     echo "5. 切换Bark通知开关         状态: $bark_status"
     echo "6. 切换ntfy通知开关         状态: $ntfy_status"
-    echo "7. 切换更新通知开关         状态: $update_status"
-    echo "8. 切换镜像失败通知开关     状态: $mirror_fail_status"
-    echo "9. 切换紧急通知开关         状态: $emergency_status"
+    echo "7. 切换更新成功通知开关      状态: $update_status"
+    echo "8. 切换镜像失效通知开关      状态: $mirror_fail_status"
+    echo "9. 切换更新失败通知开关      状态: $emergency_status"
     echo "10. 发送测试通知"
     echo "0. 退出"
     echo "--------------------------------"
@@ -57,7 +57,7 @@ show_menu() {
 # 设置Server酱的SendKey
 edit_key() {
     echo "可以从 https://sct.ftqq.com/sendkey 获取 Server酱 SendKey"
-    read -p "请输入 Server酱 SendKey (留空禁用) : " key
+    read -p "请输入 Server酱 SendKey: " key
     if grep -q "^SERVERCHAN_KEY=" "$NTF_CONF"; then
         sed -i "s|^SERVERCHAN_KEY=.*|SERVERCHAN_KEY=\"$key\"|" "$NTF_CONF"
     else
@@ -67,8 +67,7 @@ edit_key() {
 
 # 设置Bark的设备码
 edit_bark() {
-    echo "请输入 Bark 设备码 (留空禁用):"
-    read -p "Bark设备码 (格式: https://自建或官方api.day.app/KEYxxxxxxx): " bark_key
+    read -p "请输入 Bark 推送地址 (格式: https://自建或官方api.day.app/KEYxxxxxxx): " bark_key
     if grep -q "^BARK_KEY=" "$NTF_CONF"; then
         sed -i "s|^BARK_KEY=.*|BARK_KEY=\"$bark_key\"|" "$NTF_CONF"
     else
@@ -78,8 +77,7 @@ edit_bark() {
 
 # 设置ntfy的订阅码
 edit_ntfy() {
-    echo "请输入 NTFY 订阅码 (留空禁用):"
-    read -p "NTFY订阅码: " ntfy_key
+    read -p "请输入 NTFY 订阅码: " ntfy_key
     if grep -q "^NTFY_KEY=" "$NTF_CONF"; then
         sed -i "s|^NTFY_KEY=.*|NTFY_KEY=\"$ntfy_key\"|" "$NTF_CONF"
     else
@@ -116,37 +114,6 @@ edit_notify_option() {
 # 测试通知
 test_notify() {
     send_notify "✅ 这是测试消息" "时间: $(date '+%F %T')"
-}
-
-# 查看当前配置
-show_config() {
-    echo "当前通知配置:"
-    echo "--------------------------------"
-    grep -v '^#' "$NTF_CONF" | while read -r line; do
-        name=${line%%=*}
-        value=${line#*=}
-        case "$name" in
-            NOTIFY_SERVERCHAN)
-                echo "Server酱通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
-            NOTIFY_BARK)
-                echo "Bark通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
-            NOTIFY_NTFY)
-                echo "ntfy通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
-            SERVERCHAN_KEY)
-                echo "Server酱 SendKey: $value" ;;
-            BARK_KEY)
-                echo "Bark 设备码: $value" ;;
-            NTFY_KEY)
-                echo "NTFY 订阅码: $value" ;;
-            NOTIFY_UPDATE)
-                echo "更新通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
-            NOTIFY_MIRROR_FAIL)
-                echo "镜像失败通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
-            NOTIFY_EMERGENCY)
-                echo "紧急通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
-        esac
-    done
-    echo "--------------------------------"
 }
 
 # 主菜单
