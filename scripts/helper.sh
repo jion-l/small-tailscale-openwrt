@@ -46,7 +46,7 @@ show_menu() {
     else
         remote_version=$(cat "$REMOTE_SCRIPTS_VERSION_FILE")
         log_info "📦  远程脚本版本: $remote_version $( 
-            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(有更新, 请按 [9] 更新)' || echo '✅(已是最新)' 
+            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(脚本有更新, 请使用[🛠️ 更新脚本包]功能)' || echo '✅(已是最新)' 
         )"
     fi
     log_info "    请选择操作："
