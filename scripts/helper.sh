@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.26"
+SCRIPT_VERSION="v1.0.27"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -73,51 +73,52 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         2)
-            tmp_log="/tmp/tailscale_up.log"
-            : > "$tmp_log"  # 清空日志文件
+            local tmp_log="/tmp/tailscale_up.log"
+            : > "$tmp_log"
 
-            # 后台启动 tailscale up, 输出重定向到日志
-            tailscale up >"$tmp_log" 2>&1 &
-            up_pid=$!
+            log_info "🚀 执行 tailscale up，正在监控输出..."
 
-            log_info "🚀  命令 tailscale up 已运行, 正在监控输出..."
+            (
+                tailscale up >"$tmp_log" 2>&1
+                echo "__TS_UP_DONE__" >>"$tmp_log"
+            ) &
 
-            auth_detected=false
-            fail_detected=false
+            local auth_detected=false
+            local fail_detected=false
 
-            # 实时监控输出
             tail -n 1 -F "$tmp_log" | while read -r line; do
+                # 检测未安装
                 echo "$line" | grep -q "not found" && {
-                    log_error "❌  tailscale 未安装或命令未找到"
-                    kill $up_pid 2>/dev/null
+                    log_error "❌ tailscale 未安装或命令未找到"
                     break
                 }
 
+                # 执行失败
                 echo "$line" | grep -qi "failed" && {
-                    log_error "❌  tailscale up 执行失败：$line"
+                    log_error "❌ tailscale up 执行失败：$line"
                     fail_detected=true
-                    kill $up_pid 2>/dev/null
                     break
                 }
 
+                # 检测认证 URL
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
-                    log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
+                    log_info "🔗 tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
-                    # 不退出, 继续等 tailscale up 自然完成
+                    # 不 break，继续等待结束
                 }
 
-                # tailscale up 正常结束则 break（监控它是否还活着）
-                if ! kill -0 $up_pid 2>/dev/null; then
+                # 检测结束标志
+                echo "$line" | grep -q "__TS_UP_DONE__" && {
                     if [[ $auth_detected != true && $fail_detected != true ]]; then
                         if [[ -s "$tmp_log" ]]; then
-                            log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
+                            log_info "✅ tailscale up 执行完成：$(cat "$tmp_log")"
                         else
-                            log_info "✅  tailscale up 执行完成, 无输出"
+                            log_info "✅ tailscale up 执行完成, 无输出"
                         fi
                     fi
                     break
-                fi
+                }
             done
             tailscale status >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
