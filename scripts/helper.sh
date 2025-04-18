@@ -138,8 +138,6 @@ handle_choice() {
             ;;
         3)  
             $CONFIG_DIR/tailscale_up_generater.sh
-            log_info "✅  请按回车继续..." 1
-            read khjfsdjkhfsd
             ;;
         4)
             log_info "🔓  正在执行 tailscale logout..."
