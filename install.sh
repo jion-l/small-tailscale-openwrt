@@ -165,7 +165,9 @@ fi
 if [ "$success" -ne 1 ]; then
     log_error "❌ 所有镜像与直连均失败，安装中止"
     log_info "当前可用镜像地址列表 /etc/tailscale/valid_mirrors.txt 为:"
-    cat /etc/tailscale/valid_mirrors.txt
+    while IFS= read -r line; do
+    log_info "$line"
+    done < /etc/tailscale/valid_mirrors.txt
     log_info "您可能需要运行 /etc/tailscale/test_mirrors.sh 更新代理地址"
     exit 1
 fi
