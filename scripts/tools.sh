@@ -100,6 +100,17 @@ send_notify() {
             return 1
         fi
     }
+    urlencode() {
+        local s="$1"
+        local i c hex
+        for i in $(seq 1 ${#s}); do
+            c=$(printf "%s" "$s" | cut -c $i)
+            case "$c" in
+                [a-zA-Z0-9.~_-]) printf "%s" "$c" ;;
+                *) printf '%%%02X' "'$c" ;;
+            esac
+        done
+    }
 
     # Server酱
     if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
@@ -107,11 +118,13 @@ send_notify() {
         send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
     fi
 
-    # Bark
     if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
-        data="title=$title&body=$content"
-        send_via_curl_or_wget "$BARK_KEY" "$data" "POST" "Content-Type: application/x-www-form-urlencoded" && echo "✅ Bark 通知已发送"
+        title_enc=$(urlencode "$title")
+        content_enc=$(urlencode "$content")
+        url="${BARK_KEY}/${title_enc}/${content_enc}"
+        send_via_curl_or_wget "$url" "" "GET" "" && echo "✅ Bark 通知已发送"
     fi
+
 
 
 
