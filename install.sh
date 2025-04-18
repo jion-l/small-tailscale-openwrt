@@ -8,6 +8,21 @@ SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-o
 EXPECTED_CHECKSUM_SHA256="5842af208ff9ca5b4362d698d9a36cd0ea26b7ddff7cd9ef257f5a42025abc6f"
 EXPECTED_CHECKSUM_MD5="314d25e872677d4a14bf67a94a002197"
 
+log_info() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
+    [ $# -eq 2 ] || echo
+}
+
+log_warn() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] $1"
+    [ $# -eq 2 ] || echo
+}
+
+log_error() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1"
+    [ $# -eq 2 ] || echo
+}
+
 # 校验函数，接收三个参数：文件路径、校验类型（sha256/md5）、预期值
 verify_checksum() {
     local file=$1
@@ -22,7 +37,7 @@ verify_checksum() {
             elif command -v openssl >/dev/null 2>&1; then
                 actual=$(openssl dgst -sha256 "$file" | awk '{print $2}')
             else
-                echo "❌ 系统缺少 sha256sum 或 openssl，无法校验文件"
+                log_error "❌ 系统缺少 sha256sum 或 openssl，无法校验文件"
                 return 1
             fi
             ;;
@@ -32,23 +47,23 @@ verify_checksum() {
             elif command -v openssl >/dev/null 2>&1; then
                 actual=$(openssl dgst -md5 "$file" | awk '{print $2}')
             else
-                echo "❌ 系统缺少 md5sum 或 openssl，无法校验文件"
+                log_error "❌ 系统缺少 md5sum 或 openssl，无法校验文件"
                 return 1
             fi
             ;;
         *)
-            echo "❌ 校验类型无效: $type"
+            log_error "❌ 校验类型无效: $type"
             return 1
             ;;
     esac
 
     # 校验结果对比
     if [ "$actual" != "$expected" ]; then
-        echo "❌ 校验失败！预期: $expected，实际: $actual"
+        log_error "❌ 校验失败！预期: $expected，实际: $actual"
         return 1
     fi
 
-    echo "✅ 校验通过"
+    log_info "✅ 校验通过"
     return 0
 }
 
@@ -75,7 +90,7 @@ webget() {
             wget $progress $redirect $certificate $timeout -O "$1" "$2"
             [ $? -eq 0 ] && result="200"
         else
-            echo "Error: Neither curl nor wget available"
+            log_error "Error: Neither curl nor wget available"
             return 1
         fi
     fi
@@ -93,7 +108,7 @@ mirror_fetch() {
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')  # 去掉结尾斜杠
             full_url="${mirror}${real_url}"
-            echo "Trying mirror: $full_url"
+            log_info "⬇️ 尝试镜像: $full_url"
             if webget "$output" "$full_url" "echooff"; then
                 return 0
             fi
@@ -101,7 +116,7 @@ mirror_fetch() {
     fi
 
     # 如果所有代理都失败，尝试直接下载
-    echo "Trying direct: $real_url"
+    log_info "⬇️ 尝试直连: $real_url"
     webget "$output" "$real_url" "echooff"
 }
 
@@ -113,20 +128,20 @@ if [ -f "$CONFIG_DIR/valid_mirrors.txt" ]; then
     while read -r mirror; do
         mirror=$(echo "$mirror" | sed 's|/*$|/|')
         full_url="${mirror}${SCRIPTS_TGZ_URL}"
-        echo "⬇️  尝试镜像: $full_url"
+        log_info "⬇️ 尝试镜像: $full_url"
 
         if webget "$SCRIPTS_PATH" "$full_url" "echooff"; then
             if verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
                 success=1
                 break
             else
-                echo "⚠️ SHA256校验失败，尝试下一个镜像"
+                log_info "⚠️ SHA256校验失败，尝试下一个镜像"
             fi
             if verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
                 success=1
                 break
             else
-                echo "⚠️ MD5校验失败，尝试下一个镜像"
+                log_info "⚠️ MD5校验失败，尝试下一个镜像"
             fi
         fi
     done < "$CONFIG_DIR/valid_mirrors.txt"
@@ -134,7 +149,7 @@ fi
 
 # 所有镜像失败后尝试直连
 if [ "$success" -ne 1 ]; then
-    echo "⬇️  尝试直连: $SCRIPTS_TGZ_URL"
+    log_info "⬇️ 尝试直连: $SCRIPTS_TGZ_URL"
     if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
        verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
         success=1
@@ -148,15 +163,15 @@ if [ "$success" -ne 1 ]; then
 fi
 
 if [ "$success" -ne 1 ]; then
-    echo "❌ 所有镜像与直连均失败，安装中止"
-    echo "当前可用镜像地址列表 /etc/tailscale/valid_mirrors.txt 为:"
+    log_error "❌ 所有镜像与直连均失败，安装中止"
+    log_info "当前可用镜像地址列表 /etc/tailscale/valid_mirrors.txt 为:"
     cat /etc/tailscale/valid_mirrors.txt
-    echo "您可能需要运行 /etc/tailscale/test_mirrors.sh 更新代理地址"
+    log_info "您可能需要运行 /etc/tailscale/test_mirrors.sh 更新代理地址"
     exit 1
 fi
 
 # 解压脚本
-echo "📦 解压脚本包..."
+log_info "📦 解压脚本包..."
 tar -xzf "$SCRIPTS_PATH" -C "$CONFIG_DIR"
 
 # 设置权限
@@ -167,9 +182,9 @@ ln -sf "$CONFIG_DIR/helper.sh" /usr/bin/tailscale-helper
 
 # 检查软链接是否创建成功
 if [ -L /usr/bin/tailscale-helper ]; then
-    echo "✅ 软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper, 您可以以后运行 tailscale-helper 来快捷操作"
+    log_info "✅ 软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper, 您可以以后运行 tailscale-helper 来快捷操作"
 else
-    echo "❌ 创建软连接失败"
+    log_error "❌ 创建软连接失败"
 fi
 
 # 初始化通知配置
@@ -188,5 +203,5 @@ NTFY_KEY=""
 EOF
 
 
-echo "✅ 脚本包安装完成！请执行以下命令进行安装："
-echo "tailscale-helper"
+log_info "✅ 脚本包安装完成！请执行以下命令进行安装："
+log_info "tailscale-helper"
