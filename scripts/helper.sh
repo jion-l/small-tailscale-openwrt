@@ -35,7 +35,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.10"
+SCRIPT_VERSION="v1.0.11"
 
 get_remote_version() {
         remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
@@ -63,6 +63,11 @@ show_menu() {
         # 如果还是没有获取到版本号
         if [ ! -s "$REMOTE_SCRIPTS_VERSION_FILE" ]; then
             log_info "⚠️ 无法获取远程脚本版本"
+        else
+            remote_version=$(cat "$REMOTE_SCRIPTS_VERSION_FILE")
+            log_info "🌐 远程脚本版本: $remote_version $(
+                [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(有更新, 请按 [9] 更新)' || echo '✅(已是最新)'
+            )"
         fi
     fi
 
