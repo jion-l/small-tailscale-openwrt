@@ -2,7 +2,7 @@
 set -e
 
 CONFIG_DIR="/etc/tailscale"
-SCRIPTS_TGZ_URL="CH3NGYZ/ts-test/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
+SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 
 # 预先计算的校验和
 EXPECTED_CHECKSUM_SHA256="f263f2d6b3e8c0b4094b4124f119695354ea6f5b96680657bdaa11134a14769b"

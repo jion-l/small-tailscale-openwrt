@@ -27,11 +27,11 @@
 
 ### 2.排序代理池 & 下载功能菜单
    ```bash
-   curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
+   curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
    ```
    或
    ```bash
-   wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
+   wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
    ```
 
 ### 3.启动管理工具

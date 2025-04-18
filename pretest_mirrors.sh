@@ -7,7 +7,7 @@ TIME_OUT=30
 # 加载共享库
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
-MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
+MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/mirrors.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
@@ -45,8 +45,8 @@ webget() {
 # 镜像测试函数（下载并验证tailscaled）
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
-    local url_bin="${mirror}CH3NGYZ/ts-test/releases/latest/download/$BIN_NAME"
-    local url_sum="${mirror}CH3NGYZ/ts-test/releases/latest/download/$SUM_NAME"
+    local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
+    local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
     echo "测试 $mirror, 最长需要 $TIME_OUT 秒..."
 
@@ -132,4 +132,4 @@ fi
 
 rm -f "$TMP_VALID_MIRRORS"
 
-curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/install.sh | sh
+curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/install.sh | sh

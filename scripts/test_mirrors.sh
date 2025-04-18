@@ -8,8 +8,8 @@ rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 # 镜像测试函数（同之前）
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
-    local tailscale_url="${mirror}CH3NGYZ/ts-test/releases/latest/download/tailscaled_linux_amd64"
-    local sha_url="${mirror}CH3NGYZ/ts-test/releases/latest/download/SHA256SUMS.txt"
+    local tailscale_url="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/tailscaled_linux_amd64"
+    local sha_url="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/SHA256SUMS.txt"
     local tmp_bin="/tmp/tailscaled_test"
     local tmp_sha="/tmp/sha256sums_test"
     local latency

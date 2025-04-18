@@ -77,17 +77,17 @@ handle_choice() {
             ;;
         8)
             if [ "$download_tool" = "curl" ]; then
-                curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
-                wget -O /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
+                wget -O /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
             sleep 3
             ;;
         9)
             if [ "$download_tool" = "curl" ]; then
-                curl -sSL "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
+                curl -sSL "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             else
-                wget -O- "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
+                wget -O- "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             fi
             log_info "更新脚本包完毕"
             sleep 3

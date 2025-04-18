@@ -6,7 +6,7 @@ set -e
 
 # 获取最新版本
 get_latest_version() {
-    local api_url="https://api.github.com/repos/CH3NGYZ/ts-test/releases/latest"
+    local api_url="https://api.github.com/repos/CH3NGYZ/small-tailscale-openwrt/releases/latest"
     local version=$(curl -m 10 -fsSL "$api_url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     echo "$version"
 }
@@ -87,14 +87,14 @@ install_tailscale() {
 
     local arch="$ARCH"
     local pkg_name="tailscaled_linux_$arch"
-    local download_url="CH3NGYZ/ts-test/releases/download/$version/$pkg_name"
+    local download_url="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"
 
     log_info "⬇️ 准备校验文件..."
     sha_file="/tmp/SHA256SUMS.$$"
     md5_file="/tmp/MD5SUMS.$$"
     pkg_name="tailscaled_linux_$arch"
-    download_base="CH3NGYZ/ts-test/releases/download/$version/"
+    download_base="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/"
 
     # 下载校验文件
     download_file "${download_base}SHA256SUMS.txt" "$sha_file" "$mirror_list" || log_warn "⚠️ 无法获取 SHA256 校验文件"

@@ -78,7 +78,7 @@ if [ "$has_args" = false ]; then
     esac
 
     # 🧩 拉取 release tag 列表
-    HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/ts-test/releases")
+    HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/small-tailscale-openwrt/releases")
 
     if [ "$HTTP_CODE" -ne 200 ]; then
         log_error "❌ GitHub API 请求失败，状态码: $HTTP_CODE"
