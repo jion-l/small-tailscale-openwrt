@@ -27,19 +27,6 @@ recorded=""
 # 加载通知配置
 [ -f /etc/tailscale/notify.conf ] && . /etc/tailscale/notify.conf
 
-get_remote_version_bg() {
-    (
-        custom_proxy=$(head -n 1 "$VALID_MIRRORS" 2>/dev/null)
-        [ -z "$custom_proxy" ] && custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
-        remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
-        if [ "$download_tool" = "curl" ]; then
-            curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
-        else
-            wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
-        fi
-    ) &
-}
-get_remote_version_bg
 
 # 检查是否需要发送通知的函数
 should_notify() {
