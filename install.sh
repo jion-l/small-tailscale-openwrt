@@ -3,6 +3,7 @@ set -e
 
 CONFIG_DIR="/etc/tailscale"
 SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
+SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 
 # 预先计算的校验和
 EXPECTED_CHECKSUM_SHA256="8af1b2fc98ec97c65d39b469edac66b20cf3d67706e702f5627f3590b052f3d8"
@@ -98,77 +99,91 @@ webget() {
     [ "$result" = "200" ] && return 0 || return 1
 }
 
-# 使用有效镜像代理进行下载
-mirror_fetch() {
-    local real_url=$1
-    local output=$2
-    local mirror_list_file="$CONFIG_DIR/valid_mirrors.txt"
+# # 使用有效镜像代理进行下载
+# mirror_fetch() {
+#     local real_url=$1
+#     local output=$2
+#     local mirror_list_file="$CONFIG_DIR/valid_mirrors.txt"
 
-    if [ -f "$mirror_list_file" ]; then
-        while read -r mirror; do
-            mirror=$(echo "$mirror" | sed 's|/*$|/|')  # 去掉结尾斜杠
-            full_url="${mirror}${real_url}"
-            log_info "⬇️ 尝试镜像: $full_url"
-            if webget "$output" "$full_url" "echooff"; then
-                return 0
-            fi
-        done < "$mirror_list_file"
-    fi
+#     if [ -f "$mirror_list_file" ]; then
+#         while read -r mirror; do
+#             mirror=$(echo "$mirror" | sed 's|/*$|/|')  # 去掉结尾斜杠
+#             full_url="${mirror}${real_url}"
+#             log_info "⬇️ 尝试镜像: $full_url"
+#             if webget "$output" "$full_url" "echooff"; then
+#                 return 0
+#             fi
+#         done < "$mirror_list_file"
+#     fi
 
-    # 如果所有代理都失败，尝试直接下载
-    log_info "⬇️ 尝试直连: $real_url"
-    webget "$output" "$real_url" "echooff"
-}
+#     # 如果所有代理都失败，尝试直接下载
+#     log_info "⬇️ 尝试直连: $real_url"
+#     webget "$output" "$real_url" "echooff"
+# }
 
-SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
+# success=0
+
+# # 检查镜像并下载
+# if [ -f "$CONFIG_DIR/valid_mirrors.txt" ]; then
+#     while read -r mirror; do
+#         mirror=$(echo "$mirror" | sed 's|/*$|/|')
+#         full_url="${mirror}${SCRIPTS_TGZ_URL}"
+#         log_info "⬇️ 尝试镜像: $full_url"
+
+#         if webget "$SCRIPTS_PATH" "$full_url" "echooff"; then
+#             if verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
+#                 success=1
+#                 break
+#             else
+#                 log_info "⚠️ SHA256校验失败，尝试下一个镜像"
+#             fi
+#             if verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
+#                 success=1
+#                 break
+#             else
+#                 log_info "⚠️ MD5校验失败，尝试下一个镜像"
+#             fi
+#         fi
+#     done < "$CONFIG_DIR/valid_mirrors.txt"
+# fi
+
+# # 所有镜像失败后尝试直连
+# if [ "$success" -ne 1 ]; then
+#     log_info "⬇️ 尝试直连: $SCRIPTS_TGZ_URL"
+#     if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
+#        verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
+#         success=1
+#     fi
+#     if [ "$success" -ne 1 ]; then
+#         if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
+#            verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
+#             success=1
+#         fi
+#     fi
+# fi
+
+
+# 使用固定代理
+proxy_url="https://ghproxy.ch3ng.top/https://github.com/${SCRIPTS_TGZ_URL}"
 success=0
-
-# 检查镜像并下载
-if [ -f "$CONFIG_DIR/valid_mirrors.txt" ]; then
-    while read -r mirror; do
-        mirror=$(echo "$mirror" | sed 's|/*$|/|')
-        full_url="${mirror}${SCRIPTS_TGZ_URL}"
-        log_info "⬇️ 尝试镜像: $full_url"
-
-        if webget "$SCRIPTS_PATH" "$full_url" "echooff"; then
-            if verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
-                success=1
-                break
-            else
-                log_info "⚠️ SHA256校验失败，尝试下一个镜像"
-            fi
-            if verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
-                success=1
-                break
-            else
-                log_info "⚠️ MD5校验失败，尝试下一个镜像"
-            fi
-        fi
-    done < "$CONFIG_DIR/valid_mirrors.txt"
-fi
-
-# 所有镜像失败后尝试直连
-if [ "$success" -ne 1 ]; then
-    log_info "⬇️ 尝试直连: $SCRIPTS_TGZ_URL"
-    if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
-       verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
+log_info "⬇️ 使用固定代理下载: $proxy_url"
+if timeout 10 webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
+   (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
+    verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
+    success=1
+else
+    # 尝试直连
+    log_info "⬇️ 代理失败，尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
+    if timeout 10 webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
+       (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
+        verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
         success=1
     fi
-    if [ "$success" -ne 1 ]; then
-        if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
-           verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
-            success=1
-        fi
-    fi
 fi
 
+
 if [ "$success" -ne 1 ]; then
-    log_error "❌ 所有镜像与直连均失败，安装中止"
-    log_info "当前可用镜像地址列表 /etc/tailscale/valid_mirrors.txt 为:"
-    while IFS= read -r line; do
-    log_info "$line"
-    done < /etc/tailscale/valid_mirrors.txt
-    log_info "您可能需要运行 /etc/tailscale/test_mirrors.sh 更新代理地址"
+    log_error "❌ 镜像与直连均失败，安装中止"
     exit 1
 fi
 

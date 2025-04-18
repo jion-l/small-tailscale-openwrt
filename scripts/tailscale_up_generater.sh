@@ -81,7 +81,7 @@ show_status() {
     OPTIONS[$i]="$key"
     ((i++))
   done
-  log_info "⏳ 0) 退出   g) 生成带参数的 tailscale up 命令   r) 执行带参数的 tailscale up"
+  log_info "⏳ 0) 退出   g) 生成带参数的 tailscale up 命令"
   log_info "⏳ 输入编号后回车即可修改: " 1
 }
 
@@ -146,7 +146,7 @@ generate_cmd() {
       fi
     fi
   done
-  log_info "\n生成命令：" 
+  log_info "⏳  生成命令：" 
   log_info "$cmd"
 }
 
@@ -162,11 +162,6 @@ main() {
       generate_cmd
       log_info "⏳  请按回车继续..." 1
       read khjfsdjkhfsd
-    elif [[ "$input" == "r" ]]; then
-      generate_cmd
-      log_info "\n即将执行..."
-      eval $cmd
-      exit 0
     elif [[ "$input" =~ ^[0-9]+$ && -n "${OPTIONS[$input]}" ]]; then
       edit_param $input
     fi
