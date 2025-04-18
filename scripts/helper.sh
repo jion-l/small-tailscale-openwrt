@@ -1,9 +1,9 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.31"
+SCRIPT_VERSION="v1.0.32"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-
+custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
     if command -v curl > /dev/null 2>&1; then
@@ -169,14 +169,19 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         7)
-            $CONFIG_DIR/notify_ctl.sh
+            /etc/tailscale/fetch_and_install.sh --dry-run
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         8)
+            $CONFIG_DIR/notify_ctl.sh
+            ;;
+        9)
             $CONFIG_DIR/test_mirrors.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        9)
+        10)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
@@ -185,7 +190,7 @@ handle_choice() {
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        10)
+        11)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             else
@@ -201,7 +206,7 @@ handle_choice() {
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
-        11)
+        12)
             $CONFIG_DIR/uninstall.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
