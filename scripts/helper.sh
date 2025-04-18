@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.29"
+SCRIPT_VERSION="v1.0.30"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -129,6 +129,8 @@ handle_choice() {
             else
                 log_info "🎉  tailscale 登录成功，状态正常"
             fi
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         3)
             log_info "🔓  正在执行 tailscale logout..."
