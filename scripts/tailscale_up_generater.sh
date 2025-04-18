@@ -61,18 +61,20 @@ load_conf() {
 save_conf() {
   > "$CONF_FILE"
   for key in "${!PARAMS_TYPE[@]}"; do
-    value="${!key}"
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 转换为合法变量名
+    value="${!var_name}"  # 获取转换后的变量值
     [[ -n "$value" ]] && echo "$key=\"$value\"" >> "$CONF_FILE"
   done
 }
 
-# 展示当前配置状态
+
 show_status() {
   clear
   echo "当前 tailscale up 参数状态："
   i=1
   for key in "${!PARAMS_TYPE[@]}"; do
-    val="${!key}"
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 将变量名转换为合法形式
+    val="${!var_name}"  # 获取变量值
     emoji="❌"
     [[ -n "$val" ]] && emoji="✅"
     printf "%2d) [%s] %s %s\n" $i "$emoji" "$key" "${PARAMS_DESC[$key]}"
@@ -87,39 +89,49 @@ show_status() {
 edit_param() {
   idx=$1
   key="${OPTIONS[$idx]}"
+  var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 将变量名转换为合法形式
   type="${PARAMS_TYPE[$key]}"
+  
   if [[ "$type" == "flag" ]]; then
     echo -n "启用 $key ? (y/N): "
     read yn
     if [[ "$yn" =~ ^[Yy]$ ]]; then
-      declare -g $key=1
+      declare -g $var_name=1
     else
-      unset $key
+      unset $var_name
     fi
   else
     echo -n "请输入 $key 的值（${PARAMS_DESC[$key]}）："
     read val
     if [[ -n "$val" ]]; then
-      declare -g $key="$val"
+      declare -g $var_name="$val"
     else
-      unset $key
+      unset $var_name
     fi
   fi
   save_conf
 }
 
+
+# 生成命令
 # 生成命令
 generate_cmd() {
   cmd="tailscale up"
   for key in "${!PARAMS_TYPE[@]}"; do
-    val="${!key}"
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 转换为合法变量名
+    val="${!var_name}"  # 获取变量值
     if [[ -n "$val" ]]; then
-      [[ "${PARAMS_TYPE[$key]}" == "flag" ]] && cmd+=" $key" || cmd+=" $key=$val"
+      if [[ "${PARAMS_TYPE[$key]}" == "flag" ]]; then
+        cmd+=" $key"  # 对于 flag 类型的参数，只加上参数名
+      else
+        cmd+=" $key=$val"  # 对于 value 类型的参数，拼接参数名和值
+      fi
     fi
   done
   echo -e "\n生成命令："
   echo "$cmd"
 }
+
 
 # 主循环
 main() {

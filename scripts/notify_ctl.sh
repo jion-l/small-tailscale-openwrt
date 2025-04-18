@@ -57,7 +57,8 @@ show_menu() {
 # 设置Server酱的SendKey
 edit_key() {
     log_info "🔑 可以从 https://sct.ftqq.com/sendkey 获取 Server酱 SendKey"
-    read -p "请输入 Server酱 SendKey: " key
+    log_info "请输入 Server酱 SendKey: " 1
+    read key
     if grep -q "^SERVERCHAN_KEY=" "$NTF_CONF"; then
         sed -i "s|^SERVERCHAN_KEY=.*|SERVERCHAN_KEY=\"$key\"|" "$NTF_CONF"
     else
@@ -67,7 +68,8 @@ edit_key() {
 
 # 设置Bark的设备码
 edit_bark() {
-    read -p "请输入 Bark 推送地址 (格式: https://自建或官方api.day.app/KEYxxxxxxx): " bark_key
+    log_info "请输入 Bark 推送地址 (格式: https://自建或官方api.day.app/KEYxxxxxxx): " 1
+    read bark_key
     if grep -q "^BARK_KEY=" "$NTF_CONF"; then
         sed -i "s|^BARK_KEY=.*|BARK_KEY=\"$bark_key\"|" "$NTF_CONF"
     else
@@ -77,7 +79,8 @@ edit_bark() {
 
 # 设置ntfy的订阅码
 edit_ntfy() {
-    read -p "请输入 NTFY 订阅码: " ntfy_key
+    log_info "请输入 NTFY 订阅码: " 1
+    read ntfy_key
     if grep -q "^NTFY_KEY=" "$NTF_CONF"; then
         sed -i "s|^NTFY_KEY=.*|NTFY_KEY=\"$ntfy_key\"|" "$NTF_CONF"
     else
@@ -102,7 +105,8 @@ toggle_setting() {
 edit_notify_option() {
     local option=$1
     current_value=$(grep "^$option=" "$NTF_CONF" | cut -d= -f2)
-    read -p "请输入 $option 当前值为 $current_value，设置新的值 (0=禁用, 1=启用): " new_value
+    log_info "请输入 $option 当前值为 $current_value，设置新的值 (0=禁用, 1=启用): " 1
+    read new_value
     # 更新配置文件
     if [ "$new_value" = "0" ] || [ "$new_value" = "1" ]; then
         sed -i "s|^$option=.*|$option=$new_value|" "$NTF_CONF"
@@ -119,7 +123,8 @@ test_notify() {
 # 主菜单
 while :; do
     show_menu
-    read -p "请选择 [1-10]: " choice
+    log_info "请选择 [1-10]: " 1
+    read choice
     case $choice in
         0) log_info "🚪 退出脚本" && exit 0 ;;
         1) edit_key ;;

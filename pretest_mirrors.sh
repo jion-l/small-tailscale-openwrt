@@ -93,10 +93,12 @@ manual_fallback() {
     log_info "🧩 手动选择镜像源："
     log_info "1) ✍️ 手动输入镜像  2) 🌐 使用直连  3) ❌ 退出"
     while :; do
-        read -p "请选择: " choice
+        log_info "请选择: " 1
+        read choice
         case $choice in
             1)
-                read -p "输入镜像URL (如 https://mirror.example.com/https://github.com/): " mirror
+                log_info "输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
+                read  mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if echo "$mirror" | grep -qE '^https?://'; then
                     echo "$mirror" >> "$MIRROR_LIST"
