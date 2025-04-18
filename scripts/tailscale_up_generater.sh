@@ -82,7 +82,7 @@ show_status() {
     ((i++))
   done
   log_info "⏳ 0) 退出   g) 生成带参数的 tailscale up 命令   r) 执行带参数的 tailscale up"
-  log_info "⏳ 输入编号后回车即可修改: "
+  log_info "⏳ 输入编号后回车即可修改: " 1
 }
 
 # 修改参数
