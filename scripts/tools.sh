@@ -55,7 +55,7 @@ webget() {
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
         # 修正 curl 的参数：-o 用于指定输出文件
-        result=$(curl -w "%{http_code}" -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout $TIME_OUT $progress $redirect -o "$1" "$2")
+        result=$(timeout $TIME_OUT curl -w "%{http_code}" -H "User-Agent: Mozilla/5.0 (curl-compatible)" $progress $redirect -o "$1" "$2")
         # 判断返回的 HTTP 状态码是否为 2xx
         if [[ "$result" =~ ^2 ]]; then
             result="200"
@@ -67,8 +67,7 @@ webget() {
             [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
             [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
             local certificate='--no-check-certificate'
-            local timeout='--timeout=$TIME_OUT'
-            wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate $timeout -O "$1" "$2"
+            timeout $TIME_OUT wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
             if [ $? -eq 0 ]; then
                 result="200"
             else

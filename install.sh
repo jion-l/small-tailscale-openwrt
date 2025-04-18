@@ -8,7 +8,7 @@ SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 # 预先计算的校验和
 EXPECTED_CHECKSUM_SHA256="c40457d910c25d7b3ab5101a122b5176b05f49583ac3b00b5bd8ddf6470d9274"
 EXPECTED_CHECKSUM_MD5="709c0562c93635b9da6c0e92d688bdfc"
-
+TIME_OUT=30
 log_info() {
     echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
     [ $# -eq 2 ] || echo
@@ -80,18 +80,27 @@ webget() {
     if command -v curl >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
-        result=$(curl -w %{http_code} --connect-timeout 10 $progress $redirect -ko "$1" "$2")
-        [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
+        # 修正 curl 的参数：-o 用于指定输出文件
+        result=$(timeout "$TIME_OUT" curl -w "%{http_code}" -H "User-Agent: Mozilla/5.0 (curl-compatible)" $progress $redirect -o "$1" "$2")
+        # 判断返回的 HTTP 状态码是否为 2xx
+        if [[ "$result" =~ ^2 ]]; then
+            result="200"
+        else
+            result="non-200"
+        fi
     else
         if command -v wget >/dev/null 2>&1; then
             [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
             [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
             local certificate='--no-check-certificate'
-            local timeout='--timeout=10'
-            wget $progress $redirect $certificate $timeout -O "$1" "$2"
-            [ $? -eq 0 ] && result="200"
+            timeout "$TIME_OUT" wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
+            if [ $? -eq 0 ]; then
+                result="200"
+            else
+                result="non-200"
+            fi
         else
-            log_error "Error: Neither curl nor wget available"
+            echo "Error: Neither curl nor wget available"
             return 1
         fi
     fi
@@ -167,14 +176,14 @@ webget() {
 proxy_url="https://ghproxy.ch3ng.top/https://github.com/${SCRIPTS_TGZ_URL}"
 success=0
 log_info "⬇️ 使用固定代理下载: $proxy_url"
-if timeout 10 webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
+if webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
    (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
     verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
     success=1
 else
     # 尝试直连
     log_info "⬇️ 代理失败，尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
-    if timeout 10 webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
+    if webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
        (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
         verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
         success=1
