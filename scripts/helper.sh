@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.16"
+SCRIPT_VERSION="v1.0.17"
 
 get_remote_version() {
         remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
@@ -104,7 +104,7 @@ handle_choice() {
                 }
 
                 # tailscale up 正常结束则 break（监控它是否还活着）
-                if ! ps -p $up_pid > /dev/null; then
+                if ! pgrep -x "tailscale" > /dev/null; then
                     if [[ $auth_detected != true && $fail_detected != true ]]; then
                         if [[ -s "$tmp_log" ]]; then
                             log_info "✅ tailscale up 执行完成：$(cat "$tmp_log")"
