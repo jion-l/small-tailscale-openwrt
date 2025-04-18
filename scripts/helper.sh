@@ -160,10 +160,16 @@ handle_choice() {
             else
                 wget -O- "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             fi
+
+            if [ $? -ne 0 ]; then
+                log_error "❌  脚本更新失败, 请检查网络或代理是否截断了文件, 如果是代理的问题, 你可以手动修改代理 /etc/tailscale/mirrors.txt 后再执行一遍 [7] "
+                exit 0
+            fi
+
             log_info "✅  脚本更新完毕, 请按回车重新加载..."
             read khjfsdjkhfsd
             exec tailscale-helper
-            ;;
+
 
         10)
             /etc/tailscale/uninstall.sh
