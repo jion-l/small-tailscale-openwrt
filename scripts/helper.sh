@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.47"
+SCRIPT_VERSION="v1.0.48"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -65,6 +65,7 @@ show_menu() {
     log_info "11) 🛠️ 更新脚本包"
     log_info "12) ❌ 卸载 Tailscale"
     log_info "13) 💬 显示 Tailscale 后台服务 安装 / 更新 日志"
+    log_info "14) 🔄 手动运行更新脚本"
     log_info "0)  ⛔ 退出"
 }
 
@@ -218,6 +219,11 @@ handle_choice() {
             ;;
         13)
             cat /tmp/tailscale_update.log
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
+            ;;
+        14)
+            $CONFIG_DIR/autoupdate.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
