@@ -50,6 +50,8 @@ handle_choice() {
             ;;
         2)
             tailscale up
+            log_info "✅ tailscale up 命令运行成功"
+            sleep 3
             ;;
         3)
             /etc/tailscale/update_ctl.sh
@@ -64,6 +66,7 @@ handle_choice() {
             ;;
         5)
             /etc/tailscale/fetch_and_install.sh --dry-run
+            sleep 3
             ;;
         6)
             /etc/tailscale/notify_ctl.sh

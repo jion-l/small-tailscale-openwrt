@@ -3,29 +3,8 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 TIME_OUT=30
-echo "⚠️ 正在运行 opkg update, 请稍后..."
-opkg update > /dev/null 2>&1
-
-# 检查并安装包
-required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout"
-for package in $required_packages; do
-    # 检查包是否已安装
-    if ! opkg list-installed | grep -q "$package"; then
-        echo "⚠️ 包 $package 未安装，开始安装..."
-        opkg install "$package"
-        if [ $? -ne 0 ]; then
-            echo "❌ 安装 $package 失败，跳过该包"
-            continue
-        else
-            echo "✅ 包 $package 安装成功"
-        fi
-    else
-        echo "✅ 包 $package 已安装，跳过"
-    fi
-done
 
 # 加载共享库
-
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
 MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/ts-test/main/mirrors.txt"
