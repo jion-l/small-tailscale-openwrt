@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.25"
+SCRIPT_VERSION="v1.0.26"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -108,7 +108,7 @@ handle_choice() {
                 }
 
                 # tailscale up 正常结束则 break（监控它是否还活着）
-                if ! pgrep -x "tailscale" > /dev/null; then
+                if ! kill -0 $up_pid 2>/dev/null; then
                     if [[ $auth_detected != true && $fail_detected != true ]]; then
                         if [[ -s "$tmp_log" ]]; then
                             log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
@@ -119,6 +119,12 @@ handle_choice() {
                     break
                 fi
             done
+            tailscale status >/dev/null 2>&1
+            if [[ $? -ne 0 ]]; then
+                log_error "⚠️  tailscale 未登录或状态异常"
+            else
+                log_info "🎉  tailscale 登录成功，状态正常"
+            fi
             ;;
         3)
             /etc/tailscale/update_ctl.sh
