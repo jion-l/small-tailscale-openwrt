@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.15"
+SCRIPT_VERSION="v1.0.16"
 
 get_remote_version() {
         remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
@@ -36,23 +36,16 @@ get_remote_version() {
 
 
 show_menu() {
-    echo
     log_info "🎉  欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
-    # 检查远程版本文件是否存在
-    # 如果版本文件不存在，开始后台拉取远程版本
-    log_info "🔄  正在检测脚本更新 ..."
-    get_remote_version
-    # 如果还是没有获取到版本号
     if [ ! -s "$REMOTE_SCRIPTS_VERSION_FILE" ]; then
         log_info "⚠️ 无法获取远程脚本版本"
     else
         remote_version=$(cat "$REMOTE_SCRIPTS_VERSION_FILE")
-        log_info "📦  远程脚本版本: $remote_version $(
-            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(有更新, 请按 [9] 更新)' || echo '✅(已是最新)'
+        log_info "📦 远程脚本版本: $remote_version $( 
+            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(有更新, 请按 [9] 更新)' || echo '✅(已是最新)' 
         )"
     fi
-
-
+    echo
     log_info "    请选择操作："
     log_info "1)  📥 安装 / 重装 Tailscale"
     log_info "2)  🚀 启动 Tailscale"
@@ -89,7 +82,7 @@ handle_choice() {
             fail_detected=false
 
             # 实时监控输出
-            tail -n 0 -F "$tmp_log" | while read -r line; do
+            tail -n 1 -F "$tmp_log" | while read -r line; do
                 echo "$line" | grep -q "not found" && {
                     log_error "❌ tailscale 未安装或命令未找到"
                     kill $up_pid 2>/dev/null
@@ -178,11 +171,16 @@ handle_choice() {
     esac
 }
 
+clear
+# 主循环前执行一次远程版本检测
+log_info "🔄  正在检测脚本更新 ..."
+get_remote_version
+
 # 主循环
 while true; do
-    clear
     show_menu
     log_info "✅ 请输入你的选择:"
     read choice
     handle_choice "$choice"
+    clear
 done
