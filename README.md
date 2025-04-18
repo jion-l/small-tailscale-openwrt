@@ -16,8 +16,7 @@
 ├── uninstall.sh           # 卸载脚本
 ├── install.conf           # 安装配置
 ├── mirrors.txt            # 镜像列表
-├── valid_mirrors.txt      # 有效镜像
-└── mirror_scores.txt      # 镜像评分
+└── valid_mirrors.txt      # 有效镜像
 ```
 
 ## 🚀 快速安装
