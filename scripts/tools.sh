@@ -15,16 +15,15 @@ REMOTE_SCRIPTS_VERSION_FILE="$CONFIG_DIR/remote_ts_scripts_version"
 
 # 初始化日志系统
 log_info() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔧 INFO: $1"
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
 }
-
 log_warn() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 🔧 WARN: $1"
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [WARN] $1"
+}
+log_error() {
+    echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] $1"
 }
 
-log_error() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] ❌ ERROR: $1"
-}
 
 # 安全加载配置文件
 safe_source() {

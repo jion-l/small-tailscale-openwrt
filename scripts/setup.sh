@@ -96,14 +96,13 @@ if [ "$has_args" = false ]; then
             log_info "🔧 可用版本列表："
             i=1
             while read -r tag; do
-                echo "  [$i] $tag"
+                log_info "  [$i] $tag"
                 eval "TAG_$i=\"$tag\""
                 i=$((i + 1))
             done < "$TAGS_TMP"
             total=$((i - 1))
-
-            echo
-            read -p "请输入序号选择版本 (留空使用 latest): " index
+            log_info "请输入序号选择版本 (留空使用 latest): "
+            read index
             index=$(echo "$index" | xargs)
 
             if [ -z "$index" ]; then
@@ -137,15 +136,14 @@ TIMESTAMP=$(date +%s)
 EOF
 
 # 显示当前配置
-log_info
+echo
 log_info "🎯 当前安装配置："
 log_info "模式: $MODE"
 log_info "更新: $AUTO_UPDATE"
 log_info "版本: $VERSION"
 log_info "架构: $ARCH"
 log_info "昵称: $HOST_NAME"
-
-log_info
+echo
 
 # 停止服务之前，检查服务文件是否存在
 if [ -f /etc/init.d/tailscale ]; then
