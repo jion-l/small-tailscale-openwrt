@@ -90,46 +90,48 @@ if [ "$MODE" = "local" ]; then
     fi
   fi
 
-# tmp 模式逻辑
 elif [ "$MODE" = "tmp" ]; then
   version_to_use="$([ "$current" = "latest" ] && echo "$remote" || echo "$current")"
 
-  if [ "$AUTO_UPDATE" = "true" ]; then
-    if [ "$version_to_use" != "$recorded" ]; then
-      log_info "🌐 检测到新版本 $version_to_use, 开始更新..."
-      if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
-        echo "$version_to_use" > "$VERSION_FILE"
-        log_info "✅ 更新成功至版本 $version_to_use"
-        # 如果启用更新通知，发送通知
-        if should_notify "update"; then
-          send_notify "✅ Tailscale TMP 模式已更新" "版本更新至 $version_to_use"
+  # 文件不存在时，检查是否需要自动更新
+  if [ ! -x "/tmp/tailscaled" ]; then
+    if [ "$AUTO_UPDATE" = "true" ]; then
+      # 如果启用自动更新，且版本与本地记录不一致，才进行更新
+      if [ "$version_to_use" != "$recorded" ]; then
+        log_info "🌐 检测到新版本 $version_to_use, 开始更新..."
+        if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
+          echo "$version_to_use" > "$VERSION_FILE"
+          log_info "✅ 更新成功至版本 $version_to_use"
+          # 发送更新通知
+          if should_notify "update"; then
+            send_notify "✅ Tailscale TMP 模式已更新" "版本更新至 $version_to_use"
+          fi
+        else
+          log_error "❌ TMP 更新失败"
+          # 发送紧急通知
+          if should_notify "emergency"; then
+            send_notify "❌ Tailscale TMP 更新失败" "版本更新失败，请检查日志"
+          fi
+          exit 1
         fi
       else
-        log_error "❌ TMP 更新失败"
-        # 如果启用紧急通知，发送通知
-        if should_notify "emergency"; then
-          send_notify "❌ Tailscale TMP 更新失败" "版本更新失败，请检查日志"
-        fi
-        exit 1
+        log_info "✅ TMP 当前版本 $version_to_use 已是最新"
       fi
     else
-      log_info "✅ TMP 当前版本 $version_to_use 已是最新"
-    fi
-  else
-    if [ ! -x "/tmp/tailscaled" ]; then
-      log_info "⚙️ TMP 模式缺失，尝试安装指定版本 $version_to_use..."
+      # 如果不启用自动更新，使用指定版本进行安装
+      log_info "⚙️ 不启用自动更新，安装指定版本 $version_to_use..."
       if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
         echo "$version_to_use" > "$VERSION_FILE"
       else
         log_error "❌ TMP 安装失败"
-        # 如果启用紧急通知，发送通知
+        # 发送紧急通知
         if should_notify "emergency"; then
           send_notify "❌ Tailscale TMP 安装失败" "指定版本 $version_to_use 安装失败"
         fi
         exit 1
       fi
-    else
-      log_info "✅ TMP 模式已存在 tailscaled，跳过安装"
     fi
+  else
+    log_info "✅ TMP 模式已存在 tailscaled，跳过安装"
   fi
 fi
