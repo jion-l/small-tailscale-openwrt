@@ -16,23 +16,27 @@ get_download_tool() {
     elif command -v wget > /dev/null 2>&1; then
         echo "wget"
     else
-        log_info "❌ 没有找到 curl 或 wget，无法下载或执行操作。"
+        log_info "❌ 没有找到 curl 或 wget, 无法下载或执行操作。"
         exit 1
     fi
 }
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.17"
+SCRIPT_VERSION="v1.0.18"
 
 get_remote_version() {
-        remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
-        if [ "$download_tool" = "curl" ]; then
-            curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
-        else
-            wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
-        fi
+    remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
+    
+    if [ "$download_tool" = "curl" ]; then
+        # 设置 5 秒超时
+        timeout 5 curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
+    else
+        # 设置 5 秒超时
+        timeout 5 wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
+    fi
 }
+
 
 
 show_menu() {
@@ -66,17 +70,17 @@ handle_choice() {
     case $1 in
         1)
             /etc/tailscale/setup.sh
-            sleep 3
+            read -p "请按回车继续" khjfsdjkhfsd
             ;;
         2)
             tmp_log="/tmp/tailscale_up.log"
             : > "$tmp_log"  # 清空日志文件
 
-            # 后台启动 tailscale up，输出重定向到日志
+            # 后台启动 tailscale up, 输出重定向到日志
             tailscale up >"$tmp_log" 2>&1 &
             up_pid=$!
 
-            log_info "🚀 tailscale up 已启动，正在监控输出..."
+            log_info "🚀 tailscale up 已启动, 正在监控输出..."
 
             auth_detected=false
             fail_detected=false
@@ -98,9 +102,9 @@ handle_choice() {
 
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
-                    log_info "📎 tailscale 等待认证，请访问以下网址登录：$auth_url"
+                    log_info "📎 tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
-                    # 不退出，继续等 tailscale up 自然完成
+                    # 不退出, 继续等 tailscale up 自然完成
                 }
 
                 # tailscale up 正常结束则 break（监控它是否还活着）
@@ -109,7 +113,7 @@ handle_choice() {
                         if [[ -s "$tmp_log" ]]; then
                             log_info "✅ tailscale up 执行完成：$(cat "$tmp_log")"
                         else
-                            log_info "✅ tailscale up 执行完成，无输出"
+                            log_info "✅ tailscale up 执行完成, 无输出"
                         fi
                     fi
                     break
@@ -125,18 +129,18 @@ handle_choice() {
             else
                 log_info "⚠️ 本地未记录版本信息, 可能未安装 Tailscale"
             fi
-            sleep 3
+            read -p "请按回车继续" khjfsdjkhfsd
             ;;
         5)
             /etc/tailscale/fetch_and_install.sh --dry-run
-            sleep 3
+            read -p "请按回车继续" khjfsdjkhfsd
             ;;
         6)
             /etc/tailscale/notify_ctl.sh
             ;;
         7)
             /etc/tailscale/test_mirrors.sh
-            sleep 3
+            read -p "请按回车继续" khjfsdjkhfsd
             ;;
         8)
             if [ "$download_tool" = "curl" ]; then
@@ -144,7 +148,7 @@ handle_choice() {
             else
                 wget -O /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
-            sleep 3
+            read -p "请按回车继续" khjfsdjkhfsd
             ;;
         9)
             if [ "$download_tool" = "curl" ]; then
@@ -152,21 +156,21 @@ handle_choice() {
             else
                 wget -O- "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             fi
-            log_info "✅ 脚本更新完毕，正在重新加载..."
-            sleep 3
+            log_info "✅ 脚本更新完毕, 请按回车重新加载..."
+            read khjfsdjkhfsd
             exec tailscale-helper
             ;;
 
         10)
             /etc/tailscale/uninstall.sh
-            sleep 3
+            read -p "请按回车继续" khjfsdjkhfsd
             ;;
         0)
             exit 0
             ;;
         *)
-            log_info "❌ 无效选择，请重新输入。"
-            sleep 3
+            log_info "❌ 无效选择, 请重新输入, 按回车继续..."
+            read khjfsdjkhfsd
             ;;
     esac
 }
