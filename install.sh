@@ -5,8 +5,8 @@ CONFIG_DIR="/etc/tailscale"
 SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 
 # 预先计算的校验和
-EXPECTED_CHECKSUM_SHA256="30e5051bbb5d51f2bb07f6985d455a57b6baa1e33a3f156975ade0ce1bbe2cc5"
-EXPECTED_CHECKSUM_MD5="9a3317169c311fdf6f2981b51756b3fe"
+EXPECTED_CHECKSUM_SHA256="5aebb3af2c1a5377b046ba0b5a19ac89ad77cbc90742e9bf87b6ae50fcd6c599"
+EXPECTED_CHECKSUM_MD5="22fb50785bd76ec0de0cf04b0214e5ae"
 
 # 校验函数，接收三个参数：文件路径、校验类型（sha256/md5）、预期值
 verify_checksum() {
