@@ -173,15 +173,20 @@ else
 fi
 
 # 初始化通知配置
-cat > "$CONFIG_DIR/notify.conf" <<'EOF'
+[ -f "$CONFIG_DIR/notify.conf" ] || cat > "$CONFIG_DIR/notify.conf" <<'EOF'
 # 通知开关 (1=启用 0=禁用)
 NOTIFY_UPDATE=1
 NOTIFY_MIRROR_FAIL=1
 NOTIFY_EMERGENCY=1
 
-# Server酱SendKey
+NOTIFY_SERVERCHAN=0
 SERVERCHAN_KEY=""
+NOTIFY_BARK=0
+BARK_KEY=""
+NOTIFY_NTFY=0
+NTFY_KEY=""
 EOF
+
 
 echo "✅ 脚本包安装完成！请执行以下命令进行安装："
 echo "tailscale-helper"

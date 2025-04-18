@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 # 如果配置文件不存在，初始化
@@ -7,34 +9,50 @@ if [ ! -f "$NTF_CONF" ]; then
     mkdir -p "$(dirname "$NTF_CONF")"
     cat > "$NTF_CONF" <<EOF
 # 通知配置文件
+# 通知开关 (1=启用 0=禁用)
+NOTIFY_UPDATE=1
+NOTIFY_MIRROR_FAIL=1
+NOTIFY_EMERGENCY=1
+
 NOTIFY_SERVERCHAN=0
 SERVERCHAN_KEY=""
-
 NOTIFY_BARK=0
 BARK_KEY=""
-
 NOTIFY_NTFY=0
 NTFY_KEY=""
 EOF
 fi
 
+# 显示菜单
 show_menu() {
     clear
     [ -f "$NTF_CONF" ] && . "$NTF_CONF"
 
+    # 获取当前通知开关状态
+    serverchan_status=$([ "$NOTIFY_SERVERCHAN" = "1" ] && echo "✅" || echo "❌")
+    bark_status=$([ "$NOTIFY_BARK" = "1" ] && echo "✅" || echo "❌")
+    ntfy_status=$([ "$NOTIFY_NTFY" = "1" ] && echo "✅" || echo "❌")
+    
+    # 获取其他通知配置
+    update_status=$([ "$NOTIFY_UPDATE" = "1" ] && echo "✅" || echo "❌")
+    mirror_fail_status=$([ "$NOTIFY_MIRROR_FAIL" = "1" ] && echo "✅" || echo "❌")
+    emergency_status=$([ "$NOTIFY_EMERGENCY" = "1" ] && echo "✅" || echo "❌")
+
     echo "🛠️ 通知配置管理"
     echo "--------------------------------"
-    echo "1. 设置Server酱SendKey      当前: ${SERVERCHAN_KEY:+(已设置)}"
-    echo "2. 设置Bark的设备码         当前: ${BARK_KEY:+(已设置)}"
-    echo "3. 设置ntfy的订阅码         当前: ${NTFY_KEY:+(已设置)}"
-    echo "4. 切换Server酱通知开关     状态: $([ "$NOTIFY_SERVERCHAN" = "1" ] && echo ✅ || echo ❌)"
-    echo "5. 切换Bark通知开关         状态: $([ "$NOTIFY_BARK" = "1" ] && echo ✅ || echo ❌)"
-    echo "6. 切换ntfy通知开关         状态: $([ "$NOTIFY_NTFY" = "1" ] && echo ✅ || echo ❌)"
-    echo "7. 发送测试通知"
+    echo "1. 设置Server酱SendKey      当前: ${SERVERCHAN_KEY}"
+    echo "2. 设置Bark的设备码         当前: ${BARK_KEY}"
+    echo "3. 设置ntfy的订阅码         当前: ${NTFY_KEY}"
+    echo "4. 切换Server酱通知开关     状态: $serverchan_status"
+    echo "5. 切换Bark通知开关         状态: $bark_status"
+    echo "6. 切换ntfy通知开关         状态: $ntfy_status"
+    echo "7. 切换更新通知开关         状态: $update_status"
+    echo "8. 切换镜像失败通知开关     状态: $mirror_fail_status"
+    echo "9. 切换紧急通知开关         状态: $emergency_status"
+    echo "10. 发送测试通知"
     echo "0. 退出"
     echo "--------------------------------"
 }
-
 
 # 设置Server酱的SendKey
 edit_key() {
@@ -47,7 +65,6 @@ edit_key() {
     fi
 }
 
-
 # 设置Bark的设备码
 edit_bark() {
     echo "请输入 Bark 设备码 (留空禁用):"
@@ -59,7 +76,6 @@ edit_bark() {
     fi
 }
 
-
 # 设置ntfy的订阅码
 edit_ntfy() {
     echo "请输入 NTFY 订阅码 (留空禁用):"
@@ -70,7 +86,6 @@ edit_ntfy() {
         echo "NTFY_KEY=\"$ntfy_key\"" >> "$NTF_CONF"
     fi
 }
-
 
 # 切换通知开关
 toggle_setting() {
@@ -85,11 +100,22 @@ toggle_setting() {
     fi
 }
 
-
+# 修改通知开关的值
+edit_notify_option() {
+    local option=$1
+    current_value=$(grep "^$option=" "$NTF_CONF" | cut -d= -f2)
+    read -p "请输入 $option 当前值为 $current_value，设置新的值 (0=禁用, 1=启用): " new_value
+    # 更新配置文件
+    if [ "$new_value" = "0" ] || [ "$new_value" = "1" ]; then
+        sed -i "s|^$option=.*|$option=$new_value|" "$NTF_CONF"
+    else
+        echo "❌ 无效输入，保留原值。"
+    fi
+}
 
 # 测试通知
 test_notify() {
-    send_notify "Tailscale测试通知" "这是测试消息" "时间: $(date '+%F %T')"
+    send_notify "Tailscale测试通知" "✅ 这是测试消息" "时间: $(date '+%F %T')"
 }
 
 # 查看当前配置
@@ -107,11 +133,17 @@ show_config() {
             NOTIFY_NTFY)
                 echo "ntfy通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
             SERVERCHAN_KEY)
-                echo "Server酱 SendKey: ${value:+"(已设置)"}" ;;
+                echo "Server酱 SendKey: $value" ;;
             BARK_KEY)
-                echo "Bark 设备码: ${value:+"(已设置)"}" ;;
+                echo "Bark 设备码: $value" ;;
             NTFY_KEY)
-                echo "NTFY 订阅码: ${value:+"(已设置)"}" ;;
+                echo "NTFY 订阅码: $value" ;;
+            NOTIFY_UPDATE)
+                echo "更新通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
+            NOTIFY_MIRROR_FAIL)
+                echo "镜像失败通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
+            NOTIFY_EMERGENCY)
+                echo "紧急通知: $([ "$value" = "1" ] && echo "✅" || echo "❌")" ;;
         esac
     done
     echo "--------------------------------"
@@ -120,7 +152,7 @@ show_config() {
 # 主菜单
 while :; do
     show_menu
-    read -p "请选择 [1-7]: " choice
+    read -p "请选择 [1-10]: " choice
     case $choice in
         0) exit 0 ;;
         1) edit_key ;;
@@ -129,7 +161,10 @@ while :; do
         4) toggle_setting "NOTIFY_SERVERCHAN" ;;
         5) toggle_setting "NOTIFY_BARK" ;;
         6) toggle_setting "NOTIFY_NTFY" ;;
-        7) test_notify ;;
+        7) edit_notify_option "NOTIFY_UPDATE" ;;
+        8) edit_notify_option "NOTIFY_MIRROR_FAIL" ;;
+        9) edit_notify_option "NOTIFY_EMERGENCY" ;;
+        10) test_notify ;;
         *) echo "无效选择" ;;
     esac
 done

@@ -41,6 +41,17 @@ test_mirror() {
     rm -f "$tmp_bin" "$tmp_sha"
 }
 
+# 加载通知配置
+[ -f /etc/tailscale/notify.conf ] && . /etc/tailscale/notify.conf
+
+# 检查是否需要发送镜像失效通知
+should_notify_mirror_fail() {
+    if [ "$NOTIFY_MIRROR_FAIL" = "1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 # 主流程
 while read -r mirror; do
@@ -52,10 +63,12 @@ if [ -s "$TMP_VALID_MIRRORS" ]; then
     sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
     echo "✅ 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
 else
-    send_notify "MIRROR_FAIL" "镜像全失效" "请手动配置代理"
+    # 如果启用镜像失效通知，发送通知
+    if should_notify_mirror_fail; then
+        send_notify "❌ MIRROR_FAIL" "镜像全部失效" "请手动配置代理"
+    fi
     echo "❌ 所有镜像均失效"
     touch "$VALID_MIRRORS"
 fi
-
 
 rm -f "$TMP_VALID_MIRRORS"
