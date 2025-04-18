@@ -27,7 +27,7 @@ SCRIPT_VERSION="v1.0.4"
 show_menu() {
     echo
     log_info "🎉 欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
-    log_info "请选择操作："
+    log_info "    请选择操作："
     log_info "1)  📥 安装 / 重装 Tailscale"
     log_info "2)  🚀 启动 Tailscale"
     log_info "3)  🔄 管理 Tailscale 自动更新"
