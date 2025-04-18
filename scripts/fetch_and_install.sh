@@ -4,28 +4,6 @@ set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh && safe_source "$INST_CONF"
 
 
-# 架构映射
-get_arch() {
-    arch_=$(uname -m)
-    case "$arch_" in
-        i386) arch=386 ;;
-        x86_64) arch=amd64 ;;
-        armv7l) arch=arm ;;
-        aarch64|armv8l) arch=arm64 ;;
-        mips) 
-            arch=mips
-            endianness=$(echo -n I | hexdump -o | awk '{ print (substr($2,6,1)=="1") ? "le" : "be"; exit }')
-            ;;
-        *) 
-            echo "不支持的架构: $arch_"
-            exit 1
-            ;;
-    esac
-    [[ -n "$endianness" ]] && arch="${arch}${endianness}"
-    echo "$arch"
-}
-
-
 # 获取最新版本
 get_latest_version() {
     local api_url="https://api.github.com/repos/CH3NGYZ/ts-test/releases/latest"
@@ -107,7 +85,7 @@ install_tailscale() {
     local mode=$2
     local mirror_list=$3
 
-    local arch=$(get_arch)
+    local arch=$($ARCH)
     local pkg_name="tailscaled_linux_$arch"
     local download_url="CH3NGYZ/ts-test/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"

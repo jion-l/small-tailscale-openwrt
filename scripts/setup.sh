@@ -7,10 +7,32 @@ log_info "加载公共函数..."
 log_info "加载配置文件..."
 safe_source "$INST_CONF" || log_warn "⚠️ INST_CONF 未找到或无效，使用默认配置"
 
+get_arch() {
+    arch_=$(uname -m)
+    case "$arch_" in
+        i386) arch=386 ;;
+        x86_64) arch=amd64 ;;
+        armv7l) arch=arm ;;
+        aarch64|armv8l) arch=arm64 ;;
+        mips) 
+            arch=mips
+            endianness=$(echo -n I | hexdump -o | awk '{ print (substr($2,6,1)=="1") ? "le" : "be"; exit }')
+            ;;
+        *) 
+            echo "❌ 不支持的架构: $arch_"
+            exit 1
+            ;;
+    esac
+    [ -n "$endianness" ] && arch="${arch}${endianness}"
+    echo "$arch"
+}
+
 # 默认值
 MODE=""
 AUTO_UPDATE=""
 VERSION="latest"
+ARCH=$(get_arch)
+
 has_args=false  # 🔧 新增：标记是否传入了参数
 
 # 若有参数, 接受 --tmp为使用内存模式, --auto-update为自动更新
@@ -108,6 +130,7 @@ cat > "$INST_CONF" <<EOF
 MODE=$MODE
 AUTO_UPDATE=$AUTO_UPDATE
 VERSION=$VERSION
+ARCH=$ARCH
 TIMESTAMP=$(date +%s)
 EOF
 
