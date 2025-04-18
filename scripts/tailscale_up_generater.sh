@@ -156,6 +156,8 @@ main() {
       exit 0
     elif [[ "$input" == "g" ]]; then
       generate_cmd
+      log_info "⏳  请按回车继续..." 1
+      read khjfsdjkhfsd
     elif [[ "$input" == "r" ]]; then
       generate_cmd
       log_info "\n即将执行..."
@@ -164,8 +166,6 @@ main() {
     elif [[ "$input" =~ ^[0-9]+$ && -n "${OPTIONS[$input]}" ]]; then
       edit_param $input
     fi
-    log_info "⏳  请按回车继续..." 1
-    read khjfsdjkhfsd
   done
 }
 
