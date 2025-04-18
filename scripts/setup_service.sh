@@ -89,6 +89,7 @@ start_service() {
 }
 
 stop_service() {
+  [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
   log_info "🛑 停止服务..."
   # 确保正确停止 tailscaled
   if [ -x "/usr/local/bin/tailscaled" ]; then
