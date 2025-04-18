@@ -111,9 +111,10 @@ send_notify() {
 
     # 添加 urlencode 函数（sh 兼容）
     urlencode() {
-        local length="${#1}"
+        local str="$1"
+        local length="${#str}"
         for (( i=0; i<length; i++ )); do
-            local c="${1:i:1}"
+            local c="${str:i:1}"
             case "$c" in
                 [a-zA-Z0-9._-]) 
                     printf "$c"
@@ -124,6 +125,7 @@ send_notify() {
             esac
         done
     }
+
 
 
     # Bark
