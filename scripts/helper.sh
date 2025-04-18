@@ -17,7 +17,7 @@ get_download_tool() {
     elif command -v wget > /dev/null 2>&1; then
         echo "wget"
     else
-        log_info "❌ 没有找到 curl 或 wget, 无法下载或执行操作。"
+        log_info "❌  没有找到 curl 或 wget, 无法下载或执行操作。"
         exit 1
     fi
 }
@@ -131,13 +131,13 @@ handle_choice() {
             fi
             ;;
         3)
-            log_info "🔓 正在执行 tailscale logout..."
+            log_info "🔓  正在执行 tailscale logout..."
             if tailscale logout; then
                 sleep 3
                 if tailscale status 2>&1 | grep -q "Logged out."; then
-                    log_info "✅ 成功登出 tailscale"
+                    log_info "✅  成功登出 tailscale"
                 else
-                    log_error "⚠️ 登出后状态未知，请检查 tailscale 状态"
+                    log_error "⚠️  登出后状态未知，请检查 tailscale 状态"
                 fi
             else
                 log_error "❌  tailscale logout 命令执行失败"
