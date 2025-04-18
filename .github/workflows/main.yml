@@ -152,17 +152,11 @@ jobs:
             md5sum -c MD5SUMS.txt
             ```
             
-            📝 校验：
+            🔧 **快速启动**：
             ```bash
-            sha256sum -c SHA256SUMS.txt
-            md5sum -c MD5SUMS.txt
-            ```
-            
-            🔧 快速启动：
-            ```bash
-            chmod +x /path/to/your/tailscale/binary/location/tailscaled-linux-amd64
-            ln -s /path/to/your/tailscale/binary/location/tailscaled-linux-amd64 /usr/bin/tailscale
-            ln -s /path/to/your/tailscale/binary/location/tailscaled-linux-amd64 /usr/bin/tailscaled
+            chmod +x /path/to/tailscaled-linux-amd64
+            ln -s /path/to/tailscaled-linux-amd64 /usr/bin/tailscale
+            ln -s /path/to/tailscaled-linux-amd64 /usr/bin/tailscaled
             tailscaled
             tailscale up
             ```
