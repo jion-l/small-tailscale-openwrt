@@ -102,4 +102,5 @@ while true; do
     log_info "✅ 请输入你的选择:"
     read choice
     handle_choice "$choice"
+    sleep 3
 done
