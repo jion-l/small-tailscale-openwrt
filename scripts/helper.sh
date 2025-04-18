@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.18"
+SCRIPT_VERSION="v1.0.19"
 
 get_remote_version() {
     remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
@@ -60,7 +60,7 @@ show_menu() {
     log_info "8)  ♻️ 更新代理池"
     log_info "9)  🛠️ 更新脚本包"
     log_info "10) ❌ 卸载 Tailscale"
-    log_info "0)  🚪 退出"
+    log_info "0)  ✖️ 退出"
 }
 
 
@@ -79,7 +79,7 @@ handle_choice() {
             tailscale up >"$tmp_log" 2>&1 &
             up_pid=$!
 
-            log_info "🚀 tailscale up 已启动, 正在监控输出..."
+            log_info "🚀  命令 tailscale up 已运行, 正在监控输出..."
 
             auth_detected=false
             fail_detected=false
@@ -87,13 +87,13 @@ handle_choice() {
             # 实时监控输出
             tail -n 1 -F "$tmp_log" | while read -r line; do
                 echo "$line" | grep -q "not found" && {
-                    log_error "❌ tailscale 未安装或命令未找到"
+                    log_error "❌  tailscale 未安装或命令未找到"
                     kill $up_pid 2>/dev/null
                     break
                 }
 
                 echo "$line" | grep -qi "failed" && {
-                    log_error "❌ tailscale up 执行失败：$line"
+                    log_error "❌  tailscale up 执行失败：$line"
                     fail_detected=true
                     kill $up_pid 2>/dev/null
                     break
@@ -101,7 +101,7 @@ handle_choice() {
 
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
-                    log_info "📎 tailscale 等待认证, 请访问以下网址登录：$auth_url"
+                    log_info "💻  tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
                     # 不退出, 继续等 tailscale up 自然完成
                 }
@@ -110,9 +110,9 @@ handle_choice() {
                 if ! pgrep -x "tailscale" > /dev/null; then
                     if [[ $auth_detected != true && $fail_detected != true ]]; then
                         if [[ -s "$tmp_log" ]]; then
-                            log_info "✅ tailscale up 执行完成：$(cat "$tmp_log")"
+                            log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
                         else
-                            log_info "✅ tailscale up 执行完成, 无输出"
+                            log_info "✅  tailscale up 执行完成, 无输出"
                         fi
                     fi
                     break
@@ -124,9 +124,9 @@ handle_choice() {
             ;;
         4)
             if [ -f "$VERSION_FILE" ]; then
-                log_info "📦 当前本地版本: $(cat "$VERSION_FILE")"
+                log_info "📦  当前本地版本: $(cat "$VERSION_FILE")"
             else
-                log_info "⚠️ 本地未记录版本信息, 可能未安装 Tailscale"
+                log_info "⚠️  本地未记录版本信息, 可能未安装 Tailscale"
             fi
             read -p "请按回车继续" khjfsdjkhfsd
             ;;
@@ -155,14 +155,14 @@ handle_choice() {
             else
                 wget -O- "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             fi
-            log_info "✅ 脚本更新完毕, 请按回车重新加载..."
+            log_info "✅  脚本更新完毕, 请按回车重新加载..."
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
 
         10)
             /etc/tailscale/uninstall.sh
-            read -p "请按回车继续" khjfsdjkhfsd
+            read -p "✅  请按回车继续" khjfsdjkhfsd
             ;;
         0)
             exit 0
