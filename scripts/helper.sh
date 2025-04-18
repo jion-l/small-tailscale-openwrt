@@ -69,7 +69,8 @@ handle_choice() {
     case $1 in
         1)
             /etc/tailscale/setup.sh
-            read -p "请按回车继续" khjfsdjkhfsd
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         2)
             tmp_log="/tmp/tailscale_up.log"
@@ -128,18 +129,21 @@ handle_choice() {
             else
                 log_info "⚠️  本地未记录版本信息, 可能未安装 Tailscale"
             fi
-            read -p "请按回车继续" khjfsdjkhfsd
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         5)
             /etc/tailscale/fetch_and_install.sh --dry-run
-            read -p "请按回车继续" khjfsdjkhfsd
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         6)
             /etc/tailscale/notify_ctl.sh
             ;;
         7)
             /etc/tailscale/test_mirrors.sh
-            read -p "请按回车继续" khjfsdjkhfsd
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         8)
             if [ "$download_tool" = "curl" ]; then
@@ -147,7 +151,8 @@ handle_choice() {
             else
                 wget -O /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
-            read -p "请按回车继续" khjfsdjkhfsd
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         9)
             if [ "$download_tool" = "curl" ]; then
@@ -162,7 +167,8 @@ handle_choice() {
 
         10)
             /etc/tailscale/uninstall.sh
-            read -p "✅  请按回车继续" khjfsdjkhfsd
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         0)
             exit 0
@@ -182,7 +188,7 @@ clear
 # 主循环
 while true; do
     show_menu
-    log_info "✅ 请输入你的选择:"
+    log_info "✅  请输入你的选择:"
     read choice
     handle_choice "$choice"
     clear
