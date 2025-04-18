@@ -11,7 +11,7 @@ if [ $# -eq 0 ]; then
     echo "请选择操作:"
     echo "  1. 启用自动更新"
     echo "  2. 禁用自动更新"
-    echo -n "请输入数字 [1/2], 输入其他为退出: "
+    echo -n "请输入数字 [1/2] 或 [on/off], 输入其他为退出: "
     read -r choice
 else
     choice="$1"
@@ -29,7 +29,6 @@ case "$choice" in
         sleep 2
         ;;
     *)
-        echo "用法: $0 [1|2 或 on|off]"
         exit 1
         ;;
 esac
