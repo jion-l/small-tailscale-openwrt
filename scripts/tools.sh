@@ -100,9 +100,17 @@ send_notify() {
             return 1
         fi
     }
+
+    # Server酱
+    if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
+        data="text=$title&desp=$content"
+        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
+    fi
+
+    # 添加 urlencode 函数（sh 兼容）
     urlencode() {
         local s="$1"
-        local i c hex
+        local i c
         for i in $(seq 1 ${#s}); do
             c=$(printf "%s" "$s" | cut -c $i)
             case "$c" in
@@ -112,17 +120,19 @@ send_notify() {
         done
     }
 
-    # Server酱
-    if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
-        data="text=$title&desp=$content"
-        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
-    fi
-
+    # Bark
     if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
         title_enc=$(urlencode "$title")
         content_enc=$(urlencode "$content")
         url="${BARK_KEY}/${title_enc}/${content_enc}"
-        send_via_curl_or_wget "$url" "" "GET" "" && echo "✅ Bark 通知已发送"
+        # 直接 GET 访问拼接好的地址，不带参数和 header
+        if command -v curl > /dev/null; then
+            curl -sS "$url" && echo "✅ Bark 通知已发送"
+        elif command -v wget > /dev/null; then
+            wget --quiet "$url" && echo "✅ Bark 通知已发送"
+        else
+            echo "❌ curl 和 wget 都不可用，无法发送 Bark 通知"
+        fi
     fi
 
 
