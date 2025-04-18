@@ -6,7 +6,7 @@
 if [ $# -eq 0 ]; then
     [ -f "$CONFIG_DIR/auto_update_enabled" ] && status_txt="已启用" || status_txt="已禁用"
     echo "当前自动更新状态: $status_txt"
-    echo "当前版本: $(cat "$CONFIG_DIR/current_version" 2>/dev/null || echo "未知")"
+    echo "当前版本: $(cat "$VERSION_FILE" 2>/dev/null || echo "未知")"
     echo "最新版本: $("$CONFIG_DIR/fetch_and_install.sh" --dry-run)"
     echo ""
     echo "请选择操作:"

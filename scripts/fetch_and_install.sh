@@ -156,7 +156,7 @@ install_tailscale() {
         log_info "✅ 安装到 /tmp (内存模式)"
     fi
 
-    echo "$version" > "$CONFIG_DIR/current_version"
+    echo "$version" > "$VERSION_FILE"
 }
 
 # 参数解析

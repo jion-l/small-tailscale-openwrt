@@ -45,19 +45,15 @@ wget -O- https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/h
 tailscale-helper
 ```
 
-## 🔧 日常管理
+## 🔧 功能管理
 | 命令 | 功能 |
 |------|------|
-| `/etc/tailscale/update_ctl.sh` | 管理自动更新 |
-| `/etc/tailscale/notify_ctl.sh` | 配置通知 |
-| `/etc/tailscale/test_mirrors.sh` | 检测代理 |
-| `/etc/tailscale/fetch_and_install.sh --dry-run` | 输出最新版本 |
-| `/etc/tailscale/setup.sh` | 重新安装(切换安装位置) |
+| `tailscale-helper` | 管理自动更新,配置通知等 |
 
 ## ⚙️ 版本管理
 ```bash
 # 安装特定版本
-/etc/tailscale/setup.sh
+tailscale-helper
 ```
 
 ## 📡 代理配置
@@ -76,13 +72,13 @@ tailscale-helper
    ```
 3.强制重新检测代理
    ```
-   rm /etc/tailscale/valid_mirrors.txt && /etc/tailscale/test_mirrors.sh.
+   rm /etc/tailscale/valid_mirrors.txt && /etc/tailscale/test_mirrors.sh
    ```
 
 ## 🔔 通知系统
 ```bash
 # 交互式配置
-/etc/tailscale/notify_ctl.sh
+tailscale-helper
 
 # 配置项说明：
 # - 更新通知：版本升级成功时提醒
@@ -92,12 +88,12 @@ tailscale-helper
 
 ## 🗑️ 卸载
 ```bash
-/etc/tailscale/uninstall.sh
+tailscale-helper
 ```
 > 注意：默认会保留脚本目录
 
 ## ⚠️ 注意事项
-1. 内存安装模式重启后需重新下载,但由于proxy不稳定, 可能会出现下载失败的情况, 因此建议您还是本地安装
+1. 内存安装模式每次重启后需重新下载Tailscale, 但由于proxy不稳定, 可能会出现下载失败的情况, 因此建议您还是本地安装
 2. 首次使用建议配置通知
 
 ## 😍 鸣谢

@@ -3,6 +3,7 @@
 
 CONFIG_DIR="/etc/tailscale"
 LOG_FILE="/var/log/tailscale_install.log"
+VERSION_FILE="$CONFIG_DIR/current_version"
 NTF_CONF="$CONFIG_DIR/notify.conf"
 INST_CONF="$CONFIG_DIR/install.conf"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
