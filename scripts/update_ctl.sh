@@ -10,7 +10,7 @@ if [ $# -eq 0 ]; then
     log_info "🎛️ 请选择操作:"
     log_info "    1). 启用自动更新 🟢"
     log_info "    2). 禁用自动更新 🔴"
-    log_info "请输入数字 [1/2] 或 [on/off], 输入其他为退出: "
+    log_info "⏳ 请输入数字 [1/2] 或 [on/off], 输入其他为退出: "
     read -r choice
 else
     choice="$1"

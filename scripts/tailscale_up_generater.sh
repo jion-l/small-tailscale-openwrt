@@ -93,7 +93,7 @@ edit_param() {
   type="${PARAMS_TYPE[$key]}"
   
   if [[ "$type" == "flag" ]]; then
-    log_info -n "启用 $key ? (默认是启用，按回车继续，输入非y即不启用): "
+    log_info "⏳ 启用 $key ? (默认是启用，按回车继续，输入非y即不启用): " 1
     read -r yn
     if [[ "$yn" != "y" && "$yn" != "Y" ]]; then
       unset $var_name
@@ -101,7 +101,7 @@ edit_param() {
       declare -g $var_name=1
     fi
   else
-    log_info -n "请输入 $key 的值（${PARAMS_DESC[$key]}）："
+    log_info "🔑 请输入 $key 的值（${PARAMS_DESC[$key]}）：" 1
     read -r val
     if [[ -n "$val" ]]; then
       declare -g $var_name="$val"
@@ -126,7 +126,7 @@ generate_cmd() {
       fi
     fi
   done
-  log_info -n "\n生成命令："
+  log_info "\n生成命令：" 
   log_info "$cmd"
 }
 
@@ -135,7 +135,7 @@ main() {
   while true; do
     load_conf
     show_status
-    log_info -n "请输入要修改的参数编号（0退出，g生成命令，r运行）："
+    log_info "⏳ 请输入要修改的参数编号（0退出，g生成命令，r运行）：" 1
     read input
     if [[ "$input" == "0" ]]; then
       exit 0

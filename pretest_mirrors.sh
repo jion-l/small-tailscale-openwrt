@@ -97,7 +97,7 @@ manual_fallback() {
         read choice
         case $choice in
             1)
-                log_info "输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
+                log_info "⏳ 输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
                 read  mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if echo "$mirror" | grep -qE '^https?://'; then
