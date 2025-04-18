@@ -11,7 +11,7 @@ SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
 VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
 TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
 REMOTE_SCRIPTS_VERSION_FILE="$CONFIG_DIR/remote_ts_scripts_version"
-
+TIME_OUT=30
 
 # 初始化日志系统
 log_info() {
@@ -50,28 +50,39 @@ webget() {
     # $3 输出控制 (echooff/echoon)
     # $4 重定向控制 (rediroff)
     local result=""
-    
+
     if command -v curl >/dev/null 2>&1; then
         [ "$3" = "echooff" ] && local progress='-s' || local progress='-#'
         [ -z "$4" ] && local redirect='-L' || local redirect=''
-        result=$(curl -w %{http_code} -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout 10 $progress $redirect -ko "$1" "$2")
-        [ -n "$(echo "$result" | grep -e ^2)" ] && result="200"
+        # 修正 curl 的参数：-o 用于指定输出文件
+        result=$(curl -w "%{http_code}" -H "User-Agent: Mozilla/5.0 (curl-compatible)" --connect-timeout $TIME_OUT $progress $redirect -o "$1" "$2")
+        # 判断返回的 HTTP 状态码是否为 2xx
+        if [[ "$result" =~ ^2 ]]; then
+            result="200"
+        else
+            result="non-200"
+        fi
     else
         if command -v wget >/dev/null 2>&1; then
             [ "$3" = "echooff" ] && local progress='-q' || local progress='--show-progress'
             [ "$4" = "rediroff" ] && local redirect='--max-redirect=0' || local redirect=''
             local certificate='--no-check-certificate'
-            local timeout='--timeout=10'
+            local timeout='--timeout=$TIME_OUT'
             wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate $timeout -O "$1" "$2"
-            [ $? -eq 0 ] && result="200"
+            if [ $? -eq 0 ]; then
+                result="200"
+            else
+                result="non-200"
+            fi
         else
             echo "Error: Neither curl nor wget available"
             return 1
         fi
     fi
-    
+
     [ "$result" = "200" ] && return 0 || return 1
 }
+
 
 send_notify() {
     local host_name="$(uci get system.@system[0].hostname 2>/dev/null || echo OpenWrt)"

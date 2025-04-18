@@ -4,10 +4,9 @@ set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
-
 # 镜像测试函数（同之前）
 test_mirror() {
-    local mirror=$(echo "$1" | sed 's|/*$|/|')
+    local mirror=$(echo "$1" | sed 's|/*$|/|')  # 确保镜像地址以单个斜杠结尾
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
@@ -16,7 +15,11 @@ test_mirror() {
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
 
-    if webget "$BIN_PATH" "$url_bin" "echooff" && webget "$SUM_PATH" "$url_sum" "echooff"; then
+    # 调试输出检查 URL 是否正确
+    log_info "🌐 下载链接: $url_bin"
+    log_info "🌐 校验文件链接: $url_sum"
+
+    if timeout $TIME_OUT webget "$BIN_PATH" "$url_bin" "echooff" && timeout $TIME_OUT webget "$SUM_PATH" "$url_sum" "echooff"; then
         local sha_expected
         sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
         sha_actual=$(sha256sum "$BIN_PATH" | awk '{print $1}')
@@ -37,6 +40,7 @@ test_mirror() {
 
     rm -f "$BIN_PATH" "$SUM_PATH"
 }
+
 
 # 加载通知配置
 [ -f $CONFIG_DIR/notify.conf ] && . $CONFIG_DIR/notify.conf
