@@ -85,7 +85,7 @@ install_tailscale() {
     local mode=$2
     local mirror_list=$3
 
-    local arch=$($ARCH)
+    local arch="$ARCH"
     local pkg_name="tailscaled_linux_$arch"
     local download_url="CH3NGYZ/ts-test/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"
