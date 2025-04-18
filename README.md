@@ -6,7 +6,7 @@
 ```
 /etc/tailscale/
 ├── setup.sh               # 安装脚本
-├── fetch_and_install.sh   # 下载器
+├── fetch_and_install.sh   # 下载脚本
 ├── test_mirrors.sh        # 代理检测
 ├── autoupdate.sh          # 自动更新
 ├── setup_service.sh       # 服务配置
@@ -14,10 +14,9 @@
 ├── notify_ctl.sh          # 通知管理
 ├── update_ctl.sh          # 更新控制
 ├── uninstall.sh           # 卸载脚本
-├── install.conf           # 安装配置
-├── mirrors.txt            # 镜像列表
-├── valid_mirrors.txt      # 有效镜像
-└── mirror_scores.txt      # 镜像评分
+├── install.conf           # 安装配置 (运行`安装/重装 Tailscale`后才会生成)
+├── mirrors.txt            # 镜像列表 (运行`排序代理池`后自动下载)
+└── valid_mirrors.txt      # 有效镜像 (运行`排序代理池`后才会生成)
 ```
 
 ## 🚀 快速安装
@@ -26,7 +25,7 @@
    opkg update && opkg install libustream-openssl ca-bundle kmod-tun coreutils-timeout
    ```
 
-### 2.检测镜像 & 下载功能菜单
+### 2.排序代理池 & 下载功能菜单
    ```bash
    curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
    ```
@@ -35,11 +34,11 @@
    wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
    ```
 
-### 3.启动功能菜单
+### 3.启动管理工具
    ```bash
    tailscale-helper
    ```
-### 🛠️ 功能菜单说明
+### 🛠️ 管理工具说明
 通过   `tailscale-helper` 命令可进入交互式管理界面，提供以下功能：
 
 - 安装/重装 Tailscale - 运行安装脚本
@@ -53,7 +52,7 @@
 - 更新脚本包 - 更新管理工具本身
 - 卸载 Tailscale - 移除 Tailscale 及相关配置
 
-## 📡 代理配置
+## 📡 手动编辑代理配置
    1. 编辑镜像列表：
       ```bash
       vi /etc/tailscale/mirrors.txt
@@ -67,19 +66,13 @@
       ```bash
       /etc/tailscale/test_mirrors.sh
       ```
-   3. 强制重新检测代理
-      ```
-      rm /etc/tailscale/valid_mirrors.txt && /etc/tailscale/test_mirrors.sh
-      ```
 ## 🔔 通知系统
 支持 Server酱、Bark 和 NTFY 通知方式：
 
 配置选项包括：
 
 - 更新通知：版本升级成功时提醒
-
 - 代理失败：检测代理都不可用时提醒
-
 - 紧急通知：更新失败是提醒
 
 ## ⚠️ 注意事项
