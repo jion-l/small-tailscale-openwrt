@@ -183,3 +183,5 @@ log_info "🛠️ 初始化服务..."
 # 设置定时任务
 log_info "⏰ 设置定时任务..."
 "$CONFIG_DIR/setup_cron.sh" --auto-update="$AUTO_UPDATE"
+
+log_info "运行 cat /tmp/tailscale_update.log 以查看后台服务安装进度"
