@@ -97,9 +97,11 @@ edit_param() {
     if [[ -z "${!var_name}" ]]; then
       declare -g $var_name=1  # 如果参数未启用，则启用
       log_info "✅ 启用了 $key"
+      sleep 1
     else
       unset $var_name  # 否则禁用
       log_info "❌ 禁用了 $key"
+      sleep 1
     fi
   else
     # 需要用户输入内容的参数
@@ -109,6 +111,7 @@ edit_param() {
       if [[ -n "$val" ]]; then
         declare -g $var_name="$val"
         log_info "✅ 保存了 $key 的值：$val"
+        sleep 1
       fi
     else
       log_info "🔄 当前 $key 的值为 ${!var_name}，按回车继续编辑或输入新值，输入空值将删除该值：" 1
@@ -116,9 +119,11 @@ edit_param() {
       if [[ -n "$val" ]]; then
         declare -g $var_name="$val"
         log_info "✅ 更新了 $key 的值：$val"
+        sleep 1
       else
         unset $var_name
         log_info "❌ 删除了 $key 的值"
+        sleep 1
       fi
     fi
   fi
