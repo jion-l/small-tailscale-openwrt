@@ -67,7 +67,7 @@ save_conf() {
   done
 }
 
-
+# 展示状态
 show_status() {
   clear
   echo "当前 tailscale up 参数状态："
@@ -93,16 +93,16 @@ edit_param() {
   type="${PARAMS_TYPE[$key]}"
   
   if [[ "$type" == "flag" ]]; then
-    echo -n "启用 $key ? (y/N): "
-    read yn
-    if [[ "$yn" =~ ^[Yy]$ ]]; then
-      declare -g $var_name=1
-    else
+    echo -n "启用 $key ? (默认是启用，按回车继续，输入非y即不启用): "
+    read -r yn
+    if [[ "$yn" != "y" && "$yn" != "Y" ]]; then
       unset $var_name
+    else
+      declare -g $var_name=1
     fi
   else
     echo -n "请输入 $key 的值（${PARAMS_DESC[$key]}）："
-    read val
+    read -r val
     if [[ -n "$val" ]]; then
       declare -g $var_name="$val"
     else
@@ -112,8 +112,6 @@ edit_param() {
   save_conf
 }
 
-
-# 生成命令
 # 生成命令
 generate_cmd() {
   cmd="tailscale up"
@@ -131,7 +129,6 @@ generate_cmd() {
   echo -e "\n生成命令："
   echo "$cmd"
 }
-
 
 # 主循环
 main() {
