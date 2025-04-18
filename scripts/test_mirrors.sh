@@ -8,36 +8,34 @@ rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 # 镜像测试函数（同之前）
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
-    local tailscale_url="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/tailscaled_linux_amd64"
-    local sha_url="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/SHA256SUMS.txt"
-    local tmp_bin="/tmp/tailscaled_test"
-    local tmp_sha="/tmp/sha256sums_test"
-    local latency
+    local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
+    local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
-    echo "测试 $mirror ..."
+    echo "测试 $mirror, 最长需要 $TIME_OUT 秒..."
 
+    rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
 
-    if webget "$tmp_bin" "$tailscale_url" "echooff" && webget "$tmp_sha" "$sha_url" "echooff"; then
-        local expected_sha=$(grep 'tailscaled_linux_amd64' "$tmp_sha" | awk '{print $1}')
-        local actual_sha=$(sha256sum "$tmp_bin" | awk '{print $1}')
-
-        if [ "$expected_sha" = "$actual_sha" ]; then
+    if webget "$BIN_PATH" "$url_bin" "echooff" && webget "$SUM_PATH" "$url_sum" "echooff"; then
+        local sha_expected
+        sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
+        sha_actual=$(sha256sum "$BIN_PATH" | awk '{print $1}')
+        if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
-            latency=$(printf "%.2f" $(echo "$end - $start" | bc))
-            echo "✅ $mirror 校验通过，延迟: ${latency}s"
-            echo "$(date +%s),$mirror,1,$latency" >> "$SCORE_FILE"
-            echo "$latency $mirror" >> "$TMP_VALID_MIRRORS"
+            local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
+            echo "✅ $mirror 下载成功，用时 ${dl_time}s"
+            echo "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
+            echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
             echo "❌ $mirror 校验失败"
-            echo "$(date +%s),$mirror,0,998" >> "$SCORE_FILE"
+            echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
         echo "❌ $mirror 下载失败"
-        echo "$(date +%s),$mirror,0,999" >> "$SCORE_FILE"
+        echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
-    rm -f "$tmp_bin" "$tmp_sha"
+    rm -f "$BIN_PATH" "$SUM_PATH"
 }
 
 # 加载通知配置
@@ -60,13 +58,13 @@ done < "$MIRROR_LIST"
 # 排序并保存有效镜像
 if [ -s "$TMP_VALID_MIRRORS" ]; then
     sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
-    echo "✅ 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
+    log_info "✅ 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
 else
     # 如果启用镜像失效通知，发送通知
     if should_notify_mirror_fail; then
         send_notify "❌ 所有镜像均失效" "请手动配置代理"
     fi
-    echo "❌ 所有镜像均失效"
+    log_error "❌ 所有镜像均失效"
     touch "$VALID_MIRRORS"
 fi
 
