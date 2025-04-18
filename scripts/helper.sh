@@ -242,6 +242,7 @@ while true; do
     show_menu
     log_info "✅  请输入你的选择: " 1
     read choice
+    log_info ""
     handle_choice "$choice"
     clear
 done
