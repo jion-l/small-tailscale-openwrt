@@ -93,24 +93,39 @@ edit_param() {
   type="${PARAMS_TYPE[$key]}"
   
   if [[ "$type" == "flag" ]]; then
-    log_info "⏳ 启用 $key ? (默认是启用，按回车继续，输入非y即不启用): " 1
-    read -r yn
-    if [[ "$yn" != "y" && "$yn" != "Y" ]]; then
-      unset $var_name
+    # 直接切换 flag 类型的参数
+    if [[ -z "${!var_name}" ]]; then
+      declare -g $var_name=1  # 如果参数未启用，则启用
+      log_info "✅ 启用了 $key"
     else
-      declare -g $var_name=1
+      unset $var_name  # 否则禁用
+      log_info "❌ 禁用了 $key"
     fi
   else
-    log_info "🔑 请输入 $key 的值（${PARAMS_DESC[$key]}）：" 1
-    read -r val
-    if [[ -n "$val" ]]; then
-      declare -g $var_name="$val"
+    # 需要用户输入内容的参数
+    if [[ -z "${!var_name}" ]]; then
+      log_info "🔑 请输入 $key 的值（${PARAMS_DESC[$key]}）：" 1
+      read -r val
+      if [[ -n "$val" ]]; then
+        declare -g $var_name="$val"
+        log_info "✅ 保存了 $key 的值：$val"
+      fi
     else
-      unset $var_name
+      log_info "🔄 当前 $key 的值为 ${!var_name}，按回车继续编辑或输入新值，输入空值将删除该值：" 1
+      read -r val
+      if [[ -n "$val" ]]; then
+        declare -g $var_name="$val"
+        log_info "✅ 更新了 $key 的值：$val"
+      else
+        unset $var_name
+        log_info "❌ 删除了 $key 的值"
+      fi
     fi
   fi
   save_conf
 }
+
+
 
 # 生成命令
 generate_cmd() {
@@ -141,8 +156,6 @@ main() {
       exit 0
     elif [[ "$input" == "g" ]]; then
       generate_cmd
-      log_info "⏳ 按回车继续..." 1
-      read dasdsa51561 
     elif [[ "$input" == "r" ]]; then
       generate_cmd
       log_info "\n即将执行..."
@@ -151,6 +164,8 @@ main() {
     elif [[ "$input" =~ ^[0-9]+$ && -n "${OPTIONS[$input]}" ]]; then
       edit_param $input
     fi
+    log_info "⏳  请按回车继续..." 1
+    read khjfsdjkhfsd
   done
 }
 
