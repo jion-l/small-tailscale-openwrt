@@ -51,9 +51,9 @@ done
 if [ "$has_args" = false ]; then
     log_info
     log_info "请选择安装模式："
-    log_info "  1) 本地安装（默认）"
-    log_info "  2) 内存安装"
-    log_info "  3) 退出"
+    log_info "  1) 本地安装（默认） 🏠"
+    log_info "  2) 内存安装 (临时) 💻"
+    log_info "  3) 退出 ❌"
     log_info "请输入选项 [1/2/3]: " 1
     read mode_input
 
@@ -65,9 +65,9 @@ if [ "$has_args" = false ]; then
 
     log_info
     log_info "是否启用自动更新？"
-    log_info "  1) 是（默认）"
-    log_info "  2) 否"
-    log_info "  3) 退出"
+    log_info "  1) 是（默认） ✅"
+    log_info "  2) 否 ❌"
+    log_info "  3) 退出 ❌"
     log_info "请输入选项 [1/2/3]: " 1
     read update_input
 
@@ -119,6 +119,7 @@ if [ "$has_args" = false ]; then
         fi
     fi
 fi
+
 
 # 兜底
 MODE=${MODE:-local}

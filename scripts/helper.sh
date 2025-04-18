@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.45"
+SCRIPT_VERSION="v1.0.46"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -240,7 +240,7 @@ clear
 # 主循环
 while true; do
     show_menu
-    log_info "✅  请输入你的选择:" 1
+    log_info "✅  请输入你的选择: " 1
     read choice
     handle_choice "$choice"
     clear

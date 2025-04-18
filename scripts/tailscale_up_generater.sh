@@ -70,7 +70,7 @@ save_conf() {
 # 展示状态
 show_status() {
   clear
-  echo "当前 tailscale up 参数状态："
+  log_info "当前 tailscale up 参数状态："
   i=1
   for key in "${!PARAMS_TYPE[@]}"; do
     var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 将变量名转换为合法形式
@@ -81,8 +81,8 @@ show_status() {
     OPTIONS[$i]="$key"
     ((i++))
   done
-  echo ""
-  echo "0) 退出   r) 执行 tailscale up   g) 生成命令"
+  log_info ""  # 空行，等价于 echo ""
+  log_info "0) 退出   r) 执行 tailscale up   g) 生成命令"
 }
 
 # 修改参数
@@ -93,7 +93,7 @@ edit_param() {
   type="${PARAMS_TYPE[$key]}"
   
   if [[ "$type" == "flag" ]]; then
-    echo -n "启用 $key ? (默认是启用，按回车继续，输入非y即不启用): "
+    log_info -n "启用 $key ? (默认是启用，按回车继续，输入非y即不启用): "
     read -r yn
     if [[ "$yn" != "y" && "$yn" != "Y" ]]; then
       unset $var_name
@@ -101,7 +101,7 @@ edit_param() {
       declare -g $var_name=1
     fi
   else
-    echo -n "请输入 $key 的值（${PARAMS_DESC[$key]}）："
+    log_info -n "请输入 $key 的值（${PARAMS_DESC[$key]}）："
     read -r val
     if [[ -n "$val" ]]; then
       declare -g $var_name="$val"
@@ -126,8 +126,8 @@ generate_cmd() {
       fi
     fi
   done
-  echo -e "\n生成命令："
-  echo "$cmd"
+  log_info -n "\n生成命令："
+  log_info "$cmd"
 }
 
 # 主循环
@@ -135,7 +135,7 @@ main() {
   while true; do
     load_conf
     show_status
-    echo -n "请输入要修改的参数编号（0退出，g生成命令，r运行）："
+    log_info -n "请输入要修改的参数编号（0退出，g生成命令，r运行）："
     read input
     if [[ "$input" == "0" ]]; then
       exit 0
@@ -144,7 +144,7 @@ main() {
       read -p "按回车继续..."
     elif [[ "$input" == "r" ]]; then
       generate_cmd
-      echo -e "\n即将执行..."
+      log_info "\n即将执行..."
       eval $cmd
       exit 0
     elif [[ "$input" =~ ^[0-9]+$ && -n "${OPTIONS[$input]}" ]]; then
