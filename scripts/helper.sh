@@ -26,20 +26,21 @@ download_tool=$(get_download_tool)
 
 show_menu() {
     echo
-    log_info "欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
+    log_info "🎉 欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
     log_info "请选择操作："
-    log_info "1. 安装 Tailscale (包括重装)"
-    log_info "2. 启动 Tailscale"
-    log_info "3. 管理 Tailscale 自动更新"
-    log_info "4. 查看本地 Tailscale 版本"
-    log_info "5. 查看 Tailscale 最新版本"
-    log_info "6. 管理推送"
-    log_info "7. 排序代理池"
-    log_info "8. 更新代理池"
-    log_info "9. 更新脚本包"
-    log_info "10. 卸载 Tailscale"
-    log_info "0. 退出"
+    log_info "1️⃣  📥 安装 / 重装 Tailscale"
+    log_info "2️⃣  🚀 启动 Tailscale"
+    log_info "3️⃣  🔄 管理 Tailscale 自动更新"
+    log_info "4️⃣  📦 查看本地 Tailscale 存在版本"
+    log_info "5️⃣  🌐 查看远程 Tailscale 最新版本"
+    log_info "6️⃣  🔔 管理推送通知"
+    log_info "7️⃣  📊 排序代理池"
+    log_info "8️⃣  ♻️ 更新代理池"
+    log_info "9️⃣  🛠️ 更新脚本包"
+    log_info "🔟  ❌ 卸载 Tailscale"
+    log_info "0️⃣  🚪 退出"
 }
+
 
 # 处理用户选择
 handle_choice() {
@@ -60,7 +61,7 @@ handle_choice() {
             if [ -f "$VERSION_FILE" ]; then
                 log_info "📦 当前本地版本: $(cat "$VERSION_FILE")"
             else
-                log_info "⚠️ 本地未记录版本信息"
+                log_info "⚠️ 本地未记录版本信息, 可能未安装 Tailscale"
             fi
             sleep 3
             ;;
