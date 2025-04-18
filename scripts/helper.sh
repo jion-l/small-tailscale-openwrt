@@ -9,7 +9,6 @@ else
     custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
 fi
 
-
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
     if command -v curl > /dev/null 2>&1; then
@@ -32,15 +31,15 @@ show_menu() {
     log_info "1. 安装 Tailscale (包括重装)"
     log_info "2. 启动 Tailscale"
     log_info "3. 管理 Tailscale 自动更新"
-    log_info "4. 查看 Tailscale 最新版本"
-    log_info "5. 管理推送"
-    log_info "6. 排序代理池"
-    log_info "7. 更新代理池"
-    log_info "8. 更新脚本包"
-    log_info "9. 卸载 Tailscale"
+    log_info "4. 查看本地 Tailscale 版本"
+    log_info "5. 查看 Tailscale 最新版本"
+    log_info "6. 管理推送"
+    log_info "7. 排序代理池"
+    log_info "8. 更新代理池"
+    log_info "9. 更新脚本包"
+    log_info "10. 卸载 Tailscale"
     log_info "0. 退出"
 }
-
 
 # 处理用户选择
 handle_choice() {
@@ -55,29 +54,36 @@ handle_choice() {
             /etc/tailscale/update_ctl.sh
             ;;
         4)
-            /etc/tailscale/fetch_and_install.sh --dry-run
+            if [ -f "$VERSION_FILE" ]; then
+                log_info "📦 当前本地版本: $(cat "$VERSION_FILE")"
+            else
+                log_info "⚠️ 本地未记录版本信息"
+            fi
             ;;
         5)
-            /etc/tailscale/notify_ctl.sh
+            /etc/tailscale/fetch_and_install.sh --dry-run
             ;;
         6)
-            /etc/tailscale/test_mirrors.sh
+            /etc/tailscale/notify_ctl.sh
             ;;
         7)
+            /etc/tailscale/test_mirrors.sh
+            ;;
+        8)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
                 wget -O /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             fi
             ;;
-        8)
+        9)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
             else
                 wget -O- "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
             fi
             ;;
-        9)
+        10)
             /etc/tailscale/uninstall.sh
             ;;
         0)
