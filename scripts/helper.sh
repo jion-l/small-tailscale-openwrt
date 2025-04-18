@@ -42,14 +42,13 @@ get_remote_version() {
 show_menu() {
     log_info "🎉  欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
     if [ ! -s "$REMOTE_SCRIPTS_VERSION_FILE" ]; then
-        log_info "⚠️ 无法获取远程脚本版本"
+        log_info "⚠️  无法获取远程脚本版本"
     else
         remote_version=$(cat "$REMOTE_SCRIPTS_VERSION_FILE")
-        log_info "📦 远程脚本版本: $remote_version $( 
+        log_info "📦  远程脚本版本: $remote_version $( 
             [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(有更新, 请按 [9] 更新)' || echo '✅(已是最新)' 
         )"
     fi
-    echo
     log_info "    请选择操作："
     log_info "1)  📥 安装 / 重装 Tailscale"
     log_info "2)  🚀 启动 Tailscale"
