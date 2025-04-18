@@ -25,13 +25,11 @@
    opkg update && opkg install libustream-openssl ca-bundle kmod-tun coreutils-timeout
    ```
 
-### 2.排序代理池 & 下载功能菜单
+### 2.下载管理工具 & 排序代理池
    ```bash
-   curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
-   ```
-   或
-   ```bash
-   wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
+   dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
+   URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
    ```
 
 ### 3.启动管理工具

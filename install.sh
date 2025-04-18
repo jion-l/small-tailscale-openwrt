@@ -228,6 +228,38 @@ NOTIFY_NTFY=0
 NTFY_KEY=""
 EOF
 
+log_info "🔄 正在对镜像测速, 请等待..."
 
-log_info "✅ 脚本包安装完成！请执行以下命令进行安装："
-log_info "tailscale-helper"
+if command -v curl >/dev/null 2>&1; then
+    log_info "使用 curl 下载 pretest_mirrors.sh..."
+    if curl -o /tmp/pretest_mirrors.sh -L "https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"; then
+        sh /tmp/pretest_mirrors.sh
+    else
+        log_error "curl 下载失败，尝试使用 wget..."
+        if command -v wget >/dev/null 2>&1; then
+            if wget -O /tmp/pretest_mirrors.sh "https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"; then
+                sh /tmp/pretest_mirrors.sh
+            else
+                log_error "wget 也下载失败了"
+                exit 1
+            fi
+        else
+            log_error "curl 和 wget 都不可用"
+            exit 1
+        fi
+    fi
+elif command -v wget >/dev/null 2>&1; then
+    log_info "curl 不可用，尝试使用 wget 下载 pretest_mirrors.sh..."
+    if wget -O /tmp/pretest_mirrors.sh "https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"; then
+        sh /tmp/pretest_mirrors.sh
+    else
+        log_error "wget 下载失败"
+        exit 1
+    fi
+else
+    log_error "curl 和 wget 都不可用，无法继续"
+    exit 1
+fi
+
+log_info "✅ 镜像测试完成！请执行以下命令进入管理菜单: "
+log_info "    tailscale-helper"

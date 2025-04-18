@@ -101,7 +101,7 @@ manual_fallback() {
                 read  mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if echo "$mirror" | grep -qE '^https?://'; then
-                    echo "$mirror" >> "$MIRROR_LIST"
+                    echo "$mirror" > "$MIRROR_LIST"
                     test_mirror "$mirror"
                     [ -s "$TMP_VALID_MIRRORS" ] && sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
                     return 0
@@ -147,7 +147,3 @@ else
 fi
 
 rm -f "$TMP_VALID_MIRRORS"
-
-# 安装主程序
-log_info "📦 正在启动安装脚本..."
-curl -sSL https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/install.sh | sh
