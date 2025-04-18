@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.27"
+SCRIPT_VERSION="v1.0.28"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -89,13 +89,13 @@ handle_choice() {
             tail -n 1 -F "$tmp_log" | while read -r line; do
                 # 检测未安装
                 echo "$line" | grep -q "not found" && {
-                    log_error "❌ tailscale 未安装或命令未找到"
+                    log_error "❌  tailscale 未安装或命令未找到"
                     break
                 }
 
                 # 执行失败
                 echo "$line" | grep -qi "failed" && {
-                    log_error "❌ tailscale up 执行失败：$line"
+                    log_error "❌  tailscale up 执行失败：$line"
                     fail_detected=true
                     break
                 }
@@ -103,7 +103,7 @@ handle_choice() {
                 # 检测认证 URL
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
-                    log_info "🔗 tailscale 等待认证, 请访问以下网址登录：$auth_url"
+                    log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
                     # 不 break，继续等待结束
                 }
@@ -112,14 +112,15 @@ handle_choice() {
                 echo "$line" | grep -q "__TS_UP_DONE__" && {
                     if [[ $auth_detected != true && $fail_detected != true ]]; then
                         if [[ -s "$tmp_log" ]]; then
-                            log_info "✅ tailscale up 执行完成：$(cat "$tmp_log")"
+                            log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
                         else
-                            log_info "✅ tailscale up 执行完成, 无输出"
+                            log_info "✅  tailscale up 执行完成, 无输出"
                         fi
                     fi
                     break
                 }
             done
+            echo "tailscale执行完毕"
             tailscale status >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
                 log_error "⚠️  tailscale 未登录或状态异常"
