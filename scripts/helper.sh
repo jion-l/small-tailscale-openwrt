@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.28"
+SCRIPT_VERSION="v1.0.29"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -30,10 +30,10 @@ get_remote_version() {
     
     if [ "$download_tool" = "curl" ]; then
         # 设置 5 秒超时
-        timeout 5 curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
+        timeout 6 curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
     else
         # 设置 5 秒超时
-        timeout 5 wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
+        timeout 6 wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
     fi
 }
 
@@ -51,15 +51,16 @@ show_menu() {
     fi
     log_info "    请选择操作："
     log_info "1)  📥 安装 / 重装 Tailscale"
-    log_info "2)  🚀 启动 Tailscale"
-    log_info "3)  🔄 管理 Tailscale 自动更新"
-    log_info "4)  📦 查看本地 Tailscale 存在版本"
-    log_info "5)  📦 查看远程 Tailscale 最新版本"
-    log_info "6)  🔔 管理推送通知"
-    log_info "7)  📊 排序代理池"
-    log_info "8)  ♻️ 更新代理池"
-    log_info "9)  🛠️ 更新脚本包"
-    log_info "10) ❌ 卸载 Tailscale"
+    log_info "2)  🚀 登录 Tailscale"
+    log_info "3)  🔓 登出 Tailscale"
+    log_info "4)  🔄 管理 Tailscale 自动更新"
+    log_info "5)  📦 查看本地 Tailscale 存在版本"
+    log_info "6)  📦 查看远程 Tailscale 最新版本"
+    log_info "7)  🔔 管理推送通知"
+    log_info "8)  📊 排序代理池"
+    log_info "9)  ♻️ 更新代理池"
+    log_info "10) 🛠️ 更新脚本包"
+    log_info "11) ❌ 卸载 Tailscale"
     log_info "0)  ⛔ 退出"
 }
 
@@ -76,7 +77,7 @@ handle_choice() {
             local tmp_log="/tmp/tailscale_up.log"
             : > "$tmp_log"
 
-            log_info "🚀 执行 tailscale up，正在监控输出..."
+            log_info "🚀  执行 tailscale up，正在监控输出..."
 
             (
                 tailscale up >"$tmp_log" 2>&1
@@ -86,7 +87,8 @@ handle_choice() {
             local auth_detected=false
             local fail_detected=false
 
-            tail -n 1 -F "$tmp_log" | while read -r line; do
+            exec 3< <(tail -n 1 -F "$tmp_log")
+            while read -r line <&3; do
                 # 检测未安装
                 echo "$line" | grep -q "not found" && {
                     log_error "❌  tailscale 未安装或命令未找到"
@@ -105,7 +107,7 @@ handle_choice() {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
                     log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
-                    # 不 break，继续等待结束
+                    # 不退出
                 }
 
                 # 检测结束标志
@@ -120,7 +122,7 @@ handle_choice() {
                     break
                 }
             done
-            echo "tailscale执行完毕"
+
             tailscale status >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
                 log_error "⚠️  tailscale 未登录或状态异常"
@@ -129,9 +131,26 @@ handle_choice() {
             fi
             ;;
         3)
-            /etc/tailscale/update_ctl.sh
+            log_info "🔓 正在执行 tailscale logout..."
+            if tailscale logout; then
+                sleep 3
+                if tailscale status 2>&1 | grep -q "Logged out."; then
+                    log_info "✅ 成功登出 tailscale"
+                else
+                    log_error "⚠️ 登出后状态未知，请检查 tailscale 状态"
+                fi
+            else
+                log_error "❌  tailscale logout 命令执行失败"
+            fi
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
             ;;
         4)
+            /etc/tailscale/update_ctl.sh
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
+            ;;
+        5)
             if [ -f "$VERSION_FILE" ]; then
                 log_info "📦  当前本地版本: $(cat "$VERSION_FILE")"
             else
@@ -140,20 +159,20 @@ handle_choice() {
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        5)
+        6)
             /etc/tailscale/fetch_and_install.sh --dry-run
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        6)
+        7)
             /etc/tailscale/notify_ctl.sh
             ;;
-        7)
+        8)
             /etc/tailscale/test_mirrors.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        8)
+        9)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL -o /tmp/pretest_mirrors.sh "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh" && sh /tmp/pretest_mirrors.sh
             else
@@ -162,7 +181,7 @@ handle_choice() {
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        9)
+        10)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             else
@@ -178,7 +197,7 @@ handle_choice() {
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
-        10)
+        11)
             /etc/tailscale/uninstall.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
@@ -187,7 +206,7 @@ handle_choice() {
             exit 0
             ;;
         *)
-            log_info "❌ 无效选择, 请重新输入, 按回车继续..."
+            log_info "❌  无效选择, 请重新输入, 按回车继续..."
             read khjfsdjkhfsd
             ;;
     esac
