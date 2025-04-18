@@ -86,7 +86,7 @@ if [ "$MODE" = "local" ]; then
         exit 1
       fi
     else
-      log_info "✅ 本地已存在 tailscaled，跳过安装"
+      log_info "✅ 自动更新已关闭, 本地已存在 tailscaled, 跳过安装"
     fi
   fi
 
