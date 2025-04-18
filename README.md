@@ -16,16 +16,17 @@
 ├── uninstall.sh           # 卸载脚本
 ├── install.conf           # 安装配置
 ├── mirrors.txt            # 镜像列表
-└── valid_mirrors.txt      # 有效镜像
+├── valid_mirrors.txt      # 有效镜像
+└── mirror_scores.txt      # 镜像评分
 ```
 
 ## 🚀 快速安装
-### 1.安装依赖
+### 1.安装必要依赖
    ```bash
    opkg update && opkg install libustream-openssl ca-bundle kmod-tun coreutils-timeout
    ```
 
-### 2.检测镜像 & 下载脚本包
+### 2.检测镜像 & 下载功能菜单
    ```bash
    curl -o /tmp/pretest_mirrors.sh -L https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
    ```
@@ -34,15 +35,23 @@
    wget -O /tmp/pretest_mirrors.sh https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/ts-test/raw/refs/heads/main/pretest_mirrors.sh && sh /tmp/pretest_mirrors.sh
    ```
 
-### 3.开始安装
+### 3.启动功能菜单
    ```bash
    tailscale-helper
    ```
+### 🛠️ 功能菜单说明
+通过   `tailscale-helper` 命令可进入交互式管理界面，提供以下功能：
 
-## 🔧 功能管理
-   | 命令 | 功能 |
-   |------|------|
-   | `tailscale-helper` | 管理自动更新,配置通知等 |
+- 安装/重装 Tailscale - 运行安装脚本
+- 启动 Tailscale - 执行 tailscale up 命令
+- 管理自动更新 - 配置自动更新设置
+- 查看本地版本 - 显示当前安装的 Tailscale 版本
+- 检查最新版本 - 获取 Tailscale 最新版本信息
+- 管理推送通知 - 配置 Server酱/Bark/NTFY 通知
+- 排序代理池 - 测试并排序可用代理
+- 更新代理池 - 强制重新检测代理
+- 更新脚本包 - 更新管理工具本身
+- 卸载 Tailscale - 移除 Tailscale 及相关配置
 
 ## 📡 代理配置
    1. 编辑镜像列表：
@@ -62,27 +71,22 @@
       ```
       rm /etc/tailscale/valid_mirrors.txt && /etc/tailscale/test_mirrors.sh
       ```
-
 ## 🔔 通知系统
-   ```bash
-   # 交互式配置
-   tailscale-helper
+支持 Server酱、Bark 和 NTFY 通知方式：
 
-   # 配置项说明：
-   # - 更新通知：版本升级成功时提醒
-   # - 代理失败：代理不可用时提醒
-   # - 紧急通知：关键系统错误提醒
-   ```
+配置选项包括：
 
-## 🗑️ 卸载
-   ```bash
-   tailscale-helper
-   ```
-> 注意：默认会保留脚本目录
+- 更新通知：版本升级成功时提醒
+
+- 代理失败：检测代理都不可用时提醒
+
+- 紧急通知：更新失败是提醒
 
 ## ⚠️ 注意事项
-   1. 内存安装模式每次重启后需重新下载Tailscale, 但由于proxy不稳定, 可能会出现下载失败的情况, 因此建议您还是本地安装
-   2. 首次使用建议配置通知
+1. 内存安装模式每次重启后需重新下载 Tailscale
+2. 由于代理不稳定，可能出现下载失败，建议使用本地安装模式
+3. 首次使用建议配置通知功能
+4. 需要至少 curl 或 wget 之一才能正常使用
 
 ## 😍 鸣谢
    1. [glinet-tailscale-updater](https://github.com/Admonstrator/glinet-tailscale-updater)
