@@ -178,7 +178,7 @@ clear
 # 主循环前执行一次远程版本检测
 log_info "🔄  正在检测脚本更新 ..."
 get_remote_version
-
+clear
 # 主循环
 while true; do
     show_menu
