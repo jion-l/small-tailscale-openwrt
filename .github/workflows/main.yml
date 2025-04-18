@@ -137,13 +137,20 @@ jobs:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }}"
           body: |
-            ## 🚀 此release为 Tailscale ${{ env.TAG }} 的UPX压缩版本
-
-            📦 架构支持：${{ env.BUILD_PLATFORMS }}
-            
-            🌟 包含:
-            - 经UPX压缩过的联合二进制运行文件 ( tailscale + tailscaled ) [原理](https://tailscale.com/kb/1207/small-tailscale)
-            - 注: 由于UPX不支持mips64和mips64le,因此release中此两种架构未压缩
+            ## 🚀 Tailscale ${{ env.TAG }} UPX压缩版发布
+          
+            🧩 **支持架构**：
+            `${{ env.BUILD_PLATFORMS }}`
+          
+            ⚙️ **内容说明**：
+            - 已合并并压缩的运行文件：包含 `tailscale` 和 `tailscaled` 的 [联合二进制](https://tailscale.com/kb/1207/small-tailscale)
+            - *注意：由于 UPX 不支持 `mips64` 与 `mips64le`，这两个架构版本为未压缩原始文件*
+          
+            📄 **校验方式**：
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            md5sum -c MD5SUMS.txt
+            ```
             
             📝 校验：
             ```bash
@@ -151,11 +158,21 @@ jobs:
             md5sum -c MD5SUMS.txt
             ```
             
-            🔧 启动方式：
+            🔧 快速启动：
             ```bash
-            ./tailscaled [arguments]
-            ln -s ./tailscaled ./tailscale
-            ./tailscale up
+            chmod +x /path/to/your/tailscale/binary/location/tailscaled-linux-amd64
+            ln -s /path/to/your/tailscale/binary/location/tailscaled-linux-amd64 /usr/bin/tailscale
+            ln -s /path/to/your/tailscale/binary/location/tailscaled-linux-amd64 /usr/bin/tailscaled
+            tailscaled
+            tailscale up
+            ```
+
+            📦 附带文件：
+            ```
+            - `tailscaled_linux_*`: 不同架构对应的可执行文件
+            - `SHA256SUMS.txt`: SHA256 校验文件
+            - `MD5SUMS.txt`: MD5 校验文件
+            - `version.txt`: 当前版本标识
             ```
             
           draft: false
