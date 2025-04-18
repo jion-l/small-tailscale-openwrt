@@ -60,7 +60,7 @@ show_menu() {
     log_info "8)  ♻️ 更新代理池"
     log_info "9)  🛠️ 更新脚本包"
     log_info "10) ❌ 卸载 Tailscale"
-    log_info "0)  ✖️ 退出"
+    log_info "0)  ⛔ 退出"
 }
 
 
@@ -102,7 +102,7 @@ handle_choice() {
 
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
-                    log_info "💻  tailscale 等待认证, 请访问以下网址登录：$auth_url"
+                    log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
                     # 不退出, 继续等 tailscale up 自然完成
                 }
