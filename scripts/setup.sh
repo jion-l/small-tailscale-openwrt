@@ -54,7 +54,7 @@ if [ "$has_args" = false ]; then
     log_info "  1) 本地安装（默认）"
     log_info "  2) 内存安装"
     log_info "  3) 退出"
-    log_info "请输入选项 [1/2/3]: "
+    log_info "请输入选项 [1/2/3]: " 1
     read mode_input
 
     case "$mode_input" in
@@ -68,7 +68,7 @@ if [ "$has_args" = false ]; then
     log_info "  1) 是（默认）"
     log_info "  2) 否"
     log_info "  3) 退出"
-    log_info "请输入选项 [1/2/3]: "
+    log_info "请输入选项 [1/2/3]: " 1
     read update_input
 
     case "$update_input" in
@@ -101,7 +101,7 @@ if [ "$has_args" = false ]; then
                 i=$((i + 1))
             done < "$TAGS_TMP"
             total=$((i - 1))
-            log_info "请输入序号选择版本 (留空使用 latest): "
+            log_info "请输入序号选择版本 (留空使用 latest): " 1
             read index
             index=$(echo "$index" | xargs)
 
