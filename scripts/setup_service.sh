@@ -96,7 +96,11 @@ stop_service() {
   if [ -x "/tmp/tailscaled" ]; then
     /tmp/tailscaled --cleanup >/dev/null 2>&1 || log_warn "⚠️ 清理失败: /tmp/tailscaled"
   fi
-  killall tailscaled >/dev/null 2>&1 || log_warn "⚠️ 未能停止 tailscaled 服务"
+  if pgrep tailscaled >/dev/null 2>&1; then
+    killall tailscaled >/dev/null 2>&1 || log_warn "⚠️ 未能停止 tailscaled 服务"
+  else
+    log_info "✅ tailscaled 未在运行，无需停止"
+  fi
 }
 EOF
 
