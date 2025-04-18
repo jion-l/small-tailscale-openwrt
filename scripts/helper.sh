@@ -1,14 +1,14 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.24"
+SCRIPT_VERSION="v1.0.25"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
-if [ -s "$VALID_MIRRORS" ]; then
-    custom_proxy=$(head -n 1 "$VALID_MIRRORS")
-else
-    custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
-fi
+# if [ -s "$VALID_MIRRORS" ]; then
+#     custom_proxy=$(head -n 1 "$VALID_MIRRORS")
+# else
+custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
+# fi
 
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
