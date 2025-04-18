@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.23"
+SCRIPT_VERSION="v1.0.24"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -169,8 +169,7 @@ handle_choice() {
             log_info "✅  脚本更新完毕, 请按回车重新加载..."
             read khjfsdjkhfsd
             exec tailscale-helper
-
-
+            ;;
         10)
             /etc/tailscale/uninstall.sh
             log_info "✅  请按回车继续..."
