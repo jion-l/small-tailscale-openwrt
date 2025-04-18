@@ -81,8 +81,8 @@ show_status() {
     OPTIONS[$i]="$key"
     ((i++))
   done
-  log_info ""  # 空行，等价于 echo ""
-  log_info "0) 退出   r) 执行 tailscale up   g) 生成命令"
+  log_info "⏳ 0) 退出   g) 生成带参数的 tailscale up 命令   r) 执行带参数的 tailscale up"
+  log_info "⏳ 输入编号后回车即可修改: "
 }
 
 # 修改参数
@@ -150,7 +150,6 @@ main() {
   while true; do
     load_conf
     show_status
-    log_info "⏳ 请输入要修改的参数编号（0退出，g生成命令，r运行）：" 1
     read input
     if [[ "$input" == "0" ]]; then
       exit 0
