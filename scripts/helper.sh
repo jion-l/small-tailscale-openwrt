@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.5"
+SCRIPT_VERSION="v1.0.6"
 show_menu() {
     echo
     log_info "🎉 欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"

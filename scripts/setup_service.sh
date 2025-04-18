@@ -49,13 +49,9 @@ start_service() {
     procd_set_param logfile /var/log/tailscale.log
     procd_close_instance
 
-    # 本地模式自动更新逻辑
-    if [ "$STARTUP" = "1" ]; then
-      log_info "🛠️ 开机local启动，执行 autoupdate..."
-      nohup "$CONFIG_DIR/autoupdate.sh" STARTUP=1 > /tmp/tailscale_update.log &
-    else
-      log_info "🛠️ 手动local启动，跳过 autoupdate..."
-    fi
+    # 本地模式自动更新
+    log_info "🛠️ 本地模式自动更新, 日志:/tmp/tailscale_update.log"
+    nohup "$CONFIG_DIR/autoupdate.sh" STARTUP=1 > /tmp/tailscale_update.log &
 
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️ 启动 Tailscale (临时模式)..."
@@ -75,14 +71,9 @@ start_service() {
         procd_close_instance
     else
       if [ "$STARTUP" = "1" ]; then
-        log_info "🛠️ 开机tmp启动，执行 autoupdate..."
-        "$CONFIG_DIR/autoupdate.sh" STARTUP=1 > /tmp/tailscale_update.log &
-      else
-        "$CONFIG_DIR/autoupdate.sh" STARTUP=0 > /tmp/tailscale_update.log &
-        log_info "🛠️ 手动tmp启动，跳过 autoupdate..."
-      fi
-      
-      
+        log_info "🛠️ 开机tmp启动，执行 autoupdate..., 日志:/tmp/tailscale_update.log"
+        "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log &
+
       if [ -x /tmp/tailscaled ]; then
         log_info "✅ 检测到文件已下载，直接启动 tailscaled..."
         procd_open_instance
