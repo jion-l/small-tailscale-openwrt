@@ -19,14 +19,13 @@ log_info "🛠️ 当前的 MODE 设置为: $MODE"
 log_info "🛠️ 生成服务文件..."
 cat > /etc/init.d/tailscale <<"EOF"
 #!/bin/sh /etc/rc.common
-
 USE_PROCD=1
 START=90
 STOP=1
 
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
+
 start_service() {
-  # 确保已经加载了 INST_CONF 和其中的 MODE
-  [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
   log_info "🛠️ 加载服务启动配置..."
   safe_source "$INST_CONF"
   log_info "🛠️ 当前的 MODE 为: $MODE"
@@ -89,7 +88,6 @@ start_service() {
 }
 
 stop_service() {
-  [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
   log_info "🛑 停止服务..."
   # 确保正确停止 tailscaled
   if [ -x "/usr/local/bin/tailscaled" ]; then

@@ -119,9 +119,9 @@ elif [ "$MODE" = "tmp" ]; then
       fi
     else
       # 如果不启用自动更新，使用指定版本进行安装
-      log_info "⚙️ 不启用自动更新，安装指定版本 $version_to_use..."
-      if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
-        echo "$version_to_use" > "$VERSION_FILE"
+      log_info "⚙️ 不启用自动更新，安装指定版本 $recorded..."
+      if "$CONFIG_DIR/fetch_and_install.sh" --version="$recorded" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
+        echo "$recorded" > "$VERSION_FILE"
       else
         log_error "❌ TMP 安装失败"
         # 发送紧急通知
