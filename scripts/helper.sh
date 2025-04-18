@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.19"
+SCRIPT_VERSION="v1.0.20"
 
 get_remote_version() {
     remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
@@ -185,6 +185,7 @@ clear
 log_info "🔄  正在检测脚本更新 ..."
 get_remote_version
 clear
+
 # 主循环
 while true; do
     show_menu
