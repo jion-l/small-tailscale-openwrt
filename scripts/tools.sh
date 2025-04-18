@@ -108,13 +108,11 @@ send_notify() {
     fi
 
     # Bark
-    # Bark
     if [ "$NOTIFY_BARK" = "1" ] && [ -n "$BARK_KEY" ]; then
-        title_enc=$(echo "$title" | sed 's/ /%20/g')
-        content_enc=$(echo "$content" | sed 's/ /%20/g')
-        url="${BARK_KEY}/${title_enc}/${content_enc}"
-        send_via_curl_or_wget "$url" "" "GET" "" && echo "✅ Bark 通知已发送"
+        data="title=$title&body=$content"
+        send_via_curl_or_wget "$BARK_KEY" "$data" "POST" "Content-Type: application/x-www-form-urlencoded" && echo "✅ Bark 通知已发送"
     fi
+
 
 
     # ntfy
