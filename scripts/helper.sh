@@ -1,14 +1,8 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.30"
+SCRIPT_VERSION="v1.0.31"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-
-# if [ -s "$VALID_MIRRORS" ]; then
-#     custom_proxy=$(head -n 1 "$VALID_MIRRORS")
-# else
-custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
-# fi
 
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
@@ -37,7 +31,15 @@ get_remote_version() {
     fi
 }
 
-
+# 添加生成 Tailscale 命令的函数
+generate_tailscale_command() {
+    log_info "🔓  生成 Tailscale 命令..."
+    local tailscale_cmd="tailscale up --authkey=your-auth-key --hostname=your-hostname"
+    log_info "执行命令: $tailscale_cmd"
+    echo "生成的命令: $tailscale_cmd"
+    log_info "✅  请按回车继续..."
+    read khjfsdjkhfsd
+}
 
 show_menu() {
     log_info "🎉  欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
@@ -52,24 +54,24 @@ show_menu() {
     log_info "    请选择操作："
     log_info "1)  📥 安装 / 重装 Tailscale"
     log_info "2)  🚀 登录 Tailscale"
-    log_info "3)  🔓 登出 Tailscale"
-    log_info "4)  🔄 管理 Tailscale 自动更新"
-    log_info "5)  📦 查看本地 Tailscale 存在版本"
-    log_info "6)  📦 查看远程 Tailscale 最新版本"
-    log_info "7)  🔔 管理推送通知"
-    log_info "8)  📊 排序代理池"
-    log_info "9)  ♻️ 更新代理池"
-    log_info "10) 🛠️ 更新脚本包"
-    log_info "11) ❌ 卸载 Tailscale"
+    log_info "3)  🔓 生成 Tailscale 命令"  # 新增选项
+    log_info "4)  🔓 登出 Tailscale"
+    log_info "5)  🔄 管理 Tailscale 自动更新"
+    log_info "6)  📦 查看本地 Tailscale 存在版本"
+    log_info "7)  📦 查看远程 Tailscale 最新版本"
+    log_info "8)  🔔 管理推送通知"
+    log_info "9)  📊 排序代理池"
+    log_info "10) ♻️ 更新代理池"
+    log_info "11) 🛠️ 更新脚本包"
+    log_info "12) ❌ 卸载 Tailscale"
     log_info "0)  ⛔ 退出"
 }
-
 
 # 处理用户选择
 handle_choice() {
     case $1 in
         1)
-            /etc/tailscale/setup.sh
+            $CONFIG_DIR/setup.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
@@ -132,7 +134,12 @@ handle_choice() {
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        3)
+        3)  
+            $CONFIG_DIR/tailscale_up_generater.sh
+            log_info "✅  请按回车继续..."
+            read khjfsdjkhfsd
+            ;;
+        4)
             log_info "🔓  正在执行 tailscale logout..."
             if tailscale logout; then
                 sleep 3
@@ -147,12 +154,12 @@ handle_choice() {
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        4)
-            /etc/tailscale/update_ctl.sh
+        5)
+            $CONFIG_DIR/update_ctl.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        5)
+        6)
             if [ -f "$VERSION_FILE" ]; then
                 log_info "📦  当前本地版本: $(cat "$VERSION_FILE")"
             else
@@ -161,16 +168,11 @@ handle_choice() {
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
-        6)
-            /etc/tailscale/fetch_and_install.sh --dry-run
-            log_info "✅  请按回车继续..."
-            read khjfsdjkhfsd
-            ;;
         7)
-            /etc/tailscale/notify_ctl.sh
+            $CONFIG_DIR/notify_ctl.sh
             ;;
         8)
-            /etc/tailscale/test_mirrors.sh
+            $CONFIG_DIR/test_mirrors.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;
@@ -191,7 +193,7 @@ handle_choice() {
             fi
 
             if [ $? -ne 0 ]; then
-                log_error "❌  脚本更新失败, 请检查网络或代理是否截断了文件, 如果是代理的问题, 你可以手动修改代理 /etc/tailscale/mirrors.txt 后再执行一遍 [7] "
+                log_error "❌  脚本更新失败, 请检查网络或代理是否截断了文件, 如果是代理的问题, 你可以手动修改代理 $CONFIG_DIR/mirrors.txt 后再执行一遍 [7] "
                 exit 0
             fi
 
@@ -200,7 +202,7 @@ handle_choice() {
             exec tailscale-helper
             ;;
         11)
-            /etc/tailscale/uninstall.sh
+            $CONFIG_DIR/uninstall.sh
             log_info "✅  请按回车继续..."
             read khjfsdjkhfsd
             ;;

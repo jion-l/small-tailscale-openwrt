@@ -32,5 +32,5 @@ sed -i "\|$CONFIG_DIR/|d" /etc/crontabs/root
 /etc/init.d/cron restart
 
 log_info "🎉 Tailscale卸载完成！"
-log_info "    如需删除安装脚本,请运行  rm -rf /etc/tailscale"
-log_info "    重装Tailscale , 请运行  /etc/tailscale/setup.sh."
+log_info "    重装Tailscale , 请运行  tailscale-helper"
+log_info "    如需删除安装脚本,请运行  rm -rf $CONFIG_DIR"

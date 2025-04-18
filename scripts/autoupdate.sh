@@ -25,7 +25,7 @@ recorded=""
 [ -f "$VERSION_FILE" ] && recorded=$(cat "$VERSION_FILE")
 
 # 加载通知配置
-[ -f /etc/tailscale/notify.conf ] && . /etc/tailscale/notify.conf
+[ -f $CONFIG_DIR/notify.conf ] && . $CONFIG_DIR/notify.conf
 
 
 # 检查是否需要发送通知的函数

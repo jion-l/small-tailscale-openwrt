@@ -39,7 +39,7 @@ start_service() {
     procd_set_param command "$TAILSCALED_BIN"
     procd_append_param command --port 41641
     procd_append_param command --state /etc/config/tailscaled.state
-    procd_append_param command --statedir /etc/tailscale/
+    procd_append_param command --statedir /etc/tailscale_state/
     procd_set_param respawn
     procd_set_param stdout 1
     procd_set_param stderr 1
@@ -57,7 +57,7 @@ start_service() {
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
         procd_append_param command --state /etc/config/tailscaled.state
-        procd_append_param command --statedir /etc/tailscale/
+        procd_append_param command --statedir /etc/tailscale_state/
         procd_set_param respawn
         procd_set_param stdout 1
         procd_set_param stderr 1
@@ -73,7 +73,7 @@ start_service() {
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
         procd_append_param command --state /etc/config/tailscaled.state
-        procd_append_param command --statedir /etc/tailscale/
+        procd_append_param command --statedir /etc/tailscale_state/
         procd_set_param respawn
         procd_set_param stdout 1
         procd_set_param stderr 1
@@ -89,7 +89,6 @@ start_service() {
 }
 
 stop_service() {
-  [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
   log_info "🛑 停止服务..."
   # 确保正确停止 tailscaled
   if [ -x "/usr/local/bin/tailscaled" ]; then

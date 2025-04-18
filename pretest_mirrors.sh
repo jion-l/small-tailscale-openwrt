@@ -5,7 +5,6 @@ set -e
 TIME_OUT=30
 
 # 加载共享库
-CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
 MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/mirrors.txt"
 MIRROR_LIST="$CONFIG_DIR/mirrors.txt"

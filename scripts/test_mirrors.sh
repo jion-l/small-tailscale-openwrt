@@ -39,7 +39,7 @@ test_mirror() {
 }
 
 # 加载通知配置
-[ -f /etc/tailscale/notify.conf ] && . /etc/tailscale/notify.conf
+[ -f $CONFIG_DIR/notify.conf ] && . $CONFIG_DIR/notify.conf
 
 # 检查是否需要发送镜像失效通知
 should_notify_mirror_fail() {
