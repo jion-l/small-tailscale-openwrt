@@ -82,6 +82,7 @@ handle_choice() {
             else
                 wget -O- "${custom_proxy}CH3NGYZ/ts-test/raw/refs/heads/main/install.sh" | sh
             fi
+            log_info 请重启 tailscale-helper 命令以使用最新脚本
             ;;
         10)
             /etc/tailscale/uninstall.sh
