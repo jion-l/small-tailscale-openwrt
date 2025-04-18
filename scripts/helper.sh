@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.48"
+SCRIPT_VERSION="v1.0.49"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -37,7 +37,7 @@ generate_tailscale_command() {
     local tailscale_cmd="tailscale up --authkey=your-auth-key --hostname=your-hostname"
     log_info "执行命令: $tailscale_cmd"
     echo "生成的命令: $tailscale_cmd"
-    log_info "✅  请按回车继续..."
+    log_info "✅  请按回车继续..." 1
     read khjfsdjkhfsd
 }
 
@@ -74,7 +74,7 @@ handle_choice() {
     case $1 in
         1)
             $CONFIG_DIR/setup.sh
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         2)
@@ -133,12 +133,12 @@ handle_choice() {
             else
                 log_info "🎉  tailscale 登录成功，状态正常"
             fi
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         3)  
             $CONFIG_DIR/tailscale_up_generater.sh
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         4)
@@ -153,12 +153,12 @@ handle_choice() {
             else
                 log_error "❌  tailscale logout 命令执行失败"
             fi
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         5)
             $CONFIG_DIR/update_ctl.sh
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         6)
@@ -167,12 +167,12 @@ handle_choice() {
             else
                 log_info "⚠️  本地未记录版本信息, 可能未安装 Tailscale"
             fi
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         7)
             $CONFIG_DIR/fetch_and_install.sh --dry-run
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         8)
@@ -180,7 +180,7 @@ handle_choice() {
             ;;
         9)
             $CONFIG_DIR/test_mirrors.sh
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         10)
@@ -193,7 +193,7 @@ handle_choice() {
                 log_error "❌  mirrors.txt下载失败, 请手动将 ${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh 文件内容复制到本地 $MIRROR_LIST 中"
                 exit 0
             fi
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         11)
@@ -214,24 +214,24 @@ handle_choice() {
             ;;
         12)
             $CONFIG_DIR/uninstall.sh
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         13)
             cat /tmp/tailscale_update.log
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         14)
             $CONFIG_DIR/autoupdate.sh
-            log_info "✅  请按回车继续..."
+            log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         0)
             exit 0
             ;;
         *)
-            log_info "❌  无效选择, 请重新输入, 按回车继续..."
+            log_info "❌  无效选择, 请重新输入, 按回车继续..." 1
             read khjfsdjkhfsd
             ;;
     esac

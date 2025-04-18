@@ -141,7 +141,8 @@ main() {
       exit 0
     elif [[ "$input" == "g" ]]; then
       generate_cmd
-      read -p "按回车继续..."
+      log_info "⏳ 按回车继续..." 1
+      read dasdsa51561 
     elif [[ "$input" == "r" ]]; then
       generate_cmd
       log_info "\n即将执行..."
