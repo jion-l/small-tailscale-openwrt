@@ -109,30 +109,12 @@ send_notify() {
         send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
     fi
 
-    # 添加 urlencode 函数（sh 兼容）
-    urlencode() {
-        local str="$1"
-        local length="${#str}"
-        for (( i=0; i<length; i++ )); do
-            local c="${str:i:1}"
-            case "$c" in
-                [a-zA-Z0-9._-]) 
-                    printf "$c"
-                    ;;
-                *)
-                    printf "%%%02X" "'$c"
-                    ;;
-            esac
-        done
-    }
-
-
 
     # Bark
     if [[ "$NOTIFY_BARK" == "1" && -n "$BARK_KEY" ]]; then
         # 对标题和内容进行 URL 编码
-        title_enc=$(urlencode "$title")
-        content_enc=$(urlencode "$content")
+        title_enc=$title
+        content_enc=$content
         
         # 构建完整的 Bark 通知 URL
         url="https://api.day.app/${BARK_KEY}/${title_enc}/${content_enc}"

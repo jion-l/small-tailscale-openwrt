@@ -23,7 +23,7 @@ get_download_tool() {
 
 # 获取可用的下载工具
 download_tool=$(get_download_tool)
-SCRIPT_VERSION="v1.0.13"
+SCRIPT_VERSION="v1.0.14"
 
 get_remote_version() {
         remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
