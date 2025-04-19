@@ -36,6 +36,28 @@
    ```bash
    tailscale-helper
    ```
+
+```mermaid
+graph TD
+    A[开始：运行安装命令<br>curl/wget拉取install.sh并执行] --> B[通过内置代理下载脚本包 tailscale-openwrt-scripts.tar.gz]
+    B --> C[校验 SHA256 或 MD5]
+    C --> D{校验是否通过？}
+    D -->|是| E[解压脚本到 /etc/tailscale]
+    D -->|否| F[尝试直连重新下载]
+    F --> G[重新下载并再次校验]
+    G --> H{校验是否通过？}
+    H -->|是| E
+    H -->|否| X[❌ 下载失败，退出安装]
+
+    E --> I[创建 tailscale-helper 快捷命令软链接]
+    I --> J[初始化通知配置 notify.conf]
+    J --> K[执行 pretest_mirrors.sh 脚本]
+    K --> L[测速代理并生成 valid_mirrors.txt]
+    L --> Y[✅ 安装完成，可运行 tailscale-helper 管理]
+
+    X --> Z[结束]
+```
+
 ### 🛠️ 管理工具说明
 通过   `tailscale-helper` 命令可进入交互式管理界面，提供以下功能：
 
@@ -51,6 +73,7 @@
 - 卸载 Tailscale - 移除 Tailscale 及相关配置
 
 ## 📡 手动编辑代理配置
+   注:自定义的代理需要能通过拼接 CH3NGYZ/small-tailscale-openwrt/releases/latest/download/tailscaled_linux_amd64 下载release文件
    1. 编辑镜像列表：
       ```bash
       vi /etc/tailscale/mirrors.txt
