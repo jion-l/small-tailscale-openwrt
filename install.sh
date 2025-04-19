@@ -208,7 +208,7 @@ ln -sf "$CONFIG_DIR/helper.sh" /usr/bin/tailscale-helper
 
 # 检查软链接是否创建成功
 if [ -L /usr/bin/tailscale-helper ]; then
-    log_info "✅ 软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper, 您可以以后运行 tailscale-helper 来快捷操作"
+    log_info "✅ 软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper"
 else
     log_error "❌ 创建软连接失败"
 fi
