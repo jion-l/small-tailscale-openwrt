@@ -1,7 +1,7 @@
 # 小型化 Tailscale 在 OpenWRT 上的一键安装方案
 [![Release](https://img.shields.io/github/release/CH3NGYZ/small-tailscale-openwrt)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases)
+[![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/latest/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FCH3NGYZ%2Fsmall-tailscale-openwrt&label=views&countColor=%23263759&style=flat)](https://github.com/CH3NGYZ/small-tailscale-openwrt)
-[![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases)
 [![Stars](https://img.shields.io/github/stars/CH3NGYZ/small-tailscale-openwrt)](https://github.com/CH3NGYZ/small-tailscale-openwrt/stargazers)
 
 ### 脚本目前还有点小bug, 如发现问题请及时反馈~
