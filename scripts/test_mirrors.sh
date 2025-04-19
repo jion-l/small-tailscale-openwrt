@@ -10,14 +10,14 @@ test_mirror() {
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
-    log_info "🌐 测试镜像 $mirror, 最长需要 $TIME_OUT 秒..."
+    log_info "🌐  测试镜像 $mirror, 最长需要 $TIME_OUT 秒..."
 
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
 
     # 调试输出检查 URL 是否正确
-    log_info "🌐 下载链接: $url_bin"
-    log_info "🌐 校验文件链接: $url_sum"
+    log_info "🌐  下载链接: $url_bin"
+    log_info "🌐  校验文件链接: $url_sum"
 
     if timeout $TIME_OUT webget "$BIN_PATH" "$url_bin" "echooff" && timeout $TIME_OUT webget "$SUM_PATH" "$url_sum" "echooff"; then
         local sha_expected
@@ -26,15 +26,15 @@ test_mirror() {
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
-            log_info "✅ $mirror 下载成功，用时 ${dl_time}s"
+            log_info "✅  $mirror 下载成功，用时 ${dl_time}s"
             echo "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
             echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
-            log_error "❌ $mirror 校验失败"
+            log_error "❌  $mirror 校验失败"
             echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
-        log_error "❌ $mirror 下载失败"
+        log_error "❌  $mirror 下载失败"
         echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
@@ -62,13 +62,13 @@ done < "$MIRROR_LIST"
 # 排序并保存有效镜像
 if [ -s "$TMP_VALID_MIRRORS" ]; then
     sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
-    log_info "✅ 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
+    log_info "✅  最佳镜像: $(head -n1 "$VALID_MIRRORS")"
 else
     # 如果启用镜像失效通知，发送通知
     if should_notify_mirror_fail; then
-        send_notify "❌ 所有镜像均失效" "请手动配置代理"
+        send_notify "❌  所有镜像均失效" "请手动配置代理"
     fi
-    log_error "❌ 所有镜像均失效"
+    log_error "❌  所有镜像均失效"
     touch "$VALID_MIRRORS"
 fi
 

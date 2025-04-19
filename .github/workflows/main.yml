@@ -111,13 +111,13 @@ jobs:
             # UPX 压缩（跳过 mips64 和 mips64le）
             case "$arch" in
               mips64|mips64le)
-                echo "⚠️ 跳过 $arch 的 UPX 压缩"
+                echo "⚠️  跳过 $arch 的 UPX 压缩"
                 ;;
               *)
                 if [[ -f "$binary_name" ]]; then
                   upx --lzma --best --no-progress "$binary_name"
                 else
-                  echo "❌ 编译失败: $binary_name 不存在"
+                  echo "❌  编译失败: $binary_name 不存在"
                 fi
                 ;;
             esac
@@ -142,7 +142,7 @@ jobs:
             🧩 **支持架构**：
             `${{ env.BUILD_PLATFORMS }}`
           
-            ⚙️ **内容说明**：
+            ⚙️  **内容说明**：
             - 已合并并压缩的运行文件：包含 `tailscale` 和 `tailscaled` 的 [联合二进制](https://tailscale.com/kb/1207/small-tailscale)
             - *注意：由于 UPX 不支持 `mips64` 与 `mips64le`，这两个架构版本为未压缩原始文件*
           
@@ -152,7 +152,7 @@ jobs:
             md5sum -c MD5SUMS.txt
             ```
             
-            🔧 **快速启动**：
+            🔧  **快速启动**：
             ```bash
             chmod +x /path/to/tailscaled-linux-amd64
             ln -s /path/to/tailscaled-linux-amd64 /usr/bin/tailscale

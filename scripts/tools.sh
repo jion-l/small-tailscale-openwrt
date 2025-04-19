@@ -37,7 +37,7 @@ safe_source() {
     if [ -f "$file" ] && [ -s "$file" ]; then
         . "$file"
     else
-        log_warn "⚠️ 配置文件 $file 不存在或为空"
+        log_warn "⚠️  配置文件 $file 不存在或为空"
     fi
 }
 
@@ -113,7 +113,7 @@ send_notify() {
                 wget --quiet --post-data="$data" --header="$headers" "$url"
             fi
         else
-            echo "❌ curl 和 wget 都不可用，无法发送通知"
+            echo "❌  curl 和 wget 都不可用，无法发送通知"
             return 1
         fi
     }
@@ -121,7 +121,7 @@ send_notify() {
     # Server酱
     if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
         data="text=$title&desp=$content"
-        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅ Server酱 通知已发送"
+        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅  Server酱 通知已发送"
     fi
 
     # URL 编码函数
@@ -153,29 +153,29 @@ send_notify() {
         if command -v curl > /dev/null; then
             response=$(curl -sS "$url")
             if [[ $? -eq 0 ]]; then
-                echo "✅ Bark 通知已发送"
+                echo "✅  Bark 通知已发送"
             else
-                echo "❌ 发送 Bark 通知失败，HTTP 状态码: $response"
+                echo "❌  发送 Bark 通知失败，HTTP 状态码: $response"
             fi
         elif command -v wget > /dev/null; then
             if wget --quiet --output-document=/dev/null "$url"; then
-                echo "✅ Bark 通知已发送"
+                echo "✅  Bark 通知已发送"
             else
-                echo "❌ 发送 Bark 通知失败，wget 返回错误"
+                echo "❌  发送 Bark 通知失败，wget 返回错误"
             fi
         else
-            echo "❌ curl 和 wget 都不可用，无法发送 Bark 通知"
+            echo "❌  curl 和 wget 都不可用，无法发送 Bark 通知"
         fi
     fi
 
     # ntfy
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
         headers="Title: $title"
-        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$content" "POST" "$headers" && echo "✅ NTFY 通知已发送"
+        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$content" "POST" "$headers" && echo "✅  NTFY 通知已发送"
     fi
 
     # 无任何通知方式启用
     if [ "$NOTIFY_SERVERCHAN" != "1" ] && [ "$NOTIFY_BARK" != "1" ] && [ "$NOTIFY_NTFY" != "1" ]; then
-        echo "❌ 未启用任何通知方式"
+        echo "❌  未启用任何通知方式"
     fi
 }

@@ -112,8 +112,8 @@ show_status() {
     ((i++))
   done
 
-  log_info "⏳ 0) 退出   g) 生成带参数的 tailscale up 命令"
-  log_info "⏳ 输入编号后回车即可修改: " 1
+  log_info "⏳  0) 退出   g) 生成带参数的 tailscale up 命令"
+  log_info "⏳  输入编号后回车即可修改: " 1
 }
 
 
@@ -128,33 +128,33 @@ edit_param() {
     # 直接切换 flag 类型的参数
     if [[ -z "${!var_name}" ]]; then
       declare -g $var_name=1  # 如果参数未启用，则启用
-      log_info "✅ 启用了 $key"
+      log_info "✅  启用了 $key"
       sleep 1
     else
       unset $var_name  # 否则禁用
-      log_info "❌ 禁用了 $key"
+      log_info "❌  禁用了 $key"
       sleep 1
     fi
   else
     # 需要用户输入内容的参数
     if [[ -z "${!var_name}" ]]; then
-      log_info "🔑 请输入 $key 的值（${PARAMS_DESC[$key]}）：" 1
+      log_info "🔑  请输入 $key 的值（${PARAMS_DESC[$key]}）：" 1
       read -r val
       if [[ -n "$val" ]]; then
         declare -g $var_name="$val"
-        log_info "✅ 保存了 $key 的值：$val"
+        log_info "✅  保存了 $key 的值：$val"
         sleep 1
       fi
     else
-      log_info "🔄 当前 $key 的值为 ${!var_name}，按回车继续编辑或输入新值，输入空值将删除该值：" 1
+      log_info "🔄  当前 $key 的值为 ${!var_name}，按回车继续编辑或输入新值，输入空值将删除该值：" 1
       read -r val
       if [[ -n "$val" ]]; then
         declare -g $var_name="$val"
-        log_info "✅ 更新了 $key 的值：$val"
+        log_info "✅  更新了 $key 的值：$val"
         sleep 1
       else
         unset $var_name
-        log_info "❌ 删除了 $key 的值"
+        log_info "❌  删除了 $key 的值"
         sleep 1
       fi
     fi

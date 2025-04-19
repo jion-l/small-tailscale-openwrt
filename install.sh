@@ -118,7 +118,7 @@ webget() {
 #         while read -r mirror; do
 #             mirror=$(echo "$mirror" | sed 's|/*$|/|')  # 去掉结尾斜杠
 #             full_url="${mirror}${real_url}"
-#             log_info "⬇️ 尝试镜像: $full_url"
+#             log_info "🔗  尝试镜像: $full_url"
 #             if webget "$output" "$full_url" "echooff"; then
 #                 return 0
 #             fi
@@ -126,7 +126,7 @@ webget() {
 #     fi
 
 #     # 如果所有代理都失败, 尝试直接下载
-#     log_info "⬇️ 尝试直连: $real_url"
+#     log_info "🔗  尝试直连: $real_url"
 #     webget "$output" "$real_url" "echooff"
 # }
 
@@ -137,20 +137,20 @@ webget() {
 #     while read -r mirror; do
 #         mirror=$(echo "$mirror" | sed 's|/*$|/|')
 #         full_url="${mirror}${SCRIPTS_TGZ_URL}"
-#         log_info "⬇️ 尝试镜像: $full_url"
+#         log_info "🔗  尝试镜像: $full_url"
 
 #         if webget "$SCRIPTS_PATH" "$full_url" "echooff"; then
 #             if verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
 #                 success=1
 #                 break
 #             else
-#                 log_info "⚠️ SHA256校验失败, 尝试下一个镜像"
+#                 log_info "⚠️  SHA256校验失败, 尝试下一个镜像"
 #             fi
 #             if verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
 #                 success=1
 #                 break
 #             else
-#                 log_info "⚠️ MD5校验失败, 尝试下一个镜像"
+#                 log_info "⚠️  MD5校验失败, 尝试下一个镜像"
 #             fi
 #         fi
 #     done < "$CONFIG_DIR/valid_mirrors.txt"
@@ -158,7 +158,7 @@ webget() {
 
 # # 所有镜像失败后尝试直连
 # if [ "$success" -ne 1 ]; then
-#     log_info "⬇️ 尝试直连: $SCRIPTS_TGZ_URL"
+#     log_info "🔗  尝试直连: $SCRIPTS_TGZ_URL"
 #     if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
 #        verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
 #         success=1
@@ -175,14 +175,14 @@ webget() {
 # 使用固定代理
 proxy_url="https://ghproxy.ch3ng.top/https://github.com/${SCRIPTS_TGZ_URL}"
 success=0
-log_info "⬇️  使用固定代理下载: $proxy_url"
+log_info "🔗  使用固定代理下载: $proxy_url"
 if webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
    (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
     verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
     success=1
 else
     # 尝试直连
-    log_info "⬇️  代理失效, 尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
+    log_info "🔗  代理失效, 尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
     if webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
        (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
         verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
@@ -197,7 +197,7 @@ if [ "$success" -ne 1 ]; then
 fi
 
 # 解压脚本
-log_info "📦 解压脚本包..."
+log_info "📦  解压脚本包..."
 tar -xzf "$SCRIPTS_PATH" -C "$CONFIG_DIR"
 
 # 设置权限

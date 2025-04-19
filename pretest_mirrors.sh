@@ -46,7 +46,7 @@ webget() {
         timeout $TIME_OUT wget --header="User-Agent: Mozilla/5.0" $progress $redirect $certificate -O "$1" "$2"
         [ $? -eq 0 ] && result="200"
     else
-        log_error "❌ 错误：curl 和 wget 都不可用"
+        log_error "❌  错误：curl 和 wget 都不可用"
         return 1
     fi
     [ "$result" = "200" ] && return 0 || return 1
@@ -58,7 +58,7 @@ test_mirror() {
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
     local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 
-    log_info "⏳ 测试 $mirror，最长需要 $TIME_OUT 秒..."
+    log_info "⏳  测试 $mirror，最长需要 $TIME_OUT 秒..."
 
     rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
@@ -70,15 +70,15 @@ test_mirror() {
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
-            log_info "✅ $mirror 下载成功，用时 ${dl_time}s"
+            log_info "✅  $mirror 下载成功，用时 ${dl_time}s"
             log_info "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
             echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
-            log_warn "❌ $mirror 校验失败"
+            log_warn "❌  $mirror 校验失败"
             log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
-        log_warn "❌ $mirror 下载失败"
+        log_warn "❌  $mirror 下载失败"
         log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
@@ -88,13 +88,13 @@ test_mirror() {
 # 手动回退逻辑
 manual_fallback() {
     log_info "🧩 手动选择镜像源："
-    log_info "1) ✍️ 手动输入镜像  2) 🌐 使用直连  3) ❌ 退出"
+    log_info "1) ✍️ 手动输入镜像  2) 🌐  使用直连  3) ❌  退出"
     while :; do
         log_info "请选择: " 1
         read choice
         case $choice in
             1)
-                log_info "⏳ 输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
+                log_info "⏳  输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
                 read  mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if echo "$mirror" | grep -qE '^https?://'; then
@@ -103,7 +103,7 @@ manual_fallback() {
                     [ -s "$TMP_VALID_MIRRORS" ] && sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
                     return 0
                 else
-                    log_warn "⚠️ 地址必须以 http:// 或 https:// 开头"
+                    log_warn "⚠️  地址必须以 http:// 或 https:// 开头"
                 fi
                 ;;
             2)
@@ -118,13 +118,13 @@ manual_fallback() {
 }
 
 # 下载镜像列表
-log_info "🛠️ 正在下载镜像列表，请耐心等待..."
+log_info "🛠️  正在下载镜像列表，请耐心等待..."
 if webget "$MIRROR_LIST" "$MIRROR_FILE_URL" "echooff"; then
-    log_info "✅ 已更新镜像列表"
+    log_info "✅  已更新镜像列表"
 else
-    log_warn "⚠️ 无法下载镜像列表，尝试使用旧版本（如果存在）"
+    log_warn "⚠️  无法下载镜像列表，尝试使用旧版本（如果存在）"
     [ -s "$MIRROR_LIST" ] || {
-        log_error "❌ 没有可用镜像列表，且下载失败"
+        log_error "❌  没有可用镜像列表，且下载失败"
         manual_fallback
         exit 1
     }

@@ -1,9 +1,10 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.65"
+SCRIPT_VERSION="v1.0.66"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
+
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
     if command -v curl > /dev/null 2>&1; then
@@ -24,23 +25,14 @@ get_remote_version() {
     
     if [ "$download_tool" = "curl" ]; then
         # 设置 5 秒超时
-        timeout 6 curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
+        timeout 10 curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
     else
         # 设置 5 秒超时
-        timeout 6 wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
+        timeout 10 wget -qO- "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"
     fi
 }
 
-# 添加生成 Tailscale 命令的函数
-generate_tailscale_command() {
-    log_info "🔓  生成 Tailscale 命令..."
-    local tailscale_cmd="tailscale up --authkey=your-auth-key --hostname=your-hostname"
-    log_info "执行命令: $tailscale_cmd"
-    echo "生成的命令: $tailscale_cmd"
-    log_info "✅  请按回车继续..." 1
-    read khjfsdjkhfsd
-}
-
+# 显示菜单
 show_menu() {
     log_info "🎉  欢迎使用 Tailscale on OpenWRT 管理脚本 $SCRIPT_VERSION"
     if [ ! -s "$REMOTE_SCRIPTS_VERSION_FILE" ]; then
@@ -48,25 +40,25 @@ show_menu() {
     else
         remote_version=$(cat "$REMOTE_SCRIPTS_VERSION_FILE")
         log_info "📦  远程脚本版本: $remote_version $( 
-            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(脚本有更新, 请使用[🛠️ 更新脚本包]功能)' || echo '✅(已是最新)' 
+            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(脚本有更新, 请使用[11)  🛠️ 更新脚本包]更新脚本)' || echo '✅(已是最新)' 
         )"
     fi
-    log_info "    请选择操作："
-    log_info "1)  📥 安装 / 重装 Tailscale"
-    log_info "2)  🚀 登录 Tailscale"
-    log_info "3)  🔓 生成 Tailscale 命令"  # 新增选项
-    log_info "4)  🔓 登出 Tailscale"
-    log_info "5)  🔄 管理 Tailscale 自动更新"
-    log_info "6)  📦 查看本地 Tailscale 存在版本"
-    log_info "7)  📦 查看远程 Tailscale 最新版本"
-    log_info "8)  🔔 管理推送通知"
-    log_info "9)  📊 排序代理池"
-    log_info "10) ♻️ 更新代理池"
-    log_info "11) 🛠️ 更新脚本包"
-    log_info "12) ❌ 卸载 Tailscale"
-    log_info "13) 💬 显示 Tailscale 后台服务 安装 / 更新 日志"
-    log_info "14) 🔄 手动运行更新脚本"
-    log_info "0)  ⛔ 退出"
+    log_info "         请选择操作："
+    log_info " 1).  💾 安装 / 重装 Tailscale"
+    log_info " 2).  📥 登录 Tailscale"
+    log_info " 3).  📝 生成 Tailscale 命令"  # 新增选项
+    log_info " 4).  📤 登出 Tailscale"
+    log_info " 5).  🔄 管理 Tailscale 自动更新"
+    log_info " 6).  📦 查看本地 Tailscale 存在版本"
+    log_info " 7).  📦 查看远程 Tailscale 最新版本"
+    log_info " 8).  🔔 管理推送通知"
+    log_info " 9).  📊 排序代理池"
+    log_info "10).  ♻️ 更新代理池"
+    log_info "11).  🛠️ 更新脚本包"
+    log_info "12).  ❌ 卸载 Tailscale"
+    log_info "13).  📜 显示 Tailscale 自动更新日志"
+    log_info "14).  🔄 手动运行更新脚本"
+    log_info " 0).  ⛔ 退出"
 }
 
 # 处理用户选择
@@ -216,7 +208,16 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         13)
-            cat /tmp/tailscale_update.log
+            # 检查日志文件是否存在
+            if [ -f /tmp/tailscale_update.log ]; then
+                # 如果文件存在，则显示日志内容
+                log_info "✅  日志内容如下："
+                cat /tmp/tailscale_update.log
+            else
+                # 如果文件不存在，则提示用户日志文件未找到
+                log_error "❌  没有找到日志文件，更新脚本可能未执行！"
+              
+            fi
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
@@ -235,9 +236,9 @@ handle_choice() {
     esac
 }
 
-clear
 # 主循环前执行一次远程版本检测
-log_info "🔄  正在检测脚本更新 ..."
+clear
+log_info "🔄  正在检测脚本更新, 最多需要 10 秒..."
 get_remote_version
 clear
 

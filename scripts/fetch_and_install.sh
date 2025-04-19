@@ -27,13 +27,13 @@ download_file() {
     if [ -f "$mirror_list" ]; then
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
-            log_info "⬇️ 下载: ${mirror}${url}"
+            log_info "🔗  下载: ${mirror}${url}"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 if [ -n "$checksum" ]; then
                     if verify_checksum "$output" "$checksum"; then
                         return 0
                     else
-                        log_warn "⚠️ 校验失败，尝试下一个镜像..."
+                        log_warn "⚠️  校验失败，尝试下一个镜像..."
                     fi
                 else
                     return 0
@@ -42,7 +42,7 @@ download_file() {
         done < "$mirror_list"
     fi
 
-    log_info "⬇️ 尝试直接连接..."
+    log_info "🔗  尝试直接连接..."
     if webget "$output" "$url" "echooff"; then
         [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
         return 0
@@ -58,23 +58,23 @@ verify_checksum() {
 
     local actual=""
     if [ ${#expected} -eq 64 ]; then
-        log_info "⬇️ Expected SHA256: $sha256"
+        log_info "🔗  Expected SHA256: $sha256"
         actual=$(sha256sum "$file" | awk '{print $1}')
-        log_info "⬇️  Actual  SHA256: $sha256"
+        log_info "🔗  Actual  SHA256: $sha256"
     elif [ ${#expected} -eq 32 ]; then
-        log_info "⬇️ Expected MD5: $md5"
+        log_info "🔗  Expected MD5: $md5"
         actual=$(md5sum "$file" | awk '{print $1}')
-        log_info "⬇️  Actual  MD5: $md5"
+        log_info "🔗  Actual  MD5: $md5"
     else
-        log_warn "⚠️ 未知校验长度，跳过校验"
+        log_warn "⚠️  未知校验长度，跳过校验"
         return 0
     fi
 
     if [ "$expected" = "$actual" ]; then
-        log_info "✅ 校验通过"
+        log_info "✅  校验通过"
         return 0
     else
-        log_error "❌ 校验失败"
+        log_error "❌  校验失败"
         return 1
     fi
 }
@@ -90,15 +90,15 @@ install_tailscale() {
     local download_url="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"
 
-    log_info "⬇️ 准备校验文件..."
+    log_info "🔗  准备校验文件..."
     sha_file="/tmp/SHA256SUMS.$$"
     md5_file="/tmp/MD5SUMS.$$"
     pkg_name="tailscaled_linux_$arch"
     download_base="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/"
 
     # 下载校验文件
-    download_file "${download_base}SHA256SUMS.txt" "$sha_file" "$mirror_list" || log_warn "⚠️ 无法获取 SHA256 校验文件"
-    download_file "${download_base}MD5SUMS.txt" "$md5_file" "$mirror_list" || log_warn "⚠️ 无法获取 MD5 校验文件"
+    download_file "${download_base}SHA256SUMS.txt" "$sha_file" "$mirror_list" || log_warn "⚠️  无法获取 SHA256 校验文件"
+    download_file "${download_base}MD5SUMS.txt" "$md5_file" "$mirror_list" || log_warn "⚠️  无法获取 MD5 校验文件"
 
     sha256=""
     md5=""
@@ -107,11 +107,11 @@ install_tailscale() {
 
 
     # 下载主程序并校验
-    log_info "⬇️ 正在下载 Tailscale $version ($arch)..."
+    log_info "🔗  正在下载 Tailscale $version ($arch)..."
     if ! download_file "$download_base$pkg_name" "$tmp_file" "$mirror_list" "$sha256"; then
-        log_warn "⚠️ SHA256 校验失败，尝试使用 MD5..."
+        log_warn "⚠️  SHA256 校验失败，尝试使用 MD5..."
         if ! download_file "$download_base$pkg_name" "$tmp_file" "$mirror_list" "$md5"; then
-            log_error "❌ 校验失败，安装中止"
+            log_error "❌  校验失败，安装中止"
             rm -f "$tmp_file"
             exit 1
         fi
@@ -126,12 +126,12 @@ install_tailscale() {
         ln -sf /usr/local/bin/tailscaled /usr/local/bin/tailscale
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscaled
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscale
-        log_info "✅ 安装到 /usr/local/bin/"
+        log_info "✅  安装到 /usr/local/bin/"
     else
         mv "$tmp_file" /tmp/tailscaled
         ln -sf /tmp/tailscaled /usr/bin/tailscaled
         ln -sf /tmp/tailscaled /usr/bin/tailscale
-        log_info "✅ 安装到 /tmp (内存模式)"
+        log_info "✅  安装到 /tmp (内存模式)"
     fi
 
     echo "$version" > "$VERSION_FILE"
@@ -156,7 +156,7 @@ done
 # 处理版本
 if [ "$VERSION" = "latest" ]; then
     VERSION=$(get_latest_version) || {
-        log_error "❌ 获取最新版本失败"
+        log_error "❌  获取最新版本失败"
         exit 1
     }
 fi
