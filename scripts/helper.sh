@@ -206,7 +206,7 @@ handle_choice() {
                 exit 0
             fi
 
-            log_info "✅  脚本更新完毕, 推荐您 [📊 更新代理池] 并 [📊 排序代理池], 回车重新加载脚本..."
+            log_info "✅  脚本更新完毕, 推荐您 [♻️ 更新代理池] 并 [📊 排序代理池], 回车重新加载脚本..."
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
