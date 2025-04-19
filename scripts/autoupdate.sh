@@ -93,11 +93,11 @@ if [ "$MODE" = "local" ]; then
 elif [ "$MODE" = "tmp" ]; then
   version_to_use="$([ "$current" = "latest" ] && echo "$remote" || echo "$current")"
 
-  # 文件不存在时，检查是否需要自动更新
-  
+
   if [ "$AUTO_UPDATE" = "true" ]; then
     # 如果启用自动更新，且版本与本地记录不一致，才进行更新
     if [ "$version_to_use" != "$recorded" ]; then
+      # 开机和第一次安装时
       log_info "🌐 检测到新版本 $version_to_use, 开始更新..."
       if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
         echo "$version_to_use" > "$VERSION_FILE"
@@ -118,7 +118,7 @@ elif [ "$MODE" = "tmp" ]; then
       log_info "✅ TMP 当前版本 $version_to_use 已是最新"
     fi
   else
-    # 如果不启用自动更新，先检测文件是否存在, 文件存在则直接跳过, 文件不存在则使用指定版本进行安装
+    # 如果不启用自动更新，先检测文件是否存在, 文件存在则直接跳过, (第一次安装) 文件不存在则使用指定版本进行安装 (开机时)
     if [ ! -x "/tmp/tailscaled" ]; then
       log_info "⚙️ 不启用自动更新, TMP 模式不存在 tailscaled, 安装指定版本 $recorded..."
       if "$CONFIG_DIR/fetch_and_install.sh" --version="$recorded" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then

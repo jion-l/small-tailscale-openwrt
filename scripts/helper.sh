@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.61"
+SCRIPT_VERSION="v1.0.62"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -191,7 +191,7 @@ handle_choice() {
                 log_error "❌  mirrors.txt下载失败, 请手动将 ${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt 文件内容复制到本地 $MIRROR_LIST 中"
                 exit 0
             fi
-            log_info "✅  请按回车继续..." 1
+            log_info "✅  mirrors.txt更新完毕, 请运行 [📊 排序代理池], 按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         11)
@@ -206,7 +206,7 @@ handle_choice() {
                 exit 0
             fi
 
-            log_info "✅  脚本更新完毕, 请按回车重新加载..."
+            log_info "✅  脚本更新完毕, 推荐您 [📊 更新代理池] 并 [📊 排序代理池], 回车重新加载脚本..."
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;

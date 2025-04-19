@@ -228,38 +228,34 @@ NOTIFY_NTFY=0
 NTFY_KEY=""
 EOF
 
-log_info "🔄 正在对镜像测速, 请等待..."
 
-if command -v curl >/dev/null 2>&1; then
-    log_info "使用 curl 下载 pretest_mirrors.sh..."
-    if curl -o /tmp/pretest_mirrors.sh -L "https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"; then
-        sh /tmp/pretest_mirrors.sh
+run_pretest_mirrors() {
+    log_info "🔄 下载 pretest_mirrors.sh 并执行测速..."
+    url="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
+    if command -v curl >/dev/null 2>&1; then
+        log_info "使用 curl 下载 pretest_mirrors.sh..."
+        curl -fsSL -o /tmp/pretest_mirrors.sh "$url" || return 1
+    elif command -v wget >/dev/null 2>&1; then
+        log_info "使用 wget 下载 pretest_mirrors.sh..."
+        wget -qO /tmp/pretest_mirrors.sh "$url" || return 1
     else
-        log_error "curl 下载失败，尝试使用 wget..."
-        if command -v wget >/dev/null 2>&1; then
-            if wget -O /tmp/pretest_mirrors.sh "https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"; then
-                sh /tmp/pretest_mirrors.sh
-            else
-                log_error "wget 也下载失败了"
-                exit 1
-            fi
-        else
-            log_error "curl 和 wget 都不可用"
-            exit 1
-        fi
+        log_error "❌ curl 和 wget 都不可用"
+        return 1
     fi
-elif command -v wget >/dev/null 2>&1; then
-    log_info "curl 不可用，尝试使用 wget 下载 pretest_mirrors.sh..."
-    if wget -O /tmp/pretest_mirrors.sh "https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"; then
-        sh /tmp/pretest_mirrors.sh
+
+    sh /tmp/pretest_mirrors.sh
+}
+
+if [ ! -L /etc/tailscale/mirrors.txt ]; then 
+    log_info "🔍 检测到本地不存在镜像列表，将下载镜像列表并测速，请等待..."
+    if run_pretest_mirrors; then
+        log_info "✅ 下载镜像列表并测速完成！请执行以下命令进入管理菜单:"
     else
-        log_error "wget 下载失败"
+        log_error "❌ 下载或测速失败，无法继续"
         exit 1
     fi
 else
-    log_error "curl 和 wget 都不可用，无法继续"
-    exit 1
+    log_info "✅ 本地存在 mirrors.txt，无需测速，请执行以下命令进入管理菜单:"
 fi
 
-log_info "✅ 镜像测试完成！请执行以下命令进入管理菜单: "
 log_info "    tailscale-helper"
