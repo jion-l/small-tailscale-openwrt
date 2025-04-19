@@ -249,13 +249,13 @@ run_pretest_mirrors() {
 if [ ! -f /etc/tailscale/mirrors.txt ]; then
     log_info "🔍 本地不存在 mirrors.txt, 将下载镜像列表并测速, 请等待..."
     if run_pretest_mirrors; then
-        log_info "✅ 下载镜像列表并测速完成！请执行以下命令进入管理菜单:"
+        log_info "✅ 下载镜像列表并测速完成！"
     else
-        log_error "❌ 下载或测速失败, 无法继续"
+        log_error "❌ 下载或测速失败, 无法继续!"
         exit 1
     fi
 else
-    log_info "✅ 本地存在 mirrors.txt, 无需测速, 请执行以下命令进入管理菜单:"
+    log_info "✅ 本地存在 mirrors.txt, 无需再次下载!"
 fi
 
-log_info "    tailscale-helper"
+log_info "✅ 一键安装 Tailscale 配置工具安装完毕!"

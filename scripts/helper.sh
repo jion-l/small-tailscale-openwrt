@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.63"
+SCRIPT_VERSION="v1.0.64"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -206,7 +206,7 @@ handle_choice() {
                 exit 0
             fi
 
-            log_info "✅  脚本更新完毕, 推荐您 [♻️ 更新代理池] 并 [📊 排序代理池], 回车重新加载脚本..."
+            log_info "✅  请按回车重新加载脚本..."
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
