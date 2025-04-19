@@ -24,7 +24,7 @@ log_error() {
     [ $# -eq 2 ] || echo
 }
 
-# 校验函数，接收三个参数：文件路径、校验类型（sha256/md5）、预期值
+# 校验函数, 接收三个参数：文件路径、校验类型（sha256/md5）、预期值
 verify_checksum() {
     local file=$1
     local type=$2
@@ -38,7 +38,7 @@ verify_checksum() {
             elif command -v openssl >/dev/null 2>&1; then
                 actual=$(openssl dgst -sha256 "$file" | awk '{print $2}')
             else
-                log_error "❌ 系统缺少 sha256sum 或 openssl，无法校验文件"
+                log_error "❌ 系统缺少 sha256sum 或 openssl, 无法校验文件"
                 return 1
             fi
             ;;
@@ -48,7 +48,7 @@ verify_checksum() {
             elif command -v openssl >/dev/null 2>&1; then
                 actual=$(openssl dgst -md5 "$file" | awk '{print $2}')
             else
-                log_error "❌ 系统缺少 md5sum 或 openssl，无法校验文件"
+                log_error "❌ 系统缺少 md5sum 或 openssl, 无法校验文件"
                 return 1
             fi
             ;;
@@ -60,7 +60,7 @@ verify_checksum() {
 
     # 校验结果对比
     if [ "$actual" != "$expected" ]; then
-        log_error "❌ 校验失败！预期: $expected，实际: $actual"
+        log_error "❌ 校验失败！预期: $expected, 实际: $actual"
         return 1
     fi
 
@@ -125,7 +125,7 @@ webget() {
 #         done < "$mirror_list_file"
 #     fi
 
-#     # 如果所有代理都失败，尝试直接下载
+#     # 如果所有代理都失败, 尝试直接下载
 #     log_info "⬇️ 尝试直连: $real_url"
 #     webget "$output" "$real_url" "echooff"
 # }
@@ -144,13 +144,13 @@ webget() {
 #                 success=1
 #                 break
 #             else
-#                 log_info "⚠️ SHA256校验失败，尝试下一个镜像"
+#                 log_info "⚠️ SHA256校验失败, 尝试下一个镜像"
 #             fi
 #             if verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
 #                 success=1
 #                 break
 #             else
-#                 log_info "⚠️ MD5校验失败，尝试下一个镜像"
+#                 log_info "⚠️ MD5校验失败, 尝试下一个镜像"
 #             fi
 #         fi
 #     done < "$CONFIG_DIR/valid_mirrors.txt"
@@ -182,7 +182,7 @@ if webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
     success=1
 else
     # 尝试直连
-    log_info "⬇️ 代理失败，尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
+    log_info "⬇️ 代理失败, 尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
     if webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
        (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
         verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
@@ -192,7 +192,7 @@ fi
 
 
 if [ "$success" -ne 1 ]; then
-    log_error "❌ 镜像与直连均失败，安装中止"
+    log_error "❌ 镜像与直连均失败, 安装中止"
     exit 1
 fi
 
@@ -246,16 +246,16 @@ run_pretest_mirrors() {
     sh /tmp/pretest_mirrors.sh
 }
 
-if [ ! -L /etc/tailscale/mirrors.txt ]; then 
-    log_info "🔍 检测到本地不存在镜像列表，将下载镜像列表并测速，请等待..."
+if [ ! -f /etc/tailscale/mirrors.txt ]; then
+    log_info "🔍 本地不存在 mirrors.txt, 将下载镜像列表并测速, 请等待..."
     if run_pretest_mirrors; then
         log_info "✅ 下载镜像列表并测速完成！请执行以下命令进入管理菜单:"
     else
-        log_error "❌ 下载或测速失败，无法继续"
+        log_error "❌ 下载或测速失败, 无法继续"
         exit 1
     fi
 else
-    log_info "✅ 本地存在 mirrors.txt，无需测速，请执行以下命令进入管理菜单:"
+    log_info "✅ 本地存在 mirrors.txt, 无需测速, 请执行以下命令进入管理菜单:"
 fi
 
 log_info "    tailscale-helper"

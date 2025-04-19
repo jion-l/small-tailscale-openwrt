@@ -1,7 +1,7 @@
 #!/bin/sh
 # /etc/tailscale/tools.sh
-
 CONFIG_DIR="/etc/tailscale"
+mkdir -p "$CONFIG_DIR"
 LOG_FILE="/var/log/tailscale_install.log"
 VERSION_FILE="$CONFIG_DIR/current_version"
 NTF_CONF="$CONFIG_DIR/notify.conf"

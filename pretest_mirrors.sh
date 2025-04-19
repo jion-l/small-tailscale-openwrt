@@ -3,14 +3,11 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 TIME_OUT=30
-
-# 加载共享库
-mkdir -p "$CONFIG_DIR"
 MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/mirrors.txt"
-MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
-SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
-VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
-TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
+# MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
+# SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
+# VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
+# TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
 
 BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
