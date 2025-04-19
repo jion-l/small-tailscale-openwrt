@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.66"
+SCRIPT_VERSION="v1.0.67"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -43,22 +43,26 @@ show_menu() {
             [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨(脚本有更新, 请使用[11)  🛠️ 更新脚本包]更新脚本)' || echo '✅(已是最新)' 
         )"
     fi
-    log_info "         请选择操作："
-    log_info " 1).  💾 安装 / 重装 Tailscale"
-    log_info " 2).  📥 登录 Tailscale"
-    log_info " 3).  📝 生成 Tailscale 命令"  # 新增选项
-    log_info " 4).  📤 登出 Tailscale"
-    log_info " 5).  🔄 管理 Tailscale 自动更新"
-    log_info " 6).  📦 查看本地 Tailscale 存在版本"
-    log_info " 7).  📦 查看远程 Tailscale 最新版本"
-    log_info " 8).  🔔 管理推送通知"
-    log_info " 9).  📊 排序代理池"
-    log_info "10).  ♻️ 更新代理池"
-    log_info "11).  🛠️ 更新脚本包"
-    log_info "12).  ❌ 卸载 Tailscale"
-    log_info "13).  📜 显示 Tailscale 自动更新日志"
-    log_info "14).  🔄 手动运行更新脚本"
-    log_info " 0).  ⛔ 退出"
+    log_info "------------------------------------------"
+    log_info "      1).  💾 安装 / 重装 Tailscale"
+    log_info "------------------------------------------"
+    log_info "      2).  📥 登录 Tailscale"
+    log_info "      3).  📝 生成 Tailscale 启动命令"  # 新增选项
+    log_info "      4).  📤 登出 Tailscale"
+    log_info "      5).  ❌ 卸载 Tailscale"
+    log_info "------------------------------------------"
+    log_info "      6).  🔄 管理 Tailscale 自动更新"
+    log_info "      7).  📦 查看本地 Tailscale 存在版本"
+    log_info "      8).  📦 查看远程 Tailscale 最新版本"
+    log_info "      9).  🔔 管理推送通知"
+    log_info "     10).  📊 排序代理池"
+    log_info "     11).  ♻️ 更新代理池"
+    log_info "     12).  🛠️ 更新脚本包"
+    log_info "     13).  📜 显示 Tailscale 自动更新日志"
+    log_info "     14).  🔄 手动运行更新脚本"
+    log_info "------------------------------------------"
+    log_info "      0).  ⛔ 退出"
+    log_info "------------------------------------------"
 }
 
 # 处理用户选择
@@ -147,11 +151,16 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         5)
-            $CONFIG_DIR/update_ctl.sh
+            $CONFIG_DIR/uninstall.sh
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
         6)
+            $CONFIG_DIR/update_ctl.sh
+            log_info "✅  请按回车继续..." 1
+            read khjfsdjkhfsd
+            ;;
+        7)
             if [ -f "$VERSION_FILE" ]; then
                 log_info "📦  当前本地版本: $(cat "$VERSION_FILE")"
             else
@@ -160,20 +169,20 @@ handle_choice() {
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        7)
+        8)
             $CONFIG_DIR/fetch_and_install.sh --dry-run
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        8)
+        9)
             $CONFIG_DIR/notify_ctl.sh
             ;;
-        9)
+        10)
             $CONFIG_DIR/test_mirrors.sh
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        10)
+        11)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL -o "$MIRROR_LIST" "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
             else
@@ -186,7 +195,7 @@ handle_choice() {
             log_info "✅  mirrors.txt更新完毕, 请运行 [📊 排序代理池], 按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        11)
+        12)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             else
@@ -202,11 +211,7 @@ handle_choice() {
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
-        12)
-            $CONFIG_DIR/uninstall.sh
-            log_info "✅  请按回车继续..." 1
-            read khjfsdjkhfsd
-            ;;
+        
         13)
             # 检查日志文件是否存在
             if [ -f /tmp/tailscale_update.log ]; then
