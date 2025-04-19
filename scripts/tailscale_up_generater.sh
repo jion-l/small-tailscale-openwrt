@@ -54,8 +54,17 @@ declare -A PARAMS_DESC=(
 
 # 加载配置
 load_conf() {
-  [ -f "$CONF_FILE" ] && source "$CONF_FILE"
+  if [ -f "$CONF_FILE" ]; then
+    while IFS='=' read -r key value; do
+      [[ -z "$key" || "$key" == \#* ]] && continue
+      key=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+      value="${value%\"}"
+      value="${value#\"}"
+      declare -g "$key=$value"
+    done < "$CONF_FILE"
+  fi
 }
+
 
 # 保存配置
 save_conf() {
@@ -71,19 +80,42 @@ save_conf() {
 show_status() {
   clear
   log_info "当前 tailscale up 参数状态："
+
+  # 计算最大宽度
+  max_key_len=0
+  max_val_len=0
+  for key in "${!PARAMS_TYPE[@]}"; do
+    key_len=${#key}
+    (( key_len > max_key_len )) && max_key_len=$key_len
+
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+    val="${!var_name}"
+    val_len=${#val}
+    [[ -n "$val" && $val_len -gt $max_val_len ]] && max_val_len=$val_len
+  done
+
   i=1
   for key in "${!PARAMS_TYPE[@]}"; do
-    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 将变量名转换为合法形式
-    val="${!var_name}"  # 获取变量值
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+    val="${!var_name}"
     emoji="❌"
     [[ -n "$val" ]] && emoji="✅"
-    printf "%2d) [%s] %s %s\n" $i "$emoji" "$key" "${PARAMS_DESC[$key]}"
     OPTIONS[$i]="$key"
+
+    if [[ -n "$val" ]]; then
+      printf "%2d) [%s] %-${max_key_len}s = %-${max_val_len}s # %s\n" \
+        $i "$emoji" "$key" "$val" "${PARAMS_DESC[$key]}"
+    else
+      printf "%2d) [%s] %-${max_key_len}s   %*s# %s\n" \
+        $i "$emoji" "$key" $((max_val_len + 3)) "" "${PARAMS_DESC[$key]}"
+    fi
     ((i++))
   done
+
   log_info "⏳ 0) 退出   g) 生成带参数的 tailscale up 命令"
   log_info "⏳ 输入编号后回车即可修改: " 1
 }
+
 
 # 修改参数
 edit_param() {

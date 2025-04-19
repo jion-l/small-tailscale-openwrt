@@ -94,32 +94,33 @@ elif [ "$MODE" = "tmp" ]; then
   version_to_use="$([ "$current" = "latest" ] && echo "$remote" || echo "$current")"
 
   # 文件不存在时，检查是否需要自动更新
-  if [ ! -x "/tmp/tailscaled" ]; then
-    if [ "$AUTO_UPDATE" = "true" ]; then
-      # 如果启用自动更新，且版本与本地记录不一致，才进行更新
-      if [ "$version_to_use" != "$recorded" ]; then
-        log_info "🌐 检测到新版本 $version_to_use, 开始更新..."
-        if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
-          echo "$version_to_use" > "$VERSION_FILE"
-          log_info "✅ 更新成功至版本 $version_to_use"
-          # 发送更新通知
-          if should_notify "update"; then
-            send_notify "✅ Tailscale TMP 模式已更新" "版本更新至 $version_to_use"
-          fi
-        else
-          log_error "❌ TMP 更新失败"
-          # 发送紧急通知
-          if should_notify "emergency"; then
-            send_notify "❌ Tailscale TMP 更新失败" "版本更新失败，请检查日志"
-          fi
-          exit 1
+  
+  if [ "$AUTO_UPDATE" = "true" ]; then
+    # 如果启用自动更新，且版本与本地记录不一致，才进行更新
+    if [ "$version_to_use" != "$recorded" ]; then
+      log_info "🌐 检测到新版本 $version_to_use, 开始更新..."
+      if "$CONFIG_DIR/fetch_and_install.sh" --version="$version_to_use" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
+        echo "$version_to_use" > "$VERSION_FILE"
+        log_info "✅ 更新成功至版本 $version_to_use"
+        # 发送更新通知
+        if should_notify "update"; then
+          send_notify "✅ Tailscale TMP 模式已更新" "版本更新至 $version_to_use"
         fi
       else
-        log_info "✅ TMP 当前版本 $version_to_use 已是最新"
+        log_error "❌ TMP 更新失败"
+        # 发送紧急通知
+        if should_notify "emergency"; then
+          send_notify "❌ Tailscale TMP 更新失败" "版本更新失败，请检查日志"
+        fi
+        exit 1
       fi
     else
-      # 如果不启用自动更新，使用指定版本进行安装
-      log_info "⚙️ 不启用自动更新，安装指定版本 $recorded..."
+      log_info "✅ TMP 当前版本 $version_to_use 已是最新"
+    fi
+  else
+    # 如果不启用自动更新，先检测文件是否存在, 文件存在则直接跳过, 文件不存在则使用指定版本进行安装
+    if [ ! -x "/tmp/tailscaled" ]; then
+      log_info "⚙️ 不启用自动更新, TMP 模式不存在 tailscaled, 安装指定版本 $recorded..."
       if "$CONFIG_DIR/fetch_and_install.sh" --version="$recorded" --mode="tmp" --mirror-list="$VALID_MIRRORS"; then
         echo "$recorded" > "$VERSION_FILE"
       else
@@ -130,8 +131,8 @@ elif [ "$MODE" = "tmp" ]; then
         fi
         exit 1
       fi
+    else
+      log_info "⚙️ 不启用自动更新, TMP 模式已存在 tailscaled, 跳过安装"
     fi
-  else
-    log_info "✅ TMP 模式已存在 tailscaled，跳过安装"
   fi
 fi
