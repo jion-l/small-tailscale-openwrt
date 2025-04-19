@@ -38,7 +38,7 @@ verify_checksum() {
             elif command -v openssl >/dev/null 2>&1; then
                 actual=$(openssl dgst -sha256 "$file" | awk '{print $2}')
             else
-                log_error "❌ 系统缺少 sha256sum 或 openssl, 无法校验文件"
+                log_error "❌  系统缺少 sha256sum 或 openssl, 无法校验文件"
                 return 1
             fi
             ;;
@@ -48,23 +48,23 @@ verify_checksum() {
             elif command -v openssl >/dev/null 2>&1; then
                 actual=$(openssl dgst -md5 "$file" | awk '{print $2}')
             else
-                log_error "❌ 系统缺少 md5sum 或 openssl, 无法校验文件"
+                log_error "❌  系统缺少 md5sum 或 openssl, 无法校验文件"
                 return 1
             fi
             ;;
         *)
-            log_error "❌ 校验类型无效: $type"
+            log_error "❌  校验类型无效: $type"
             return 1
             ;;
     esac
 
     # 校验结果对比
     if [ "$actual" != "$expected" ]; then
-        log_error "❌ 校验失败！预期: $expected, 实际: $actual"
+        log_error "❌  校验失败！预期: $expected, 实际: $actual"
         return 1
     fi
 
-    log_info "✅ 校验通过"
+    log_info "✅  校验通过"
     return 0
 }
 
@@ -175,14 +175,14 @@ webget() {
 # 使用固定代理
 proxy_url="https://ghproxy.ch3ng.top/https://github.com/${SCRIPTS_TGZ_URL}"
 success=0
-log_info "⬇️ 使用固定代理下载: $proxy_url"
+log_info "⬇️  使用固定代理下载: $proxy_url"
 if webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
    (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
     verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
     success=1
 else
     # 尝试直连
-    log_info "⬇️ 代理失败, 尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
+    log_info "⬇️  代理失效, 尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
     if webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
        (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
         verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
@@ -192,7 +192,7 @@ fi
 
 
 if [ "$success" -ne 1 ]; then
-    log_error "❌ 镜像与直连均失败, 安装中止"
+    log_error "❌  镜像与直连均失败, 安装中止"
     exit 1
 fi
 
@@ -208,9 +208,9 @@ ln -sf "$CONFIG_DIR/helper.sh" /usr/bin/tailscale-helper
 
 # 检查软链接是否创建成功
 if [ -L /usr/bin/tailscale-helper ]; then
-    log_info "✅ 软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper"
+    log_info "✅  软连接已成功创建：$CONFIG_DIR/helper.sh -> /usr/bin/tailscale-helper"
 else
-    log_error "❌ 创建软连接失败"
+    log_error "❌  创建软连接失败"
 fi
 
 # 初始化通知配置
@@ -230,32 +230,26 @@ EOF
 
 
 run_pretest_mirrors() {
-    log_info "🔄 下载 pretest_mirrors.sh 并执行测速..."
+    log_info "🔄  下载 pretest_mirrors.sh 并执行测速..."
     url="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
-    if command -v curl >/dev/null 2>&1; then
-        log_info "使用 curl 下载 pretest_mirrors.sh..."
-        curl -fsSL -o /tmp/pretest_mirrors.sh "$url" || return 1
-    elif command -v wget >/dev/null 2>&1; then
-        log_info "使用 wget 下载 pretest_mirrors.sh..."
-        wget -qO /tmp/pretest_mirrors.sh "$url" || return 1
+    if webget "$SCRIPTS_PATH" "$proxy_url" "echooff"; then  # 这里修正了 if 语句和 then 的位置
+        sh /tmp/pretest_mirrors.sh
     else
-        log_error "❌ curl 和 wget 都不可用"
         return 1
     fi
-
-    sh /tmp/pretest_mirrors.sh
 }
 
 if [ ! -f /etc/tailscale/mirrors.txt ]; then
     log_info "🔍 本地不存在 mirrors.txt, 将下载镜像列表并测速, 请等待..."
     if run_pretest_mirrors; then
-        log_info "✅ 下载镜像列表并测速完成！"
+        log_info "✅  下载镜像列表并测速完成！"
     else
-        log_error "❌ 下载或测速失败, 无法继续!"
+        log_error "❌  下载或测速失败, 无法继续!"
         exit 1
     fi
 else
-    log_info "✅ 本地存在 mirrors.txt, 无需再次下载!"
+    log_info "✅  本地存在 mirrors.txt, 无需再次下载!"
 fi
 
-log_info "✅ 一键安装 Tailscale 配置工具安装完毕!"
+log_info "✅  一键安装 Tailscale 配置工具安装完毕!"
+
