@@ -161,13 +161,14 @@ jobs:
             tailscale up
             ```
 
-            📦 附带文件：
-            ```
-            - `tailscaled_linux_*`: 不同架构对应的可执行文件
-            - `SHA256SUMS.txt`: SHA256 校验文件
-            - `MD5SUMS.txt`: MD5 校验文件
-            - `version.txt`: 当前版本标识
-            ```
+            📦 **附带文件**：
+            | 文件名               | 说明                  |
+            |----------------------|-----------------------|
+            | tailscaled_linux_*    | 不同架构对应的可执行文件 |
+            | SHA256SUMS.txt        | SHA256 校验文件        |
+            | MD5SUMS.txt           | MD5 校验文件           |
+            | version.txt           | 当前版本标识          |
+
             
           draft: false
           prerelease: false
