@@ -74,7 +74,7 @@ webget() {
                 result="non-200"
             fi
         else
-            echo "Error: Neither curl nor wget available"
+            log_error "Error: Neither curl nor wget available"
             return 1
         fi
     fi
@@ -113,7 +113,7 @@ send_notify() {
                 wget --quiet --post-data="$data" --header="$headers" "$url"
             fi
         else
-            echo "❌  curl 和 wget 都不可用，无法发送通知"
+            log_error "❌  curl 和 wget 都不可用，无法发送通知"
             return 1
         fi
     }
@@ -121,7 +121,7 @@ send_notify() {
     # Server酱
     if [ "$NOTIFY_SERVERCHAN" = "1" ] && [ -n "$SERVERCHAN_KEY" ]; then
         data="text=$title&desp=$content"
-        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && echo "✅  Server酱 通知已发送"
+        send_via_curl_or_wget "https://sctapi.ftqq.com/$SERVERCHAN_KEY.send" "$data" "POST" && log_info "✅  Server酱 通知已发送"
     fi
 
     # URL 编码函数
@@ -153,29 +153,29 @@ send_notify() {
         if command -v curl > /dev/null; then
             response=$(curl -sS "$url")
             if [[ $? -eq 0 ]]; then
-                echo "✅  Bark 通知已发送"
+                log_info "✅  Bark 通知已发送"
             else
-                echo "❌  发送 Bark 通知失败，HTTP 状态码: $response"
+                log_error "❌  发送 Bark 通知失败，HTTP 状态码: $response"
             fi
         elif command -v wget > /dev/null; then
             if wget --quiet --output-document=/dev/null "$url"; then
-                echo "✅  Bark 通知已发送"
+                log_info "✅  Bark 通知已发送"
             else
-                echo "❌  发送 Bark 通知失败，wget 返回错误"
+                log_error "❌  发送 Bark 通知失败，wget 返回错误"
             fi
         else
-            echo "❌  curl 和 wget 都不可用，无法发送 Bark 通知"
+            log_error "❌  curl 和 wget 都不可用，无法发送 Bark 通知"
         fi
     fi
 
     # ntfy
     if [ "$NOTIFY_NTFY" = "1" ] && [ -n "$NTFY_KEY" ]; then
         headers="Title: $title"
-        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$content" "POST" "$headers" && echo "✅  NTFY 通知已发送"
+        send_via_curl_or_wget "https://ntfy.sh/$NTFY_KEY" "$content" "POST" "$headers" && log_info "✅  NTFY 通知已发送"
     fi
 
     # 无任何通知方式启用
     if [ "$NOTIFY_SERVERCHAN" != "1" ] && [ "$NOTIFY_BARK" != "1" ] && [ "$NOTIFY_NTFY" != "1" ]; then
-        echo "❌  未启用任何通知方式"
+        log_error "❌  未启用任何通知方式"
     fi
 }
