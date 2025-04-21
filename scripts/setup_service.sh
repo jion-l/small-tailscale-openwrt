@@ -44,9 +44,10 @@ start_service() {
     procd_set_param stderr 1
     procd_set_param logfile /var/log/tailscale.log
     procd_close_instance
+    log_info "🛠️  本地模式已启动, Tailscale服务日志文件：/var/log/tailscale.log"
     # 本地模式自动更新
-    log_info "🛠️  本地模式, 启动 autoupdate (阻塞运行中) ,日志:/tmp/tailscale_update.log"
-    "$CONFIG_DIR/autoupdate.sh" >> /tmp/tailscale_update.log 2>&1
+    log_info "🛠️  本地模式, 检测更新中, 日志:/tmp/tailscale_update.log"
+    "$CONFIG_DIR/autoupdate.sh" 2>&1 | tee -a /tmp/tailscale_update.log
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️  启动 Tailscale (临时模式)..."
     if [ -x /tmp/tailscaled ]; then
@@ -62,10 +63,10 @@ start_service() {
         procd_set_param stderr 1
         procd_set_param logfile /var/log/tailscale.log
         procd_close_instance
+        log_info "🛠️  临时模式已启动, Tailscale服务日志文件：/var/log/tailscale.log"
     else
-      log_info "🛠️  tmp模式, 文件不存在, 正在下载 tailscaled..."
-      "$CONFIG_DIR/autoupdate.sh"
-
+      log_info "🛠️  tmp模式, 文件不存在, 正在下载 tailscaled, 日志:/tmp/tailscale_update.log"
+      "$CONFIG_DIR/autoupdate.sh" 2>&1 | tee -a /tmp/tailscale_update.log
       if [ -x /tmp/tailscaled ]; then
         log_info "✅  检测到文件已下载, 直接启动 tailscaled..."
         procd_open_instance
@@ -79,9 +80,11 @@ start_service() {
         procd_set_param stderr 1
         procd_set_param logfile /var/log/tailscale.log
         procd_close_instance
+        log_info "🛠️  临时模式已启动, Tailscale服务日志文件：/var/log/tailscale.log"
+      else
+        log_error "❌  错误：下载失败, 未找到文件, 无法启动."
       fi
     fi
-    log_info "🛠️  临时模式已启动, 日志文件：/var/log/tailscale.log"
   else
     log_error "❌  错误：未知模式 $MODE"
     exit 1
