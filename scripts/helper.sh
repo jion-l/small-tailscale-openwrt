@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.67"
+SCRIPT_VERSION="v1.0.68"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -58,7 +58,7 @@ show_menu() {
     log_info "     10).  📊 排序代理池"
     log_info "     11).  ♻️ 更新代理池"
     log_info "     12).  🛠️ 更新脚本包"
-    log_info "     13).  📜 显示 Tailscale 自动更新日志"
+    log_info "     13).  📜 显示 Tailscale 更新日志"
     log_info "     14).  🔄 手动运行更新脚本"
     log_info "------------------------------------------"
     log_info "      0).  ⛔ 退出"
@@ -214,9 +214,12 @@ handle_choice() {
         
         13)
             # 检查日志文件是否存在
+            log_info "✅  本文件内容: "
+            log_info "✅  local模式为: 开机检测 Tailscale 更新的日志, 和定时任务里检测更新的日志"
+            log_info "✅  tmp  模式为: 开机下载 Tailscale 文件的日志, 和定时任务里检测更新的日志"
             if [ -f /tmp/tailscale_update.log ]; then
                 # 如果文件存在，则显示日志内容
-                log_info "✅  日志内容如下："
+                log_info "✅  内容如下："
                 cat /tmp/tailscale_update.log
             else
                 # 如果文件不存在，则提示用户日志文件未找到

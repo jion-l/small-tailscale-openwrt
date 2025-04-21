@@ -45,17 +45,8 @@ start_service() {
     procd_set_param logfile /var/log/tailscale.log
     procd_close_instance
     # 本地模式自动更新
-    log_info "🛠️  本地模式将运行自动更新, 日志:/tmp/tailscale_update.log"
-    if command -v nohup >/dev/null 2>&1; then
-        nohup "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log 2>&1 &
-    elif command -v setsid >/dev/null 2>&1; then
-        setsid "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log 2>&1 &
-    else
-        (
-            trap '' SIGHUP
-            "$CONFIG_DIR/autoupdate.sh" > /tmp/tailscale_update.log 2>&1
-        ) &
-    fi
+    log_info "🛠️  本地模式, 启动 autoupdate (阻塞运行中) ,日志:/tmp/tailscale_update.log"
+    "$CONFIG_DIR/autoupdate.sh" >> /tmp/tailscale_update.log 2>&1
   elif [ "$MODE" = "tmp" ]; then
     log_info "🛠️  启动 Tailscale (临时模式)..."
     if [ -x /tmp/tailscaled ]; then
