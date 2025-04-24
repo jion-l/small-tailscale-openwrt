@@ -24,8 +24,8 @@ log_error() {
     [ $# -eq 2 ] || echo
 }
 
-log_info "📦 开始检查并安装必要组件..."
-log_info "🔄 正在更新 opkg 源..."
+log_info "📦  开始检查并安装必要组件..."
+log_info "🔄  正在更新 opkg 源..."
 if ! opkg update >/dev/null 2>&1; then
     log_error "❌  opkg update 失败，请检查网络连接或源配置"
     exit 1
@@ -45,7 +45,7 @@ for package in $required_packages; do
                     continue
                 fi
             fi
-            log_error "❌  安装 $package 失败，无法继续，请手动排查环境"
+            log_error "❌  安装 $package 失败，无法继续，请手动安装此包"
             exit 1
         fi
     else
