@@ -24,19 +24,15 @@
 ```
 
 ## 🚀 快速安装
-### 1.安装必要依赖
-   ```bash
-   opkg update && opkg install libustream-openssl ca-bundle kmod-tun coreutils-timeout
-   ```
 
-### 2.下载管理工具 & 排序代理池
+### 1.下载管理工具 & 排序代理池
    ```bash
    dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
    URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
    [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
    ```
 
-### 3.启动管理工具
+### 2.启动管理工具
    ```bash
    tailscale-helper
    ```
