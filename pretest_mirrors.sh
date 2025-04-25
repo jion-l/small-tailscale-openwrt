@@ -2,7 +2,7 @@
 
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-TIME_OUT=30
+TIME_OUT=10
 MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/mirrors.txt"
 # MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
 # SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
