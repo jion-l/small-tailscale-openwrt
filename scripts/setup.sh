@@ -38,6 +38,7 @@ GITHUB_DIRECT=$GITHUB_DIRECT
 has_args=false  # 🔧  新增：标记是否传入了参数
 if [ "$GITHUB_DIRECT" = "true" ] || [ -f "/tmp/tailscale-use-direct" ]; then
     GITHUB_DIRECT=true
+    rm -f /tmp/tailscale-use-direct
 else
     GITHUB_DIRECT=false
 fi

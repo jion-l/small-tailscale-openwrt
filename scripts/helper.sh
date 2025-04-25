@@ -245,13 +245,7 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         15)
-            if grep -q '^GITHUB_DIRECT=' "$INST_CONF"; then
-                sed -i 's/^\(GITHUB_DIRECT=\)true/\1false/; s/^\(GITHUB_DIRECT=\)false/\1true/' "$INST_CONF"
-            else
-                echo 'GITHUB_DIRECT=true' >> "$INST_CONF"
-            fi
-            new_status=$(grep -E '^GITHUB_DIRECT=' "$INST_CONF" | cut -d '=' -f2)
-            log_info "     GITHUB_DIRECT 已切换为: $new_status"
+            $CONFIG_DIR/github_direct_ctl.sh
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
