@@ -118,7 +118,7 @@ log_info "🛠️  启用 Tailscale 服务..."
 
 # 启动服务并不显示任何状态输出
 log_info "🛠️  启动服务..."
-/etc/init.d/tailscale restart || { log_error "❌  重启服务失败, 将启动服务"; /etc/init.d/tailscale start 2>&1 & > /dev/null 2>&1; }
+/etc/init.d/tailscale restart || { log_error "❌  重启服务失败, 将启动服务"; /etc/init.d/tailscale start > /dev/null 2>&1; }
 
 # 完成
 log_info "🎉  Tailscale 服务已启动!"
