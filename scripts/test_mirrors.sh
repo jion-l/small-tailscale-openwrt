@@ -2,7 +2,7 @@
 
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-
+SUM_FILE_URL
 safe_source "$INST_CONF"
 if [ "$GITHUB_DIRECT" = "true" ]; then
     log_info "🌐  不测速代理池..."
@@ -54,6 +54,7 @@ should_notify_mirror_fail() {
     fi
 }
 
+SUM_PATH=/tmp/SHA256SUMS.txt
 # 固定版本校验文件地址
 SUM_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 log_info "🔍 下载固定校验文件..."
