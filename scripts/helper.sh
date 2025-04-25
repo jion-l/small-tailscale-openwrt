@@ -28,9 +28,8 @@ get_download_tool() {
 download_tool=$(get_download_tool)
 
 get_remote_version() {
-    
     remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
-    
+    log_info "获取远程文件: ${remote_ver_url}"
     if [ "$download_tool" = "curl" ]; then
         # 设置 5 秒超时
         timeout 10 curl -sSL "$remote_ver_url" | grep -E '^SCRIPT_VERSION=' | cut -d'"' -f2 > "$REMOTE_SCRIPTS_VERSION_FILE"

@@ -24,7 +24,7 @@ download_file() {
     local checksum=${4:-}
 
     if [ "$GITHUB_DIRECT" = "true" ]; then
-        log_info "📄  GITHUB_DIRECT=true，使用 GitHub 直连: https://github.com/$url"
+        log_info "📄  使用 GitHub 直连: https://github.com/$url"
         if webget "$output" "$url" "echooff"; then
             [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
             return 0
