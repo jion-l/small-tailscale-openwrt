@@ -286,7 +286,7 @@ EOF
 run_pretest_mirrors() {
     log_info "🔄  下载 pretest_mirrors.sh 并执行测速..."
     url="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
-    if webget "$SCRIPTS_PATH" "$url" "echooff"; then  # 这里修正了 if 语句和 then 的位置
+    if webget "/tmp/pretest_mirrors.sh" "$url" "echooff"; then
         sh /tmp/pretest_mirrors.sh
     else
         return 1
