@@ -2,7 +2,7 @@
 
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-SUM_FILE_URL
+
 safe_source "$INST_CONF"
 if [ "$GITHUB_DIRECT" = "true" ]; then
     log_info "🌐  不测速代理池..."
