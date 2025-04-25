@@ -2,6 +2,7 @@
 set -e
 
 CONFIG_DIR="/etc/tailscale"
+mkdir -p "$CONFIG_DIR"
 SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 
