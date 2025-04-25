@@ -3,6 +3,12 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
+safe_source "$INST_CONF"
+if [ "$GITHUB_DIRECT" = "true" ]; then
+    log_info "🌐  不测速代理池..."
+    return 0
+fi
+
 rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 # 镜像测试函数（同之前）
 test_mirror() {
