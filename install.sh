@@ -5,6 +5,7 @@ CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
 SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
+PRETEST_MIRRORS_SH_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
 
 # 预先计算的校验和
 EXPECTED_CHECKSUM_SHA256="56e42fdafdb84e5da2c13cc69534f3d05e46215a17db67f45953256799a239b4"
@@ -162,87 +163,35 @@ webget() {
     [ "$result" = "200" ] && return 0 || return 1
 }
 
-# # 使用有效镜像代理进行下载
-# mirror_fetch() {
-#     local real_url=$1
-#     local output=$2
-#     local mirror_list_file="$CONFIG_DIR/valid_mirrors.txt"
-
-#     if [ -f "$mirror_list_file" ]; then
-#         while read -r mirror; do
-#             mirror=$(echo "$mirror" | sed 's|/*$|/|')  # 去掉结尾斜杠
-#             full_url="${mirror}${real_url}"
-#             log_info "🔗  尝试镜像: $full_url"
-#             if webget "$output" "$full_url" "echooff"; then
-#                 return 0
-#             fi
-#         done < "$mirror_list_file"
-#     fi
-
-#     # 如果所有代理都失败, 尝试直接下载
-#     log_info "🔗  尝试直连: $real_url"
-#     webget "$output" "$real_url" "echooff"
-# }
-
-# success=0
-
-# # 检查镜像并下载
-# if [ -f "$CONFIG_DIR/valid_mirrors.txt" ]; then
-#     while read -r mirror; do
-#         mirror=$(echo "$mirror" | sed 's|/*$|/|')
-#         full_url="${mirror}${SCRIPTS_TGZ_URL}"
-#         log_info "🔗  尝试镜像: $full_url"
-
-#         if webget "$SCRIPTS_PATH" "$full_url" "echooff"; then
-#             if verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
-#                 success=1
-#                 break
-#             else
-#                 log_info "⚠️  SHA256校验失败, 尝试下一个镜像"
-#             fi
-#             if verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
-#                 success=1
-#                 break
-#             else
-#                 log_info "⚠️  MD5校验失败, 尝试下一个镜像"
-#             fi
-#         fi
-#     done < "$CONFIG_DIR/valid_mirrors.txt"
-# fi
-
-# # 所有镜像失败后尝试直连
-# if [ "$success" -ne 1 ]; then
-#     log_info "🔗  尝试直连: $SCRIPTS_TGZ_URL"
-#     if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
-#        verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256"; then
-#         success=1
-#     fi
-#     if [ "$success" -ne 1 ]; then
-#         if webget "$SCRIPTS_PATH" "$SCRIPTS_TGZ_URL" "echooff" && \
-#            verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"; then
-#             success=1
-#         fi
-#     fi
-# fi
-
 
 # 使用固定代理
 proxy_url="https://ghproxy.ch3ng.top/https://github.com/${SCRIPTS_TGZ_URL}"
+direct_url="https://github.com/${SCRIPTS_TGZ_URL}"
 success=0
-log_info "🔗  使用固定代理下载: $proxy_url"
-if webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
-   (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
-    verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
-    success=1
-else
-    # 尝试直连
-    log_info "🔗  代理失效, 尝试直连: https://github.com/${SCRIPTS_TGZ_URL}"
-    if webget "$SCRIPTS_PATH" "https://github.com/${SCRIPTS_TGZ_URL}" "echooff" && \
+
+if [ -f /tmp/tailscale-use-direct ]; then
+    log_info "📄  检测到 /tmp/tailscale-use-direct，使用 GitHub 直连下载: $direct_url"
+    if webget "$SCRIPTS_PATH" "$direct_url" "echooff" && \
        (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
         verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
         success=1
     fi
+else
+    log_info "🔗  使用固定代理下载: $proxy_url"
+    if webget "$SCRIPTS_PATH" "$proxy_url" "echooff" && \
+       (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
+        verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
+        success=1
+    else
+        log_info "🔗  代理失效，尝试直连: $direct_url"
+        if webget "$SCRIPTS_PATH" "$direct_url" "echooff" && \
+           (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
+            verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
+            success=1
+        fi
+    fi
 fi
+
 
 
 if [ "$success" -ne 1 ]; then
@@ -285,24 +234,35 @@ EOF
 
 run_pretest_mirrors() {
     log_info "🔄  下载 pretest_mirrors.sh 并执行测速..."
-    url="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
-    if webget "/tmp/pretest_mirrors.sh" "$url" "echooff"; then
+
+    proxy_url="https://ghproxy.ch3ng.top/https://github.com/${PRETEST_MIRRORS_SH_URL}"
+    raw_url="https://github.com/${PRETEST_MIRRORS_SH_URL}"
+    if webget "/tmp/pretest_mirrors.sh" "$proxy_url" "echooff"; then
         sh /tmp/pretest_mirrors.sh
     else
-        return 1
+        log_info "🔗  代理失效，尝试 GitHub 直连: $raw_url"
+        if webget "/tmp/pretest_mirrors.sh" "$raw_url" "echooff"; then
+            sh /tmp/pretest_mirrors.sh
+        else
+            return 1
+        fi
     fi
 }
 
-if [ ! -f /etc/tailscale/mirrors.txt ]; then
-    log_info "🔍 本地不存在 mirrors.txt, 将下载镜像列表并测速, 请等待..."
-    if run_pretest_mirrors; then
-        log_info "✅  下载镜像列表并测速完成！"
-    else
-        log_error "❌  下载或测速失败, 无法继续!"
-        exit 1
-    fi
+if [ -f /tmp/tailscale-use-direct ]; then
+    log_info "✅  使用Github直连, 跳过测速！"
 else
-    log_info "✅  本地存在 mirrors.txt, 无需再次下载!"
+    if [ ! -f /etc/tailscale/mirrors.txt ]; then
+        log_info "🔍 本地不存在 mirrors.txt, 将下载镜像列表并测速, 请等待..."
+        if run_pretest_mirrors; then
+            log_info "✅  下载镜像列表并测速完成！"
+        else
+            log_error "❌  下载或测速失败, 无法继续!"
+            exit 1
+        fi
+    else
+        log_info "✅  本地存在 mirrors.txt, 无需再次下载!"
+    fi
 fi
 
 log_info "✅  一键安装 Tailscale 配置工具安装完毕!"

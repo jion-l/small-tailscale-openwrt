@@ -33,8 +33,12 @@ AUTO_UPDATE=""
 VERSION="latest"
 ARCH=$(get_arch)
 HOST_NAME=$(uci show system.@system[0].hostname | awk -F"'" '{print $2}')
+GITHUB_DIRECT=false
 
 has_args=false  # 🔧  新增：标记是否传入了参数
+if [ -f /tmp/tailscale-use-direct ]; then
+    GITHUB_DIRECT=true
+fi
 
 # 若有参数, 接受 --tmp为使用内存模式, --auto-update为自动更新
 while [ $# -gt 0 ]; do
@@ -133,6 +137,7 @@ AUTO_UPDATE=$AUTO_UPDATE
 VERSION=$VERSION
 ARCH=$ARCH
 HOST_NAME=$HOST_NAME
+GITHUB_DIRECT=$GITHUB_DIRECT
 TIMESTAMP=$(date +%s)
 EOF
 
@@ -144,6 +149,8 @@ log_info "🎯  更新: $AUTO_UPDATE"
 log_info "🎯  版本: $VERSION"
 log_info "🎯  架构: $ARCH"
 log_info "🎯  昵称: $HOST_NAME"
+log_info "🎯  直连: $GITHUB_DIRECT"
+
 echo
 
 # 停止服务之前，检查服务文件是否存在

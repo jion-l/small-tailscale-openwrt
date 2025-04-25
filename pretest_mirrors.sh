@@ -3,11 +3,8 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 TIME_OUT=10
-MIRROR_FILE_URL="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/main/mirrors.txt"
-# MIRROR_LIST="$CONFIG_DIR/mirrors.txt"
-# SCORE_FILE="$CONFIG_DIR/mirror_scores.txt"
-# VALID_MIRRORS="$CONFIG_DIR/valid_mirrors.txt"
-# TMP_VALID_MIRRORS="/tmp/valid_mirrors.tmp"
+MIRROR_FILE_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
+SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/download/v1.82.5/SHA256SUMS.txt"
 
 BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
@@ -53,11 +50,26 @@ webget() {
 }
 
 # 提前下载校验文件
-SUM_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/download/v1.82.5/SHA256SUMS.txt"
-if ! webget "$SUM_PATH" "$SUM_URL" "echooff"; then
-    log_error "❌  无法下载校验文件"
-    exit 1
+SUM_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${SUM_URL}"
+SUM_URL_DIRECT="https://github.com/${SUM_URL}"
+
+if [ -f /tmp/tailscale-use-direct ]; then
+    log_info "📄  检测到 /tmp/tailscale-use-direct，使用 GitHub 直连下载: $SUM_URL_DIRECT"
+    if ! webget "$SUM_PATH" "$SUM_URL_DIRECT" "echooff"; then
+        log_error "❌  无法下载校验文件（直连失败）"
+        exit 1
+    fi
+else
+    log_info "🔗  使用固定代理下载: $SUM_URL_PROXY"
+    if ! webget "$SUM_PATH" "$SUM_URL_PROXY" "echooff"; then
+        log_info "🔗  代理失效，尝试直连: $SUM_URL_DIRECT"
+        if ! webget "$SUM_PATH" "$SUM_URL_DIRECT" "echooff"; then
+            log_error "❌  无法下载校验文件（代理+直连均失败）"
+            exit 1
+        fi
+    fi
 fi
+
 sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
 
 # 镜像测试函数（下载并验证 tailscaled）
@@ -121,17 +133,27 @@ manual_fallback() {
 }
 
 # 下载镜像列表
+MIRROR_FILE_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${MIRROR_FILE_URL}"
+MIRROR_FILE_URL_DIRECT="https://github.com/${MIRROR_FILE_URL}"
+
 log_info "🛠️  正在下载镜像列表，请耐心等待..."
-if webget "$MIRROR_LIST" "$MIRROR_FILE_URL" "echooff"; then
+
+if webget "$MIRROR_LIST" "$MIRROR_FILE_URL_PROXY" "echooff"; then
     log_info "✅  已更新镜像列表"
 else
-    log_warn "⚠️  无法下载镜像列表，尝试使用旧版本（如果存在）"
-    [ -s "$MIRROR_LIST" ] || {
-        log_error "❌  没有可用镜像列表，且下载失败"
-        manual_fallback
-        exit 1
-    }
+    log_warn "⚠️  无法通过代理下载镜像列表，尝试直连: $MIRROR_FILE_URL_DIRECT"
+    if webget "$MIRROR_LIST" "$MIRROR_FILE_URL_DIRECT" "echooff"; then
+        log_info "✅  已通过直连下载镜像列表"
+    else
+        log_warn "⚠️  无法下载镜像列表，尝试使用旧版本（如果存在）"
+        [ -s "$MIRROR_LIST" ] || {
+            log_error "❌  没有可用镜像列表，且下载失败"
+            manual_fallback
+            exit 1
+        }
+    fi
 fi
+
 
 log_warn "⚠️  测试代理下载tailscale可执行文件花费的时间中, 每个代理最长需要 $TIME_OUT 秒, 请耐心等待......"
 # 主流程：测试所有镜像

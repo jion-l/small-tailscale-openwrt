@@ -17,17 +17,26 @@ get_checksum() {
     grep " $target_name" "$sums_file" | awk '{print $1}'
 }
 
-# 下载文件
 download_file() {
     local url=$1
     local output=$2
     local mirror_list=${3:-}
     local checksum=${4:-}
 
+    if [ "$GITHUB_DIRECT" = "true" ]; then
+        log_info "📄  GITHUB_DIRECT=true，使用 GitHub 直连: $url"
+        if webget "$output" "$url" "echooff"; then
+            [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
+            return 0
+        else
+            return 1
+        fi
+    fi
+
     if [ -f "$mirror_list" ]; then
         while read -r mirror; do
             mirror=$(echo "$mirror" | sed 's|/*$|/|')
-            log_info "🔗  下载: ${mirror}${url}"
+            log_info "🔗  使用代理镜像下载: ${mirror}${url}"
             if webget "$output" "${mirror}${url}" "echooff"; then
                 if [ -n "$checksum" ]; then
                     if verify_checksum "$output" "$checksum"; then
@@ -42,14 +51,15 @@ download_file() {
         done < "$mirror_list"
     fi
 
-    log_info "🔗  尝试直接连接..."
-    if webget "$output" "$url" "echooff"; then
+    log_info "🔗  镜像全部失败，尝试 GitHub 直连: $url"
+    if webget "$output" "https://github.com/$url" "echooff"; then
         [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
         return 0
     else
         return 1
     fi
 }
+
 
 verify_checksum() {
     local file=$1
@@ -87,14 +97,12 @@ install_tailscale() {
 
     local arch="$ARCH"
     local pkg_name="tailscaled_linux_$arch"
-    local download_url="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/$pkg_name"
     local tmp_file="/tmp/tailscaled.$$"
+    local download_base="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/"
 
     log_info "🔗  准备校验文件..."
     sha_file="/tmp/SHA256SUMS.$$"
     md5_file="/tmp/MD5SUMS.$$"
-    pkg_name="tailscaled_linux_$arch"
-    download_base="CH3NGYZ/small-tailscale-openwrt/releases/download/$version/"
 
     # 下载校验文件
     download_file "${download_base}SHA256SUMS.txt" "$sha_file" "$mirror_list" || log_warn "⚠️  无法获取 SHA256 校验文件"

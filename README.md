@@ -26,10 +26,21 @@
 ## 🚀 快速安装
 
 ### 1.下载管理工具 & 排序代理池
-   请注意, 如果您开启了代理工具, 本脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 您在运行以下命令时可能会无任何输出, 您可以在clash或其它工具的配置里设置ch3ng.top为直连, 例如clash的配置: `- DOMAIN-SUFFIX,ch3ng.top,DIRECT`
+   
    ```bash
+   # 请注意, 本脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 您如果您开启了代理, 在运行以下命令时可能会无任何输出, 您可以在clash或其它工具的配置里设置ch3ng.top为直连, 例如clash的配置: `- DOMAIN-SUFFIX,ch3ng.top,DIRECT`, 或使用下方的直连命令
+   # 代理版
    dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
    URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   rm -f /tmp/tailscale-use-direct
+   [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
+   ```
+   
+   ```bash
+   # 直连版
+   dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
+   URL="https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   touch /tmp/tailscale-use-direct
    [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
    ```
 

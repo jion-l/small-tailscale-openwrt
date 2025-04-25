@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh 
+[ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 
 # 默认变量
