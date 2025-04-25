@@ -64,7 +64,8 @@ sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
-    log_info "⏳  测试 $mirror"
+    local progress="$2"  # 当前/总数
+    log_info "⏳   测试[$progress] $mirror"
 
     local start=$(date +%s.%N)
 
@@ -135,8 +136,12 @@ fi
 
 log_warn "⚠️  测试代理下载tailscale可执行文件花费的时间中, 每个代理最长需要 $TIME_OUT 秒, 请耐心等待......"
 # 主流程：测试所有镜像
+total=$(grep -cve '^\s*$' "$MIRROR_LIST")  # 排除空行
+index=0
 while read -r mirror; do
-    [ -n "$mirror" ] && test_mirror "$mirror"
+    [ -n "$mirror" ] || continue
+    index=$((index + 1))
+    test_mirror "$mirror" "$index/$total"
 done < "$MIRROR_LIST"
 
 # 排序并保存最佳镜像
