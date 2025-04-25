@@ -4,15 +4,13 @@ set -e
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
 INST_CONF="$CONFIG_DIR/install.conf"
+
 if [ -f /tmp/tailscale-use-direct ]; then
-    cat > "$INST_CONF" <<EOF
-    GITHUB_DIRECT=true
-    EOF
+    echo "GITHUB_DIRECT=true" > "$INST_CONF"
 else
-    cat > "$INST_CONF" <<EOF
-    GITHUB_DIRECT=false
-    EOF
+    echo "GITHUB_DIRECT=false" > "$INST_CONF"
 fi
+
 rm -f /tmp/tailscale-use-direct
 . "$INST_CONF"
 
