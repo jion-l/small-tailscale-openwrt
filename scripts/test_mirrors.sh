@@ -5,6 +5,7 @@ set -e
 
 SUM_NAME="SHA256SUMS.txt"
 SUM_PATH="/tmp/SHA256SUMS.txt"
+SUM_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 BIN_NAME="tailscaled_linux_amd64"
 BIN_PATH="/tmp/tailscaled_linux_amd64_test_mirrors"
 
@@ -60,7 +61,6 @@ should_notify_mirror_fail() {
 }
 
 # 固定版本校验文件地址
-SUM_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 log_info "🔍 下载固定校验文件..."
 if ! webget "$SUM_PATH" "$SUM_FILE_URL" "echooff"; then
     log_error "❌ 无法下载校验文件，退出"
