@@ -7,12 +7,12 @@ INST_CONF="$CONFIG_DIR/install.conf"
 
 if [ -f /tmp/tailscale-use-direct ]; then
     echo "GITHUB_DIRECT=true" > "$INST_CONF"
+    GITHUB_DIRECT=true
+    rm -f /tmp/tailscale-use-direct
 else
     echo "GITHUB_DIRECT=false" > "$INST_CONF"
+    GITHUB_DIRECT=false
 fi
-
-rm -f /tmp/tailscale-use-direct
-. "$INST_CONF"
 
 SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
@@ -38,58 +38,61 @@ log_error() {
     [ $# -eq 2 ] || echo
 }
 
-log_info "📦  开始检查并安装必要组件..."
-log_info "🔄  正在更新 opkg 源..."
-if ! opkg update >/dev/null 2>&1; then
-    log_error "❌  opkg update 失败，请检查网络连接或源配置"
-    exit 1
-fi
-
-required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout coreutils-nohup"
-for package in $required_packages; do
-    if ! opkg list-installed | grep -q "$package"; then
-        log_info "⚠️  包 $package 未安装，开始安装..."
-        if opkg install "$package" >/dev/null 2>&1; then
-            log_info "✅  包 $package 安装成功"
-        else
-            if [ "$package" = "coreutils-timeout" ]; then
-                log_warn "⚠️  安装 $package 失败，尝试安装 coreutils 替代..."
-                if opkg install coreutils >/dev/null 2>&1; then
-                    log_info "✅  coreutils 安装成功，可能已包含 timeout 命令"
-                    continue
-                fi
-            fi
-            if [ "$package" = "coreutils-nohup" ]; then
-                log_warn "⚠️  安装 $package 失败，尝试安装 coreutils 替代..."
-                if opkg install coreutils >/dev/null 2>&1; then
-                    log_info "✅  coreutils 安装成功，可能已包含 nohup 命令"
-                    continue
-                fi
-            fi
-            log_error "❌  安装 $package 失败，无法继续，请手动安装此包"
-            exit 1
-        fi
-    else
-        log_info "✅  包 $package 已安装，跳过"
+if [ -f "$CONFIG_DIR/opkg_finished" ]; then
+    log_info "✅  已安装必要组件"
+else
+    log_info "📦  开始检查并安装必要组件..."
+    log_info "🔄  正在更新 opkg 源..."
+    if ! opkg update >/dev/null 2>&1; then
+        log_error "❌  opkg update 失败，请检查网络连接或源配置"
+        exit 1
     fi
-done
+    required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout coreutils-nohup"
+    for package in $required_packages; do
+        if ! opkg list-installed | grep -q "$package"; then
+            log_info "⚠️  包 $package 未安装，开始安装..."
+            if opkg install "$package" >/dev/null 2>&1; then
+                log_info "✅  包 $package 安装成功"
+            else
+                if [ "$package" = "coreutils-timeout" ]; then
+                    log_warn "⚠️  安装 $package 失败，尝试安装 coreutils 替代..."
+                    if opkg install coreutils >/dev/null 2>&1; then
+                        log_info "✅  coreutils 安装成功，可能已包含 timeout 命令"
+                        continue
+                    fi
+                fi
+                if [ "$package" = "coreutils-nohup" ]; then
+                    log_warn "⚠️  安装 $package 失败，尝试安装 coreutils 替代..."
+                    if opkg install coreutils >/dev/null 2>&1; then
+                        log_info "✅  coreutils 安装成功，可能已包含 nohup 命令"
+                        continue
+                    fi
+                fi
+                log_error "❌  安装 $package 失败，无法继续，请手动安装此包"
+                exit 1
+            fi
+        else
+            log_info "✅  包 $package 已安装，跳过"
+        fi
+    done
 
-# ➕ 添加 timeout 命令最终检查
-if ! command -v timeout >/dev/null 2>&1; then
-    log_error "❌  未检测到 timeout 命令，尽管已尝试安装，脚本退出。"
-    exit 1
-else
-    log_info "✅  timeout 命令已可用"
+    # ➕ 添加 timeout 命令最终检查
+    if ! command -v timeout >/dev/null 2>&1; then
+        log_error "❌  未检测到 timeout 命令，尽管已尝试安装，脚本退出。"
+        exit 1
+    else
+        log_info "✅  timeout 命令已可用"
+    fi
+    
+    # ➕ 添加 timeout 命令最终检查
+    if ! command -v nohup >/dev/null 2>&1; then
+        log_error "❌  未检测到 nohup 命令，尽管已尝试安装，脚本退出。"
+        exit 1
+    else
+        log_info "✅  nohup 命令已可用"
+    fi
+    touch "$CONFIG_DIR/opkg_finished"
 fi
-
-# ➕ 添加 timeout 命令最终检查
-if ! command -v nohup >/dev/null 2>&1; then
-    log_error "❌  未检测到 nohup 命令，尽管已尝试安装，脚本退出。"
-    exit 1
-else
-    log_info "✅  nohup 命令已可用"
-fi
-
 
 # 校验函数, 接收三个参数：文件路径、校验类型（sha256/md5）、预期值
 verify_checksum() {
