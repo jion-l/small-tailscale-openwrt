@@ -14,7 +14,7 @@ SUM_NAME="SHA256SUMS.txt"
 BIN_PATH="/tmp/$BIN_NAME"
 SUM_PATH="/tmp/$SUM_NAME"
 
-rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
+rm -f "$TMP_VALID_MIRRORS"
 
 log_info() {
     echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
@@ -55,7 +55,7 @@ webget() {
 # 提前下载校验文件
 SUM_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/download/v1.82.5/SHA256SUMS.txt"
 if ! webget "$SUM_PATH" "$SUM_URL" "echooff"; then
-    log_error "❌ 无法下载校验文件"
+    log_error "❌  无法下载校验文件"
     exit 1
 fi
 sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
@@ -85,16 +85,15 @@ test_mirror() {
         log_warn "❌  下载失败"
         log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
-
     rm -f "$BIN_PATH" "$SUM_PATH"
 }
 
 # 手动回退逻辑
 manual_fallback() {
-    log_info "🧩 手动选择镜像源："
-    log_info "1) ✍️ 手动输入镜像  2) 🌐  使用直连  3) ❌  退出"
+    log_info "🧩  手动选择镜像源："
+    log_info "     1) ✍️ 手动输入镜像  2) 🌐  使用直连  3) ❌  退出"
     while :; do
-        log_info "请选择: " 1
+        log_info "       请选择: " 1
         read choice
         case $choice in
             1)
