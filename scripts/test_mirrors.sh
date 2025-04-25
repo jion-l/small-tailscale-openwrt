@@ -8,21 +8,15 @@ rm -f "$TMP_VALID_MIRRORS" "$VALID_MIRRORS"
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')  # 确保镜像地址以单个斜杠结尾
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
-    local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
-
     log_info "🌐  测试镜像 $mirror, 最长需要 $TIME_OUT 秒..."
 
-    rm -f "$BIN_PATH" "$SUM_PATH"
+    rm -f "$BIN_PATH"
     local start=$(date +%s.%N)
 
     # 调试输出检查 URL 是否正确
     log_info "🌐  下载链接: $url_bin"
-    log_info "🌐  校验文件链接: $url_sum"
 
-    if timeout $TIME_OUT webget "$BIN_PATH" "$url_bin" "echooff" && timeout $TIME_OUT webget "$SUM_PATH" "$url_sum" "echooff"; then
-        local sha_expected
-        sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
-        sha_actual=$(sha256sum "$BIN_PATH" | awk '{print $1}')
+    if timeout $TIME_OUT webget "$BIN_PATH" "$url_bin" "echooff"; then
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
@@ -38,7 +32,7 @@ test_mirror() {
         echo "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
-    rm -f "$BIN_PATH" "$SUM_PATH"
+    rm -f "$BIN_PATH"
 }
 
 
@@ -53,6 +47,16 @@ should_notify_mirror_fail() {
         return 1
     fi
 }
+
+# 固定版本校验文件地址
+SUM_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
+log_info "🔍 下载固定校验文件..."
+if ! webget "$SUM_PATH" "$SUM_FILE_URL" "echooff"; then
+    log_error "❌ 无法下载校验文件，退出"
+    exit 1
+fi
+sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
+rm -f "$SUM_PATH"
 
 # 主流程
 while read -r mirror; do
