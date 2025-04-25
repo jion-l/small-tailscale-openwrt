@@ -52,33 +52,36 @@ webget() {
     [ "$result" = "200" ] && return 0 || return 1
 }
 
+# 提前下载校验文件
+SUM_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/download/v1.82.5/SHA256SUMS.txt"
+if ! webget "$SUM_PATH" "$SUM_URL" "echooff"; then
+    log_error "❌ 无法下载校验文件"
+    exit 1
+fi
+sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
+
 # 镜像测试函数（下载并验证 tailscaled）
 test_mirror() {
     local mirror=$(echo "$1" | sed 's|/*$|/|')
     local url_bin="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
-    local url_sum="${mirror}CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
+    log_info "⏳  测试 $mirror"
 
-    log_info "⏳  测试 $mirror，最长需要 $TIME_OUT 秒..."
-
-    rm -f "$BIN_PATH" "$SUM_PATH"
     local start=$(date +%s.%N)
 
-    if webget "$BIN_PATH" "$url_bin" "echooff" && webget "$SUM_PATH" "$url_sum" "echooff"; then
-        local sha_expected
-        sha_expected=$(grep "$BIN_NAME" "$SUM_PATH" | awk '{print $1}')
+    if webget "$BIN_PATH" "$url_bin" "echooff" ; then
         sha_actual=$(sha256sum "$BIN_PATH" | awk '{print $1}')
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
-            log_info "✅  $mirror 下载成功，用时 ${dl_time}s"
+            log_info "✅  用时 ${dl_time}s"
             log_info "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
             echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
-            log_warn "❌  $mirror 校验失败"
+            log_warn "❌  校验失败"
             log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
-        log_warn "❌  $mirror 下载失败"
+        log_warn "❌  下载失败"
         log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
 
@@ -130,6 +133,7 @@ else
     }
 fi
 
+log_warn "⚠️  测试代理下载tailscale可执行文件花费的时间中, 每个代理最长需要 $TIME_OUT 秒, 请耐心等待......"
 # 主流程：测试所有镜像
 while read -r mirror; do
     [ -n "$mirror" ] && test_mirror "$mirror"
