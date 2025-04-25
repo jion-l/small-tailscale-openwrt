@@ -1,9 +1,16 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.69"
+SCRIPT_VERSION="v1.0.70"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
-custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
+safe_source "$INST_CONF"
+
+if [ "$GITHUB_DIRECT" = "true" ]; then
+    custom_proxy="https://github.com/"
+else
+    custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
+fi
+
 
 # 自动判断 curl 和 wget 可用性
 get_download_tool() {
@@ -21,6 +28,7 @@ get_download_tool() {
 download_tool=$(get_download_tool)
 
 get_remote_version() {
+    
     remote_ver_url="${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/scripts/helper.sh"
     
     if [ "$download_tool" = "curl" ]; then
@@ -60,6 +68,7 @@ show_menu() {
     log_info "     12).  🛠️ 更新脚本包"
     log_info "     13).  📜 显示 Tailscale 更新日志"
     log_info "     14).  🔄 手动运行更新脚本"
+    log_info "     15).  🔄 切换代理/直连状态"
     log_info "------------------------------------------"
     log_info "      0).  ⛔ 退出"
     log_info "------------------------------------------"
@@ -233,6 +242,17 @@ handle_choice() {
             ;;
         14)
             $CONFIG_DIR/autoupdate.sh
+            log_info "✅  请按回车继续..." 1
+            read khjfsdjkhfsd
+            ;;
+        15)
+            if grep -q '^GITHUB_DIRECT=' "$INST_CONF"; then
+                sed -i 's/^\(GITHUB_DIRECT=\)true/\1false/; s/^\(GITHUB_DIRECT=\)false/\1true/' "$INST_CONF"
+            else
+                echo 'GITHUB_DIRECT=true' >> "$INST_CONF"
+            fi
+            new_status=$(grep -E '^GITHUB_DIRECT=' "$INST_CONF" | cut -d '=' -f2)
+            log_info "     GITHUB_DIRECT 已切换为: $new_status"
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
