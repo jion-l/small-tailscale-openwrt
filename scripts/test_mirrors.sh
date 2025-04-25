@@ -106,37 +106,6 @@ test_mirror() {
     rm -f "$BIN_PATH" "$SUM_PATH"
 }
 
-# 手动回退逻辑
-manual_fallback() {
-    log_info "🧩  手动选择镜像源："
-    log_info "     1) ✍️ 手动输入镜像  2) 🌐  使用直连  3) ❌  退出"
-    while :; do
-        log_info "       请选择: " 1
-        read choice
-        case $choice in
-            1)
-                log_info "⏳  输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
-                read  mirror
-                mirror=$(echo "$mirror" | sed 's|/*$|/|')
-                if echo "$mirror" | grep -qE '^https?://'; then
-                    echo "$mirror" > "$MIRROR_LIST"
-                    test_mirror "$mirror" "1/1]"
-                    [ -s "$TMP_VALID_MIRRORS" ] && sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
-                    return 0
-                else
-                    log_warn "⚠️  地址必须以 http:// 或 https:// 开头"
-                fi
-                ;;
-            2)
-                touch "$VALID_MIRRORS"  # 空文件表示直连
-                return 1
-                ;;
-            3)
-                exit 1
-                ;;
-        esac
-    done
-}
 
 # 下载镜像列表
 MIRROR_FILE_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${MIRROR_FILE_URL}"
