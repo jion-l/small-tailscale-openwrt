@@ -6,6 +6,7 @@ set -e
 SUM_NAME="SHA256SUMS.txt"
 SUM_PATH="/tmp/SHA256SUMS.txt"
 BIN_NAME="tailscaled_linux_amd64"
+BIN_PATH="/tmp/tailscaled_linux_amd64_test_mirrors"
 
 safe_source "$INST_CONF"
 if [ "$GITHUB_DIRECT" = "true" ]; then
