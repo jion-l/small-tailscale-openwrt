@@ -25,7 +25,7 @@ download_file() {
 
     if [ "$GITHUB_DIRECT" = "true" ] || [ -f "/tmp/tailscale-use-direct" ]; then
         log_info "📄  使用 GitHub 直连: https://github.com/$url"
-        if webget "$output" "$url" "echooff"; then
+        if webget "$output" "https://github.com/$url" "echooff"; then
             [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
             return 0
         else
@@ -51,7 +51,7 @@ download_file() {
         done < "$mirror_list"
     fi
 
-    log_info "🔗  镜像全部失败，尝试 GitHub 直连: $url"
+    log_info "🔗  镜像全部失败，尝试 GitHub 直连: https://github.com/$url"
     if webget "$output" "https://github.com/$url" "echooff"; then
         [ -n "$checksum" ] && verify_checksum "$output" "$checksum"
         return 0
