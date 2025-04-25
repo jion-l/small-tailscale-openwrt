@@ -57,19 +57,24 @@ graph TD
     X --> Z[结束]
 ```
 
-### 🛠️  管理工具说明
-通过   `tailscale-helper` 命令可进入交互式管理界面，提供以下功能：
+## 🛠️ 管理工具说明
 
-- 安装/重装 Tailscale - 运行安装脚本
-- 启动 Tailscale - 执行 tailscale up 命令
-- 管理自动更新 - 配置自动更新设置
-- 查看本地版本 - 显示当前安装的 Tailscale 版本
-- 检查最新版本 - 获取 Tailscale 最新版本信息
-- 管理推送通知 - 配置 Server酱/Bark/NTFY 通知
-- 排序代理池 - 测试并排序可用代理
-- 更新代理池 - 强制重新检测代理
-- 更新脚本包 - 更新管理工具本身
-- 卸载 Tailscale - 移除 Tailscale 及相关配置
+通过 `tailscale-helper` 命令可进入交互式管理界面，提供以下功能：
+
+- 💾 **安装/重装 Tailscale**：运行安装脚本安装或重装 Tailscale
+- 📥 **登录 Tailscale**：执行 `tailscale up`，并监听登录 URL 输出
+- 📝 **生成启动命令**：交互生成 `tailscale up` 所需参数及命令
+- 📤 **登出 Tailscale**：执行 `tailscale logout` 并检查状态
+- ❌ **卸载 Tailscale**：清理并卸载 Tailscale
+- 🔄 **管理自动更新**：配置本地或临时模式下的自动更新策略
+- 📦 **查看本地版本**：查看当前已安装的 Tailscale 版本
+- 📦 **查看远程版本**：获取并显示可用的 Tailscale 最新版本
+- 🔔 **管理推送通知**：配置 Server酱 / Bark / NTFY 推送
+- 📊 **排序代理池**：测试代理可用性并进行排序
+- ♻️ **更新代理池**：重新下载并更新代理池列表
+- 🛠️ **更新脚本包**：从 GitHub 获取最新版管理脚本并自动更新
+- 📜 **查看更新日志**：查看 Tailscale 启动或更新的相关日志
+- 🔄 **手动运行更新**：立即执行一次 Tailscale 自动更新脚本
 
 ## 📡 手动编辑代理配置
    注:自定义的代理需要能通过拼接 CH3NGYZ/small-tailscale-openwrt/releases/latest/download/tailscaled_linux_amd64 下载release文件
@@ -86,6 +91,7 @@ graph TD
       ```bash
       /etc/tailscale/test_mirrors.sh
       ```
+
 ## 🔔 通知系统
 支持 Server酱、Bark 和 NTFY 通知方式：
 
@@ -99,6 +105,10 @@ graph TD
 2. 由于代理不稳定，可能出现下载失败，建议使用本地安装模式
 3. 首次使用建议配置通知功能
 4. 需要至少 curl 或 wget 之一才能正常使用
+
+## 💬 联系方式
+
+- 如有问题或建议，请提交 issue 或联系仓库作者。
 
 ## 😍 鸣谢
    1. [glinet-tailscale-updater](https://github.com/Admonstrator/glinet-tailscale-updater)

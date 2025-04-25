@@ -31,7 +31,7 @@ if ! opkg update >/dev/null 2>&1; then
     exit 1
 fi
 
-required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout"
+required_packages="libustream-openssl ca-bundle kmod-tun coreutils-timeout coreutils-nohup"
 for package in $required_packages; do
     if ! opkg list-installed | grep -q "$package"; then
         log_info "⚠️  包 $package 未安装，开始安装..."
@@ -42,6 +42,13 @@ for package in $required_packages; do
                 log_warn "⚠️  安装 $package 失败，尝试安装 coreutils 替代..."
                 if opkg install coreutils >/dev/null 2>&1; then
                     log_info "✅  coreutils 安装成功，可能已包含 timeout 命令"
+                    continue
+                fi
+            fi
+            if [ "$package" = "coreutils-nohup" ]; then
+                log_warn "⚠️  安装 $package 失败，尝试安装 coreutils 替代..."
+                if opkg install coreutils >/dev/null 2>&1; then
+                    log_info "✅  coreutils 安装成功，可能已包含 nohup 命令"
                     continue
                 fi
             fi
