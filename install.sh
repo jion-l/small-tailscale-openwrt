@@ -19,8 +19,8 @@ SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 PRETEST_MIRRORS_SH_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
 
 # 预先计算的校验和
-EXPECTED_CHECKSUM_SHA256="1601ffb54e384b6d511a1cbe625939616ea6975df07b003e594fe7d015b50906"
-EXPECTED_CHECKSUM_MD5="3dc46c6f563b57cd2a5f6648752ae8e6"
+EXPECTED_CHECKSUM_SHA256="6764e3d4adc493346073e0b9df94118aed0f16f4dc5102ecc3fe2fcf940a2a00"
+EXPECTED_CHECKSUM_MD5="309c6c5abcaaa0ad174a5d1635a8ff9a"
 TIME_OUT=30
 
 log_info() {
