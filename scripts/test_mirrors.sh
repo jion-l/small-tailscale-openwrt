@@ -10,15 +10,13 @@ if [ "$GITHUB_DIRECT" = "true" ]; then
 fi
 
 TIME_OUT=30
-INST_CONF="$CONFIG_DIR/install.conf"
-. "$INST_CONF"
 BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
 BIN_PATH="/tmp/$BIN_NAME"
 SUM_PATH="/tmp/$SUM_NAME"
 MIRROR_FILE_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
-SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/download/latest/SHA256SUMS.txt"
-BIN_URL="CH3NGYZ/small-tailscale-openwrt/releases/download/latest/$BIN_NAME"
+SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
+BIN_URL="CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
 
 rm -f "$TMP_VALID_MIRRORS"
 
