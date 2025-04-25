@@ -5,7 +5,7 @@ SCRIPT_VERSION="v1.0.70"
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 safe_source "$INST_CONF"
 
-if [ "$GITHUB_DIRECT" = "true" ]; then
+if [ "$GITHUB_DIRECT" = "true" ] || [ -f "/tmp/tailscale-use-direct" ]; then
     custom_proxy="https://github.com/"
 else
     custom_proxy="https://ghproxy.ch3ng.top/https://github.com/"
