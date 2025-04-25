@@ -56,7 +56,7 @@ should_notify_mirror_fail() {
 
 SUM_PATH=/tmp/SHA256SUMS.txt
 # 固定版本校验文件地址
-SUM_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
+SUM_FILE_URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest/download/SHA256SUMS.txt"
 log_info "🔍 下载固定校验文件..."
 if ! webget "$SUM_PATH" "$SUM_FILE_URL" "echooff"; then
     log_error "❌ 无法下载校验文件，退出"
