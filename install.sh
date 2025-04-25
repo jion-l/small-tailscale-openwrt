@@ -6,8 +6,8 @@ SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-o
 SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 
 # 预先计算的校验和
-EXPECTED_CHECKSUM_SHA256="2065ab487cac80d77b500d22f236453a9800bd14781653cb758457f9ecb3ce8e"
-EXPECTED_CHECKSUM_MD5="ae76d175c99ef35c0d089de52a7b87a5"
+EXPECTED_CHECKSUM_SHA256="cd64f74699a6dc6ce0d3a6f54825a9504c8357e7fd96f3bfb80ff40737802885"
+EXPECTED_CHECKSUM_MD5="9302a11f7c975a016df847ff2354508d"
 TIME_OUT=30
 log_info() {
     echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
