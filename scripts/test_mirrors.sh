@@ -9,7 +9,7 @@ if [ "$GITHUB_DIRECT" = "true" ]; then
     return 0
 fi
 
-TIME_OUT=30
+TIME_OUT=10
 BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
 BIN_PATH="/tmp/$BIN_NAME"
