@@ -68,6 +68,13 @@ else
     log_info "✅  timeout 命令已可用"
 fi
 
+# ➕ 添加 timeout 命令最终检查
+if ! command -v nohup >/dev/null 2>&1; then
+    log_error "❌  未检测到 nohup 命令，尽管已尝试安装，脚本退出。"
+    exit 1
+else
+    log_info "✅  nohup 命令已可用"
+fi
 
 
 # 校验函数, 接收三个参数：文件路径、校验类型（sha256/md5）、预期值
