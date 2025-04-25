@@ -26,7 +26,7 @@ test_mirror() {
     # 调试输出检查 URL 是否正确
     log_info "🌐  下载链接: $url_bin"
 
-    if timeout $TIME_OUT webget "$BIN_PATH" "$url_bin" "echooff"; then
+    if webget "$BIN_PATH" "$url_bin" "echooff"; then
         if [ "$sha_expected" = "$sha_actual" ]; then
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
