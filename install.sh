@@ -8,8 +8,8 @@ SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 PRETEST_MIRRORS_SH_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
 
 # 预先计算的校验和
-EXPECTED_CHECKSUM_SHA256="25bcf9a6f343de4ba1a1b2d92de8dbb0d9ef9a5efeafcee732c02cf698be3100"
-EXPECTED_CHECKSUM_MD5="7828124670950297c5adf16910ac2dfd"
+EXPECTED_CHECKSUM_SHA256="8bf185a993d7d999b7ba8846a75fac759c9564886f5727d97ed58d78e9d409a2"
+EXPECTED_CHECKSUM_MD5="f12c11c15bc23cc6cf2b078888847f63"
 TIME_OUT=30
 log_info() {
     echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
