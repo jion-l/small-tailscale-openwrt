@@ -36,8 +36,10 @@ HOST_NAME=$(uci show system.@system[0].hostname | awk -F"'" '{print $2}')
 GITHUB_DIRECT=$GITHUB_DIRECT
 
 has_args=false  # 🔧  新增：标记是否传入了参数
-if [ -f /tmp/tailscale-use-direct ]; then
+if [ "$GITHUB_DIRECT" = "true" ] || [ -f "/tmp/tailscale-use-direct" ]; then
     GITHUB_DIRECT=true
+else
+    GITHUB_DIRECT=false
 fi
 
 # 若有参数, 接受 --tmp为使用内存模式, --auto-update为自动更新

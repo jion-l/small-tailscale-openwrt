@@ -4,7 +4,7 @@ set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
 safe_source "$INST_CONF"
-if [ "$GITHUB_DIRECT" = "true" ]; then
+if [ "$GITHUB_DIRECT" = "true" ] || [ -f "/tmp/tailscale-use-direct" ]; then
     log_info "🌐  不测速代理池..."
     return 0
 fi
