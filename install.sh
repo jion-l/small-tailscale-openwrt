@@ -3,6 +3,19 @@ set -e
 
 CONFIG_DIR="/etc/tailscale"
 mkdir -p "$CONFIG_DIR"
+INST_CONF="$CONFIG_DIR/install.conf"
+if [ -f /tmp/tailscale-use-direct ]; then
+    cat > "$INST_CONF" <<EOF
+    GITHUB_DIRECT=true
+    EOF
+else
+    cat > "$INST_CONF" <<EOF
+    GITHUB_DIRECT=false
+    EOF
+fi
+rm -f /tmp/tailscale-use-direct
+. "$INST_CONF"
+
 SCRIPTS_TGZ_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/tailscale-openwrt-scripts.tar.gz"
 SCRIPTS_PATH="/tmp/tailscale-openwrt-scripts.tar.gz"
 PRETEST_MIRRORS_SH_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pretest_mirrors.sh"
@@ -11,6 +24,7 @@ PRETEST_MIRRORS_SH_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/pret
 EXPECTED_CHECKSUM_SHA256="c065cfd35f068f45697559c94d6d03c3636a3a4c53b2fd66bd97479104e537da"
 EXPECTED_CHECKSUM_MD5="c26c5916b339a81cb26e68ce68ed0371"
 TIME_OUT=30
+
 log_info() {
     echo -n "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] $1"
     [ $# -eq 2 ] || echo
@@ -169,8 +183,8 @@ proxy_url="https://ghproxy.ch3ng.top/https://github.com/${SCRIPTS_TGZ_URL}"
 direct_url="https://github.com/${SCRIPTS_TGZ_URL}"
 success=0
 
-if [ -f /tmp/tailscale-use-direct ]; then
-    log_info "📄  检测到 /tmp/tailscale-use-direct，使用 GitHub 直连下载: $direct_url"
+if [ "$GITHUB_DIRECT" = "true" ] ; then
+    log_info "📄  使用 GitHub 直连下载: $direct_url"
     if webget "$SCRIPTS_PATH" "$direct_url" "echooff" && \
        (verify_checksum "$SCRIPTS_PATH" "sha256" "$EXPECTED_CHECKSUM_SHA256" || \
         verify_checksum "$SCRIPTS_PATH" "md5" "$EXPECTED_CHECKSUM_MD5"); then
@@ -249,7 +263,7 @@ run_pretest_mirrors() {
     fi
 }
 
-if [ -f /tmp/tailscale-use-direct ]; then
+if [ "$GITHUB_DIRECT" = "true" ] ; then
     log_info "✅  使用Github直连, 跳过测速！"
 else
     if [ ! -f /etc/tailscale/mirrors.txt ]; then

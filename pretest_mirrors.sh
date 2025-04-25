@@ -5,7 +5,8 @@ set -e
 TIME_OUT=10
 MIRROR_FILE_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
 SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/download/v1.82.5/SHA256SUMS.txt"
-
+INST_CONF="$CONFIG_DIR/install.conf"
+. "$INST_CONF"
 BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
 BIN_PATH="/tmp/$BIN_NAME"
@@ -53,8 +54,8 @@ webget() {
 SUM_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${SUM_URL}"
 SUM_URL_DIRECT="https://github.com/${SUM_URL}"
 
-if [ -f /tmp/tailscale-use-direct ]; then
-    log_info "📄  检测到 /tmp/tailscale-use-direct，使用 GitHub 直连下载: $SUM_URL_DIRECT"
+if [ "$GITHUB_DIRECT" = "true" ] ; then
+    log_info "📄  使用 GitHub 直连下载: $SUM_URL_DIRECT"
     if ! webget "$SUM_PATH" "$SUM_URL_DIRECT" "echooff"; then
         log_error "❌  无法下载校验文件（直连失败）"
         exit 1
