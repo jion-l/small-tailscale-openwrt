@@ -5,7 +5,12 @@
 
 # 如果没有传参，提示用户输入数字
 if [ $# -eq 0 ]; then
-    log_info "🔄  当前自动更新状态: $GITHUB_DIRECT"
+    if [ "$GITHUB_DIRECT" = "true" ]; then
+        log_info "🔄  当前直连GITHUB状态: 🟢"  # 绿色
+    else
+        log_info "🔄  当前直连GITHUB状态: 🔴"  # 红色
+    fi
+
     log_info "🎛️  请选择操作:"
     log_info "       1). 使用直连 🟢"
     log_info "       2). 使用代理 🔴"
