@@ -50,7 +50,8 @@
    tailscale-helper
    ```
 ### 流程图:
-
+<table style="width: 100%;"><tr><td style="width: 50%;"> <details> <summary><strong>代理版流程图</strong></summary>
+   
 ```mermaid
 graph TD
     A[开始安装] --> B[下载脚本包]
@@ -69,6 +70,23 @@ graph TD
     
     X --> Z[结束]
 ```
+
+</details> </td> <td style="width: 50%;"> <details> <summary><strong>直连版流程图</strong></summary>
+   
+```mermaid
+graph TD
+A[开始安装] --> B[下载脚本包]
+B --> D{下载并校验通过？}
+D -->|是| E[解压脚本]
+D -->|否| X[❌  安装失败]
+
+E --> I[创建快捷命令]
+I --> J[初始化配置]
+J --> Y[✅  安装完成]
+X --> Z[结束]
+```
+
+</details> </td> </tr> </table>
 
 ## 🛠️ 管理工具说明
 
