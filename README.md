@@ -106,6 +106,7 @@ X --> Z[结束]
 - 🛠️ **更新脚本包**：从 GitHub 获取最新版管理脚本并自动更新
 - 📜 **查看更新日志**：查看 Tailscale 启动或更新的相关日志
 - 🔄 **手动运行更新**：立即执行一次 Tailscale 自动更新脚本
+- 🔄 **切换GITHUB直连**：切换是否使用直连或者是使用代理
 
 ## 📡 手动编辑代理配置
    注:自定义的代理需要能通过拼接 CH3NGYZ/small-tailscale-openwrt/releases/latest/download/tailscaled_linux_amd64 下载release文件
