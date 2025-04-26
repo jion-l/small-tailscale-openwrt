@@ -26,7 +26,6 @@
 ## 🚀 快速安装
 
 ### 1.下载管理工具 & 排序代理池
-##### 请注意, 本脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 您如果您开启了代理, 在运行代理版命令时可能会无任何输出, 您可以在clash或其它工具的配置里设置ch3ng.top为直连, 例如clash的配置: `- DOMAIN-SUFFIX,ch3ng.top,DIRECT`, 或使用下方的直连命令
    ```bash
    # 代理版
    rm -rf /etc/tailscale
@@ -35,6 +34,7 @@
    rm -f /tmp/tailscale-use-direct
    [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
    ```
+##### 请注意, 代理版脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 如果您开启了代理, 在运行代理版命令时可能会无任何输出, 您可以在 `clash` 或其它工具的配置里设置 `ch3ng.top` 为直连, 例如 `clash` 的配置: `- DOMAIN-SUFFIX,ch3ng.top,DIRECT`, 或使用下方的直连命令:
    
    ```bash
    # 直连版
