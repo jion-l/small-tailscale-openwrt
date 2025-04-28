@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.74"
+SCRIPT_VERSION="v1.0.75"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -97,37 +97,26 @@ handle_choice() {
 
             exec 3< <(tail -F "$tmp_log")
             while read -r line <&3; do
-                # 检测未安装
-                echo "$line" | grep -q "not found" && {
-                    log_error "❌  tailscale 未安装或命令未找到"
-                    log_error "📦  请先安装 tailscale 后再运行本脚本"
-                    log_info "✅  请按回车继续..." 1
-                    read khjfsdjkhfsd
-                    exec 3<&-
-                    kill %1 2>/dev/null
-                    rm -f "$tmp_log"
-                    return 1
-                }
-
-
-                # 执行失败
-                echo "$line" | grep -qi "failed" && {
-                    log_error "❌  tailscale up 执行失败：$line"
-                    fail_detected=true
-                    log_info "✅  请按回车继续..." 1
-                    read khjfsdjkhfsd
-                    exec 3<&-
-                    kill %1 2>/dev/null
-                    rm -f "$tmp_log"
-                    return 1
-                }
-
-                # 检测认证 URL
+                # 检测认证网址
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                     auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
                     log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
                     auth_detected=true
                     # 不退出
+                }
+
+                # 命令未找到
+                echo "$line" | grep -q "not found" && {
+                    log_error "❌  tailscale 未安装或命令未找到"
+                    log_error "📦  请先安装 tailscale 后再运行本脚本"
+                    break
+                }
+
+                # 执行失败
+                echo "$line" | grep -qi "failed" && {
+                    log_error "❌  tailscale up 执行失败：$line"
+                    fail_detected=true
+                    break
                 }
 
                 # 检测结束标志
@@ -139,9 +128,11 @@ handle_choice() {
                             log_info "✅  tailscale up 执行完成, 无输出"
                         fi
                     fi
-                    break
                 }
             done
+            exec 3<&-
+            kill %1 2>/dev/null
+            rm -f "$tmp_log"
 
             tailscale status >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
