@@ -82,7 +82,7 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         2)
-            if ! command -v tailscale; then
+            if ! command -v tailscale >/dev/null 2>&1; then
                 log_error "❌  tailscale 未安装或命令未找到"
                 log_error "📦  请先安装 tailscale 后再运行本脚本"
             else
@@ -148,7 +148,7 @@ handle_choice() {
             $CONFIG_DIR/tailscale_up_generater.sh
             ;;
         4)
-            if ! command -v tailscale; then
+            if ! command -v tailscale >/dev/null 2>&1; then
                 log_error "❌  tailscale 未安装或命令未找到"
                 log_error "📦  请先安装 tailscale 后再运行本脚本"
             else
