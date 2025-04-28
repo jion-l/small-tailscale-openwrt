@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.75"
+SCRIPT_VERSION="v1.0.76"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -96,6 +96,7 @@ handle_choice() {
             local fail_detected=false
 
             exec 3< <(tail -F "$tmp_log")
+            tail_pid=$!                   # 记录 tail 进程的 PID
             while read -r line <&3; do
                 # 检测认证网址
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
@@ -128,11 +129,14 @@ handle_choice() {
                             log_info "✅  tailscale up 执行完成, 无输出"
                         fi
                     fi
+                    break
                 }
             done
-            exec 3<&-
-            kill %1 2>/dev/null
-            rm -f "$tmp_log"
+            exec 3<&-            # 关闭 FD3
+            kill %1 2>/dev/null  # 杀掉 tailscale up 的后台进程
+            kill "$tail_pid" 2>/dev/null  # 杀掉 tail 进程
+            rm -f "$tmp_log"     # 删除临时日志
+
 
             tailscale status >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
@@ -153,7 +157,7 @@ handle_choice() {
                 if tailscale status 2>&1 | grep -q "Logged out."; then
                     log_info "✅  成功登出 tailscale"
                 else
-                    log_error "⚠️  登出后状态未知，请检查 tailscale 状态"
+                    log_error "⚠️  登出后状态未知，请检查 tailscale status 状态"
                 fi
             else
                 log_error "❌  tailscale logout 命令执行失败"
