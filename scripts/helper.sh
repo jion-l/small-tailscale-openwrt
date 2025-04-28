@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.72"
+SCRIPT_VERSION="v1.0.74"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -85,7 +85,7 @@ handle_choice() {
             local tmp_log="/tmp/tailscale_up.log"
             : > "$tmp_log"
 
-            log_info "🚀  执行 tailscale up，正在监控输出..."
+            log_info "🚀  执行 tailscale up, 正在监控输出..."
 
             (
                 tailscale up >"$tmp_log" 2>&1
@@ -95,7 +95,7 @@ handle_choice() {
             local auth_detected=false
             local fail_detected=false
 
-            exec 3< <(tail -n 1 -F "$tmp_log")
+            exec 3< <(tail -F "$tmp_log")
             while read -r line <&3; do
                 # 检测未安装
                 echo "$line" | grep -q "not found" && {
@@ -103,6 +103,8 @@ handle_choice() {
                     log_error "📦  请先安装 tailscale 后再运行本脚本"
                     log_info "✅  请按回车继续..." 1
                     read khjfsdjkhfsd
+                    exec 3<&-
+                    kill %1 2>/dev/null
                     rm -f "$tmp_log"
                     return 1
                 }
@@ -114,6 +116,8 @@ handle_choice() {
                     fail_detected=true
                     log_info "✅  请按回车继续..." 1
                     read khjfsdjkhfsd
+                    exec 3<&-
+                    kill %1 2>/dev/null
                     rm -f "$tmp_log"
                     return 1
                 }
