@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.76"
+SCRIPT_VERSION="v1.0.77"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -82,67 +82,64 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         2)
-            local tmp_log="/tmp/tailscale_up.log"
-            : > "$tmp_log"
-
-            log_info "🚀  执行 tailscale up, 正在监控输出..."
-
-            (
-                tailscale up >"$tmp_log" 2>&1
-                echo "__TS_UP_DONE__" >>"$tmp_log"
-            ) &
-
-            local auth_detected=false
-            local fail_detected=false
-
-            exec 3< <(tail -F "$tmp_log")
-            tail_pid=$!                   # 记录 tail 进程的 PID
-            while read -r line <&3; do
-                # 检测认证网址
-                echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
-                    auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
-                    log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
-                    auth_detected=true
-                    # 不退出
-                }
-
-                # 命令未找到
-                echo "$line" | grep -q "not found" && {
-                    log_error "❌  tailscale 未安装或命令未找到"
-                    log_error "📦  请先安装 tailscale 后再运行本脚本"
-                    break
-                }
-
-                # 执行失败
-                echo "$line" | grep -qi "failed" && {
-                    log_error "❌  tailscale up 执行失败：$line"
-                    fail_detected=true
-                    break
-                }
-
-                # 检测结束标志
-                echo "$line" | grep -q "__TS_UP_DONE__" && {
-                    if [[ $auth_detected != true && $fail_detected != true ]]; then
-                        if [[ -s "$tmp_log" ]]; then
-                            log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
-                        else
-                            log_info "✅  tailscale up 执行完成, 无输出"
-                        fi
-                    fi
-                    break
-                }
-            done
-            exec 3<&-            # 关闭 FD3
-            kill %1 2>/dev/null  # 杀掉 tailscale up 的后台进程
-            kill "$tail_pid" 2>/dev/null  # 杀掉 tail 进程
-            rm -f "$tmp_log"     # 删除临时日志
-
-
-            tailscale status >/dev/null 2>&1
-            if [[ $? -ne 0 ]]; then
-                log_error "⚠️  tailscale 未登录或状态异常"
+            if ! command -v tailscale; then
+                log_error "❌  tailscale 未安装或命令未找到"
+                log_error "📦  请先安装 tailscale 后再运行本脚本"
             else
-                log_info "🎉  tailscale 登录成功，状态正常"
+                local tmp_log="/tmp/tailscale_up.log"
+                : > "$tmp_log"
+
+                log_info "🚀  执行 tailscale up, 正在监控输出..."
+
+                (
+                    tailscale up >"$tmp_log" 2>&1
+                    echo "__TS_UP_DONE__" >>"$tmp_log"
+                ) &
+
+                local auth_detected=false
+                local fail_detected=false
+
+                exec 3< <(tail -F "$tmp_log")
+                tail_pid=$!                   # 记录 tail 进程的 PID
+                while read -r line <&3; do
+                    # 检测认证网址
+                    echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
+                        auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
+                        log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
+                        auth_detected=true
+                        # 不退出
+                    }
+
+                    # 执行失败
+                    echo "$line" | grep -qi "failed" && {
+                        log_error "❌  tailscale up 执行失败：$line"
+                        fail_detected=true
+                        break
+                    }
+
+                    # 检测结束标志
+                    echo "$line" | grep -q "__TS_UP_DONE__" && {
+                        if [[ $auth_detected != true && $fail_detected != true ]]; then
+                            if [[ -s "$tmp_log" ]]; then
+                                log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
+                            else
+                                log_info "✅  tailscale up 执行完成, 无输出"
+                            fi
+                        fi
+                        break
+                    }
+                done
+                exec 3<&-            # 关闭 FD3
+                kill %1 2>/dev/null  # 杀掉 tailscale up 的后台进程
+                kill "$tail_pid" 2>/dev/null  # 杀掉 tail 进程
+                rm -f "$tmp_log"     # 删除临时日志
+
+                tailscale status >/dev/null 2>&1
+                if [[ $? -ne 0 ]]; then
+                    log_error "⚠️  tailscale 未登录或状态异常"
+                else
+                    log_info "🎉  tailscale 登录成功，状态正常"
+                fi
             fi
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
@@ -151,16 +148,22 @@ handle_choice() {
             $CONFIG_DIR/tailscale_up_generater.sh
             ;;
         4)
-            log_info "🔓  正在执行 tailscale logout..."
-            if tailscale logout; then
-                sleep 3
-                if tailscale status 2>&1 | grep -q "Logged out."; then
-                    log_info "✅  成功登出 tailscale"
-                else
-                    log_error "⚠️  登出后状态未知，请检查 tailscale status 状态"
-                fi
+            if ! command -v tailscale; then
+                log_error "❌  tailscale 未安装或命令未找到"
+                log_error "📦  请先安装 tailscale 后再运行本脚本"
             else
-                log_error "❌  tailscale logout 命令执行失败"
+                log_info "🔓  正在执行 tailscale logout..."
+                
+                if tailscale logout; then
+                    sleep 3
+                    if tailscale status 2>&1 | grep -q "Logged out."; then
+                        log_info "✅  成功登出 tailscale"
+                    else
+                        log_error "⚠️  登出后状态未知，请检查 tailscale status 状态"
+                    fi
+                else
+                    log_error "❌  tailscale logout 命令执行失败"
+                fi
             fi
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
