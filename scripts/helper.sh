@@ -1,5 +1,5 @@
 #!/bin/bash
-SCRIPT_VERSION="v1.0.73"
+SCRIPT_VERSION="v1.0.72"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -103,12 +103,9 @@ handle_choice() {
                     log_error "📦  请先安装 tailscale 后再运行本脚本"
                     log_info "✅  请按回车继续..." 1
                     read khjfsdjkhfsd
-                    exec 3<&-   # 关闭 fd3
-                    kill %1 2>/dev/null   # 杀掉后台 tail
                     rm -f "$tmp_log"
                     return 1
                 }
-
 
 
                 # 执行失败
@@ -117,12 +114,9 @@ handle_choice() {
                     fail_detected=true
                     log_info "✅  请按回车继续..." 1
                     read khjfsdjkhfsd
-                    exec 3<&-
-                    kill %1 2>/dev/null
                     rm -f "$tmp_log"
                     return 1
                 }
-
 
                 # 检测认证 URL
                 echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
