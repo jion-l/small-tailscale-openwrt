@@ -34,7 +34,7 @@ start_service() {
     TAILSCALED_BIN="/usr/local/bin/tailscaled"
     log_info "🛠️  启动 Tailscale (本地模式)..."
     procd_open_instance
-    procd_set_param env TS_DEBUG_FIREWALL_MODE=nftables
+    procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
     procd_set_param command "$TAILSCALED_BIN"
     procd_append_param command --port 41641
     procd_append_param command --state /etc/config/tailscaled.state
@@ -70,7 +70,7 @@ start_service() {
       if [ -x /tmp/tailscaled ]; then
         log_info "✅  检测到文件已下载, 直接启动 tailscaled..."
         procd_open_instance
-        procd_set_param env TS_DEBUG_FIREWALL_MODE=nftables
+        procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
         procd_append_param command --state /etc/config/tailscaled.state
