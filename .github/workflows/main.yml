@@ -145,7 +145,7 @@ jobs:
             ## 🚀 Tailscale ${{ matrix.version }} UPX压缩版发布
             
             [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/${{ matrix.version }}/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/${{ matrix.version }})
-          
+            
             🧩 **支持架构**：
             `${{ env.BUILD_PLATFORMS }}`
           
@@ -176,6 +176,8 @@ jobs:
             | MD5SUMS.txt           | MD5 校验文件           |
             | version.txt           | 当前版本标识          |
 
+            📜 **更新日志**：
+            [点此查看](https://tailscale.com/changelog)
             
           draft: false
           prerelease: false
