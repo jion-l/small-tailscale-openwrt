@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/sh
+
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 CONF_FILE="$CONFIG_DIR/tailscale_up.conf"
 

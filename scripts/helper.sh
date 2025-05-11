@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 SCRIPT_VERSION="v1.0.77"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
