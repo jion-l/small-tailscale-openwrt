@@ -76,9 +76,8 @@ jobs:
       
           jq_array=$(printf '%s\n' $all_versions_sorted | jq -R . | jq -s .)
           echo "===> 生成 matrix:"
-          echo "$jq_array"
-      
-          echo "matrix=$jq_array" >> "$GITHUB_OUTPUT"
+          echo "$jq_array" | jq -c
+          echo "matrix=$(echo "$jq_array" | jq -c)" >> "$GITHUB_OUTPUT"
 
 
   build_and_release:
