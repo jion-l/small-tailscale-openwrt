@@ -138,6 +138,8 @@ jobs:
           name: "Tailscale ${{ env.TAG }}"
           body: |
             ## 🚀 Tailscale ${{ env.TAG }} UPX压缩版发布
+            
+            [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/${{ env.TAG }}/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/${{ env.TAG }})
           
             🧩 **支持架构**：
             `${{ env.BUILD_PLATFORMS }}`
