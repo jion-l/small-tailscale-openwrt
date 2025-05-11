@@ -37,6 +37,7 @@ start_service() {
     procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
     procd_set_param command "$TAILSCALED_BIN"
     procd_append_param command --port 41641
+    procd_append_param command --tun=userspace-networking
     procd_append_param command --state /etc/config/tailscaled.state
     procd_append_param command --statedir /etc/tailscale_state/
     procd_set_param respawn
@@ -57,6 +58,7 @@ start_service() {
         procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
+        procd_append_param command --tun=userspace-networking
         procd_append_param command --state /etc/config/tailscaled.state
         procd_append_param command --statedir /etc/tailscale_state/
         procd_set_param respawn
@@ -75,6 +77,7 @@ start_service() {
         procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
+        procd_append_param command --tun=userspace-networking
         procd_append_param command --state /etc/config/tailscaled.state
         procd_append_param command --statedir /etc/tailscale_state/
         procd_set_param respawn
