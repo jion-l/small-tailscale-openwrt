@@ -31,7 +31,7 @@ start_service() {
   if [ "$MODE" = "local" ]; then
     # 本地模式的启动逻辑
     log_info "🛠️  启动 Tailscale (本地模式)..."
-    /usr/bin/tailscaled --cleanup
+    /usr/bin/tailscaled --cleanup 2>&1
     procd_open_instance 
     procd_set_param name tailscale
     procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
@@ -50,7 +50,7 @@ start_service() {
     log_info "🛠️  启动 Tailscale (临时模式)..."
     if [ -x /tmp/tailscaled ]; then
         log_info "✅  tmp模式, 文件已存在, 直接启动 tailscaled..."
-        /tmp/tailscaled --cleanup
+        /tmp/tailscaled --cleanup 2>&1
         procd_open_instance 
         procd_set_param name tailscale
         procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
@@ -67,7 +67,7 @@ start_service() {
       "$CONFIG_DIR/autoupdate.sh" 2>&1 | tee -a /tmp/tailscale_update.log
       if [ -x /tmp/tailscaled ]; then
         log_info "✅  检测到文件已下载, 直接启动 tailscaled..."
-        /tmp/tailscaled --cleanup
+        /tmp/tailscaled --cleanup 2>&1
         procd_open_instance 
         procd_set_param name tailscale
         procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
