@@ -20,7 +20,6 @@ env:
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
 
 jobs:
-
   prepare_versions:
     runs-on: ubuntu-latest
     outputs:
@@ -40,10 +39,12 @@ jobs:
       
           if [ -z "$input" ]; then
             tag=$(head -n1 all_tags.txt)
+            tag=${tag#v}  # 去除前缀 v（如果有）
             echo "未提供输入，默认取第一个 tag: $tag"
             echo "matrix=$(jq -cn --arg v "$tag" '[ $v ]')" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+
       
           echo "===> 开始解析版本范围：$input"
       
