@@ -93,24 +93,30 @@ jobs:
       TAG: v${{ matrix.version }}
     steps:
       - name: Check if tag already exists in current repo
+        id: check_tag
         run: |
           if git ls-remote --tags "https://github.com/${{ github.repository }}" "refs/tags/v${{ matrix.version }}" | grep -q "v${{ matrix.version }}"; then
             echo "Tag v${{ matrix.version }} already exists in current repo, skipping"
-            exit 0
+            echo "skip=true" >> $GITHUB_ENV  # 设置跳过标志
+          else
+            echo "skip=false" >> $GITHUB_ENV  # 设置跳过标志为 false
           fi
 
       - name: Checkout Tailscale source
         uses: actions/checkout@v4
+        if: env.skip != 'true'
         with:
           repository: ${{ env.REPO_OFFICIAL }}
           ref: ${{ env.TAG }}
 
       - name: Setup Go environment
         uses: actions/setup-go@v5
+        if: env.skip != 'true'
         with:
           go-version: 'stable'
 
       - name: Install latest UPX
+        if: env.skip != 'true'
         run: |
           set -e
           LATEST_UPX=$(curl -s https://api.github.com/repos/upx/upx/releases/latest | grep -oP '"tag_name": "v\K[0-9.]+' | head -n1)
@@ -121,6 +127,7 @@ jobs:
           upx --version
 
       - name: Build optimized binaries
+        if: env.skip != 'true'
         run: |
           echo "${{ env.TAG }}" > version.txt
           for arch in ${{ env.BUILD_PLATFORMS }}; do
@@ -154,6 +161,7 @@ jobs:
           done
 
       - name: Generate checksums
+        if: env.skip != 'true'
         run: |
           sha256sum tailscaled_* > SHA256SUMS.txt
           md5sum tailscaled_* > MD5SUMS.txt
@@ -162,6 +170,7 @@ jobs:
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
+        if: env.skip != 'true'
         with:
           tag_name: ${{ env.TAG }}
           name: "Tailscale ${{ env.TAG }}"
