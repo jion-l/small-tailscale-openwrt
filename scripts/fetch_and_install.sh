@@ -131,7 +131,6 @@ install_tailscale() {
     if [ "$mode" = "local" ]; then
         mkdir -p /usr/local/bin
         mv "$tmp_file" /usr/local/bin/tailscaled
-        ln -sf /usr/local/bin/tailscaled /usr/local/bin/tailscale
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscaled
         ln -sf /usr/local/bin/tailscaled /usr/bin/tailscale
         log_info "✅  安装到 /usr/local/bin/"
