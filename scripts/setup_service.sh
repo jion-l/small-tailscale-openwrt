@@ -30,20 +30,17 @@ start_service() {
   log_info "🛠️  当前的 MODE 为: $MODE"
   if [ "$MODE" = "local" ]; then
     # 本地模式的启动逻辑
-    TAILSCALED_BIN="/usr/local/bin/tailscaled"
     log_info "🛠️  启动 Tailscale (本地模式)..."
-    procd_open_instance
+    /usr/bin/tailscaled --cleanup
+    procd_open_instance 
     procd_set_param name tailscale
     procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
-    procd_set_param command "$TAILSCALED_BIN"
+    procd_set_param command /usr/bin/tailscaled
     procd_append_param command --port 41641
-    procd_append_param command --tun=userspace-networking
     procd_append_param command --state /etc/config/tailscaled.state
-    procd_append_param command --statedir /etc/tailscale_state/
     procd_set_param respawn
     procd_set_param stdout 1
     procd_set_param stderr 1
-    procd_set_param logfile /var/log/tailscale.log
     procd_close_instance
     log_info "🛠️  本地模式已启动, Tailscale服务日志文件：/var/log/tailscale.log"
     # 本地模式自动更新
@@ -53,18 +50,16 @@ start_service() {
     log_info "🛠️  启动 Tailscale (临时模式)..."
     if [ -x /tmp/tailscaled ]; then
         log_info "✅  tmp模式, 文件已存在, 直接启动 tailscaled..."
-        procd_open_instance
+        /tmp/tailscaled --cleanup
+        procd_open_instance 
         procd_set_param name tailscale
         procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
-        procd_append_param command --tun=userspace-networking
         procd_append_param command --state /etc/config/tailscaled.state
-        procd_append_param command --statedir /etc/tailscale_state/
         procd_set_param respawn
         procd_set_param stdout 1
         procd_set_param stderr 1
-        procd_set_param logfile /var/log/tailscale.log
         procd_close_instance
         log_info "🛠️  临时模式已启动, Tailscale服务日志文件：/var/log/tailscale.log"
     else
@@ -72,18 +67,16 @@ start_service() {
       "$CONFIG_DIR/autoupdate.sh" 2>&1 | tee -a /tmp/tailscale_update.log
       if [ -x /tmp/tailscaled ]; then
         log_info "✅  检测到文件已下载, 直接启动 tailscaled..."
-        procd_open_instance
+        /tmp/tailscaled --cleanup
+        procd_open_instance 
         procd_set_param name tailscale
         procd_set_param env TS_DEBUG_FIREWALL_MODE=auto
         procd_set_param command /tmp/tailscaled
         procd_append_param command --port 41641
-        procd_append_param command --tun=userspace-networking
         procd_append_param command --state /etc/config/tailscaled.state
-        procd_append_param command --statedir /etc/tailscale_state/
         procd_set_param respawn
         procd_set_param stdout 1
         procd_set_param stderr 1
-        procd_set_param logfile /var/log/tailscale.log
         procd_close_instance
         log_info "🛠️  临时模式已启动, Tailscale服务日志文件：/var/log/tailscale.log"
       else
