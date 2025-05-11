@@ -57,7 +57,7 @@ jobs:
 
           all_versions_sorted=$(for v in "${!versions[@]}"; do echo "$v"; done | sort -V)
           jq_array=$(printf '%s\n' "$all_versions_sorted" | jq -R . | jq -s .)
-          echo "matrix=$jq_array" >> "$GITHUB_OUTPUT"
+          echo "matrix=${jq_array}" >> "$GITHUB_OUTPUT"
 
   build_and_release:
     needs: prepare_versions
