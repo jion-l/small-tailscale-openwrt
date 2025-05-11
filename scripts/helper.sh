@@ -87,40 +87,44 @@ handle_choice() {
                 log_error "📦  请先安装 tailscale 后再运行本脚本"
             else
                 local tmp_log="/tmp/tailscale_up.log"
+                local pipe="/tmp/tailscale_up.pipe"
+
                 : > "$tmp_log"
+                [ -p "$pipe" ] && rm -f "$pipe"
+                mkfifo "$pipe"
 
                 log_info "🚀  执行 tailscale up, 正在监控输出..."
 
+                # 后台运行 tailscale up
                 (
                     tailscale up >"$tmp_log" 2>&1
                     echo "__TS_UP_DONE__" >>"$tmp_log"
                 ) &
+                ts_up_pid=$!
 
-                local auth_detected=false
-                local fail_detected=false
+                # 用 tail -F 写入命名管道
+                tail -F "$tmp_log" >"$pipe" &
+                tail_pid=$!
 
-                exec 3< <(tail -F "$tmp_log")
-                tail_pid=$!                   # 记录 tail 进程的 PID
-                while read -r line <&3; do
-                    # 检测认证网址
+                auth_detected=false
+                fail_detected=false
+
+                while read -r line <"$pipe"; do
                     echo "$line" | grep -qE "https://[^ ]*tailscale.com" && {
                         auth_url=$(echo "$line" | grep -oE "https://[^ ]*tailscale.com[^ ]*")
                         log_info "🔗  tailscale 等待认证, 请访问以下网址登录：$auth_url"
                         auth_detected=true
-                        # 不退出
                     }
 
-                    # 执行失败
                     echo "$line" | grep -qi "failed" && {
                         log_error "❌  tailscale up 执行失败：$line"
                         fail_detected=true
                         break
                     }
 
-                    # 检测结束标志
                     echo "$line" | grep -q "__TS_UP_DONE__" && {
-                        if [[ $auth_detected != true && $fail_detected != true ]]; then
-                            if [[ -s "$tmp_log" ]]; then
+                        if [ "$auth_detected" != "true" ] && [ "$fail_detected" != "true" ]; then
+                            if [ -s "$tmp_log" ]; then
                                 log_info "✅  tailscale up 执行完成：$(cat "$tmp_log")"
                             else
                                 log_info "✅  tailscale up 执行完成, 无输出"
@@ -129,17 +133,22 @@ handle_choice() {
                         break
                     }
                 done
-                exec 3<&-            # 关闭 FD3
-                kill %1 2>/dev/null  # 杀掉 tailscale up 的后台进程
-                kill "$tail_pid" 2>/dev/null  # 杀掉 tail 进程
-                rm -f "$tmp_log"     # 删除临时日志
 
+                # 清理后台进程
+                kill "$ts_up_pid" 2>/dev/null
+                kill "$tail_pid" 2>/dev/null
+
+                # 删除临时文件
+                rm -f "$tmp_log" "$pipe"
+
+                # 检查登录状态
                 tailscale status >/dev/null 2>&1
-                if [[ $? -ne 0 ]]; then
+                if [ $? -ne 0 ]; then
                     log_error "⚠️  tailscale 未登录或状态异常"
                 else
                     log_info "🎉  tailscale 登录成功，状态正常"
                 fi
+
             fi
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
