@@ -1,11 +1,12 @@
 name: Sync and Build Tailscale
+
 on:
   schedule:
     - cron: "10 23 * * *"
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Tailscale version (leave empty for latest)'
+      versions:
+        description: 'Tailscale versions (e.g. 1.76.1-1.78.0,1.79.2 — leave empty for latest)'
         required: false
   watch:
     types: [started]
@@ -19,47 +20,61 @@ env:
   GO_BUILD_FLAGS: "-tags ts_include_cli -ldflags='-s -w'"
 
 jobs:
-  check_version:
+
+  prepare_versions:
     runs-on: ubuntu-latest
     outputs:
-      TAG: ${{ steps.set_version.outputs.TAG }}
-      TAG_EXISTS: ${{ steps.check_tag.outputs.EXISTS }}
+      matrix: ${{ steps.set_matrix.outputs.matrix }}
     steps:
-      - name: Check Repository Owner
+      - name: Fetch all tags from official repo
+        id: fetch_tags
         run: |
-          [ "${{ github.repository_owner }}" == "CH3NGYZ" ] || {
-            echo "Repository owner check failed"
-            exit 1
-          }
-      - name: Set Version
-        id: set_version
-        run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            TAG="${{ github.event.inputs.version }}"
-          else
-            TAG=$(curl -s "https://api.github.com/repos/${{ env.REPO_OFFICIAL }}/releases/latest" | grep -oP '"tag_name": "\K(.*)(?=")')
-          fi
-          echo "TAG=$TAG" >> "$GITHUB_OUTPUT"
-          echo "Using version: $TAG"
+          curl -s "https://api.github.com/repos/${{ env.REPO_OFFICIAL }}/tags?per_page=1000" | \
+            jq -r '.[].name' | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+$' > all_tags.txt
 
-      - name: Check if tag exists
-        id: check_tag
+      - name: Parse user input and build matrix
+        id: set_matrix
         run: |
-          if git ls-remote --tags https://github.com/${{ github.repository }} "refs/tags/${{ steps.set_version.outputs.TAG }}"  | grep -q "${{ steps.set_version.outputs.TAG }}"; then
-            echo "EXISTS=true" >> "$GITHUB_OUTPUT"
-            echo "Tag ${{ steps.set_version.outputs.TAG }} already exists"
-          else
-            echo "EXISTS=false" >> "$GITHUB_OUTPUT"
-            echo "Tag ${{ steps.set_version.outputs.TAG }} does not exist"
+          input="${{ github.event.inputs.versions }}"
+          if [ -z "$input" ]; then
+            tag=$(head -n1 all_tags.txt | sed 's/^v//')
+            echo "matrix=[\"$tag\"]" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+
+          declare -A versions
+          IFS=',' read -ra parts <<< "$input"
+          for part in "${parts[@]}"; do
+            if [[ "$part" == *"-"* ]]; then
+              start=${part%-*}
+              end=${part#*-}
+              matched=$(grep -E "^v?[0-9]+\.[0-9]+\.[0-9]+$" all_tags.txt | sed 's/^v//' | sort -V | awk -v s="$start" -v e="$end" '$0 >= s && $0 <= e')
+              for v in $matched; do versions[$v]=1; done
+            else
+              versions[$part]=1
+            fi
+          done
+
+          all_versions_sorted=$(for v in "${!versions[@]}"; do echo "$v"; done | sort -V)
+          jq_array=$(printf '%s\n' "$all_versions_sorted" | jq -R . | jq -s .)
+          echo "matrix=$jq_array" >> "$GITHUB_OUTPUT"
 
   build_and_release:
-    needs: check_version
-    if: needs.check_version.outputs.TAG_EXISTS == 'false'
+    needs: prepare_versions
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ${{ fromJson(needs.prepare_versions.outputs.matrix) }}
     env:
-      TAG: ${{ needs.check_version.outputs.TAG }}
+      TAG: v${{ matrix.version }}
     steps:
+      - name: Check if tag already exists in current repo
+        run: |
+          if git ls-remote --tags "https://github.com/${{ github.repository }}" "refs/tags/v${{ matrix.version }}" | grep -q "v${{ matrix.version }}"; then
+            echo "Tag v${{ matrix.version }} already exists in current repo, skipping"
+            exit 0
+          fi
+
       - name: Checkout Tailscale source
         uses: actions/checkout@v4
         with:
@@ -74,23 +89,16 @@ jobs:
       - name: Install latest UPX
         run: |
           set -e
-          # 获取最新 UPX release tag
           LATEST_UPX=$(curl -s https://api.github.com/repos/upx/upx/releases/latest | grep -oP '"tag_name": "v\K[0-9.]+' | head -n1)
           echo "Latest UPX version: $LATEST_UPX"
-      
-          # 下载并解压
           curl -LO "https://github.com/upx/upx/releases/download/v${LATEST_UPX}/upx-${LATEST_UPX}-amd64_linux.tar.xz"
           tar -xf "upx-${LATEST_UPX}-amd64_linux.tar.xz"
-      
-          # 安装
           sudo cp "upx-${LATEST_UPX}-amd64_linux/upx" /usr/local/bin/
           upx --version
-
 
       - name: Build optimized binaries
         run: |
           echo "${{ env.TAG }}" > version.txt
-
           for arch in ${{ env.BUILD_PLATFORMS }}; do
             echo "Building for $arch..."
             binary_name="tailscaled_linux_${arch}"
@@ -98,17 +106,15 @@ jobs:
             export CGO_ENABLED=0
             export GOOS=linux
             export GOARCH=$arch
-            # 特殊处理 MIPS 架构（使用软浮点）
+
             case "$arch" in
               mips|mipsle)
                 export GOMIPS=softfloat
                 ;;
             esac
 
-            # 编译
             ./build_dist.sh --extra-small --box -o "$binary_name" ./cmd/tailscaled
 
-            # UPX 压缩（跳过 mips64 和 mips64le）
             case "$arch" in
               mips64|mips64le)
                 echo "⚠️  跳过 $arch 的 UPX 压缩"
@@ -122,7 +128,7 @@ jobs:
                 ;;
             esac
           done
-          
+
       - name: Generate checksums
         run: |
           sha256sum tailscaled_* > SHA256SUMS.txt
@@ -130,16 +136,15 @@ jobs:
           cat SHA256SUMS.txt
           cat MD5SUMS.txt
 
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.TAG }}
-          name: "Tailscale ${{ env.TAG }}"
+          tag_name: v${{ matrix.version }}
+          name: "Tailscale v${{ matrix.version }}"
           body: |
-            ## 🚀 Tailscale ${{ env.TAG }} UPX压缩版发布
+            ## 🚀 Tailscale ${{ matrix.version }} UPX压缩版发布
             
-            [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/${{ env.TAG }}/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/${{ env.TAG }})
+            [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/${{ matrix.version }}/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/${{ matrix.version }})
           
             🧩 **支持架构**：
             `${{ env.BUILD_PLATFORMS }}`
