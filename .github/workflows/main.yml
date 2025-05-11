@@ -163,12 +163,12 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ matrix.version }}
-          name: "Tailscale v${{ matrix.version }}"
+          tag_name: ${{ env.TAG }}
+          name: "Tailscale ${{ env.TAG }}"
           body: |
-            ## 🚀 Tailscale ${{ matrix.version }} UPX压缩版发布
+            ## 🚀 Tailscale ${{ env.TAG }} UPX压缩版发布
             
-            [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/${{ matrix.version }}/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/${{ matrix.version }})
+            [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/${{ env.TAG }}/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/${{ env.TAG }})
             
             🧩 **支持架构**：
             `${{ env.BUILD_PLATFORMS }}`
