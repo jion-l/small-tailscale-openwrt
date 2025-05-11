@@ -1,5 +1,4 @@
 #!/bin/sh
-
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 
