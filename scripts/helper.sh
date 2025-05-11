@@ -1,5 +1,5 @@
 #!/bin/sh
-SCRIPT_VERSION="v1.0.81"
+SCRIPT_VERSION="v1.0.82"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -47,7 +47,7 @@ show_menu() {
     else
         remote_version=$(cat "$REMOTE_SCRIPTS_VERSION_FILE")
         log_info "📦  远程脚本版本: $remote_version $( 
-            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨脚本有更新, 请使用 12) 更新脚本' || echo '✅已是最新' 
+            [ "$remote_version" != "$SCRIPT_VERSION" ] && echo '🚨脚本有更新, 请使用 13) 更新脚本包' || echo '✅已是最新' 
         )"
     fi
     log_info "------------------------------------------"
@@ -59,15 +59,14 @@ show_menu() {
     log_info "      5).  ❌ 卸载 Tailscale"
     log_info "------------------------------------------"
     log_info "      6).  🔄 管理 Tailscale 自动更新"
-    log_info "      7).  📦 查看本地 Tailscale 存在版本"
-    log_info "      8).  📦 查看远程 Tailscale 最新版本"
-    log_info "      9).  🔔 管理推送通知"
-    log_info "     10).  📊 排序代理池"
-    log_info "     11).  ♻️ 更新代理池"
-    log_info "     12).  🛠️ 更新脚本包"
-    log_info "     13).  📜 显示 Tailscale 更新日志"
-    log_info "     14).  🔄 手动运行更新脚本"
-    log_info "     15).  🔄 切换代理/直连状态"
+    log_info "      7).  🔄 手动运行更新脚本"
+    log_info "      8).  🔄 切换代理/直连状态"
+    log_info "      9).  📦 查看本地 Tailscale 存在版本"
+    log_info "     10).  📦 查看远程 Tailscale 最新版本"
+    log_info "     11).  🔔 管理推送通知"
+    log_info "     12).  📊 排序代理池"
+    log_info "     13).  🛠️ 更新脚本包"
+    log_info "     14).  📜 显示 Tailscale 更新日志"
     log_info "------------------------------------------"
     log_info "      0).  ⛔ 退出"
     log_info "------------------------------------------"
@@ -188,6 +187,16 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         7)
+            $CONFIG_DIR/autoupdate.sh
+            log_info "✅  请按回车继续..." 1
+            read khjfsdjkhfsd
+            ;;
+        8)
+            $CONFIG_DIR/github_direct_ctl.sh
+            log_info "✅  请按回车继续..." 1
+            read khjfsdjkhfsd
+            ;;
+        9)
             if [ -f "$VERSION_FILE" ]; then
                 log_info "📦  当前本地版本: $(cat "$VERSION_FILE")"
             else
@@ -196,33 +205,20 @@ handle_choice() {
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        8)
+        10)
             $CONFIG_DIR/fetch_and_install.sh --dry-run
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        9)
+        11)
             $CONFIG_DIR/notify_ctl.sh
             ;;
-        10)
+        12)
             $CONFIG_DIR/test_mirrors.sh
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
-        11)
-            if [ "$download_tool" = "curl" ]; then
-                curl -sSL -o "$MIRROR_LIST" "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
-            else
-                wget -O "$MIRROR_LIST" "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
-            fi
-            if [ $? -ne 0 ]; then
-                log_error "❌  mirrors.txt下载失败, 请手动将 ${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt 文件内容复制到本地 $MIRROR_LIST 中"
-                exit 0
-            fi
-            log_info "✅  mirrors.txt更新完毕, 请运行 [📊 排序代理池], 按回车继续..." 1
-            read khjfsdjkhfsd
-            ;;
-        12)
+        13)
             if [ "$download_tool" = "curl" ]; then
                 curl -sSL "${custom_proxy}CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh" | sh
             else
@@ -238,8 +234,7 @@ handle_choice() {
             read khjfsdjkhfsd
             exec tailscale-helper
             ;;
-        
-        13)
+        14)
             # 检查日志文件是否存在
             log_info "✅  本文件内容: "
             log_info "    local模式为: 开机检测 Tailscale 更新的日志, 和定时任务里检测更新的日志"
@@ -255,16 +250,6 @@ handle_choice() {
                 log_error "❌  没有找到日志文件，更新脚本可能未执行！"
               
             fi
-            log_info "✅  请按回车继续..." 1
-            read khjfsdjkhfsd
-            ;;
-        14)
-            $CONFIG_DIR/autoupdate.sh
-            log_info "✅  请按回车继续..." 1
-            read khjfsdjkhfsd
-            ;;
-        15)
-            $CONFIG_DIR/github_direct_ctl.sh
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;
