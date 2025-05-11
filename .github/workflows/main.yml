@@ -86,6 +86,8 @@ jobs:
     strategy:
       matrix:
         version: ${{ fromJson(needs.prepare_versions.outputs.matrix) }}
+      fail-fast: false  # 确保即使某个版本失败，其他版本继续执行
+      max-parallel: 1
     env:
       TAG: v${{ matrix.version }}
     steps:
