@@ -70,14 +70,15 @@ jobs:
             echo "  - $v"
           done
       
-          all_versions_sorted=$(for v in "${!versions[@]}"; do echo "$v"; done | sort -V)
+          all_versions_sorted=$(for v in "${!versions[@]}"; do echo "$v" | sed 's/^v//'; done | sort -V)
           echo "===> 排序后版本:"
           echo "$all_versions_sorted"
-      
+          
           jq_array=$(printf '%s\n' $all_versions_sorted | jq -R . | jq -s .)
           echo "===> 生成 matrix:"
           echo "$jq_array" | jq -c
           echo "matrix=$(echo "$jq_array" | jq -c)" >> "$GITHUB_OUTPUT"
+
 
 
   build_and_release:
