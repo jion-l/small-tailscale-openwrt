@@ -64,7 +64,8 @@ show_status() {
   max_val_len=0
   i=1
   OPTIONS=""
-  echo "$PARAMS_LIST" | while IFS= read -r line; do
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
     key=$(echo "$line" | cut -d':' -f1)
     type=$(echo "$line" | cut -d':' -f2)
     desc=$(echo "$line" | cut -d':' -f3-)
@@ -72,7 +73,7 @@ show_status() {
     eval val=\$$var_name
     [ "${#key}" -gt "$max_key_len" ] && max_key_len=${#key}
     [ "${#val}" -gt "$max_val_len" ] && max_val_len=${#val}
-    OPTIONS="$OPTIONS
+    OPTIONS="${OPTIONS}
 $i|$key"
     emoji="❌"
     [ -n "$val" ] && emoji="✅"
@@ -84,10 +85,11 @@ $i|$key"
         "$i" "$emoji" "$key" $((max_val_len + 3)) "" "$desc"
     fi
     i=$((i + 1))
-  done
+  done <<< "$PARAMS_LIST"
   log_info "⏳  0) 退出   g) 生成带参数的 tailscale up 命令"
   log_info "⏳  输入编号后回车即可修改: " 1
 }
+
 
 edit_param() {
   idx=$1
