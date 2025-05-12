@@ -26,14 +26,17 @@ PARAMS_LIST="--accept-dns:flag:接受来自管理控制台的 DNS 设置
 --ssh:flag:启用 Tailscale SSH 服务
 --timeout:value:tailscaled 初始化超时时间（如10s）"
 
+# 获取参数类型
 get_param_type() {
   echo "$PARAMS_LIST" | grep "^$1:" | cut -d':' -f2
 }
 
+# 获取参数描述
 get_param_desc() {
   echo "$PARAMS_LIST" | grep "^$1:" | cut -d':' -f3-
 }
 
+# 加载配置文件
 load_conf() {
   [ -f "$CONF_FILE" ] || return
   while IFS='=' read -r key value; do
@@ -42,11 +45,15 @@ load_conf() {
     key=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
     value=$(echo "$value" | sed 's/^"\(.*\)"$/\1/')
     eval "$key=\"$value\""
+    # 输出每个加载的配置项
+    log_info "加载配置: $key=$value"
   done < "$CONF_FILE"
 }
 
+
+# 保存配置到文件
 save_conf() {
-  : > "$CONF_FILE"
+  echo -n > "$CONF_FILE"  # 清空文件内容
   echo "$PARAMS_LIST" | while IFS= read -r line; do
     key=$(echo "$line" | cut -d':' -f1)
     var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
@@ -55,6 +62,7 @@ save_conf() {
   done
 }
 
+# 显示当前参数状态
 show_status() {
   clear
   log_info "当前 tailscale up 参数状态："
@@ -62,6 +70,7 @@ show_status() {
   max_val_len=0
   i=1
   OPTIONS=""
+  echo "$PARAMS_LIST" > /tmp/params_list.txt
   while IFS= read -r line; do
     [ -z "$line" ] && continue
     key=$(echo "$line" | cut -d':' -f1)
@@ -83,12 +92,12 @@ $i|$key"
         "$i" "$emoji" "$key" $((max_val_len + 3)) "" "$desc"
     fi
     i=$((i + 1))
-  done <<< "$PARAMS_LIST"
+  done < /tmp/params_list.txt
   log_info "⏳  0) 退出   g) 生成带参数的 tailscale up 命令"
   log_info "⏳  输入编号后回车即可修改: " 1
 }
 
-
+# 编辑指定参数
 edit_param() {
   idx=$1
   key=$(echo "$OPTIONS" | grep "^$idx|" | cut -d'|' -f2)
@@ -127,32 +136,48 @@ edit_param() {
   sleep 1
 }
 
+# 生成带参数的 tailscale up 命令
 generate_cmd() {
   cmd="tailscale up"
-  echo "$PARAMS_LIST" | while IFS= read -r line; do
+  
+  # 将 PARAMS_LIST 内容写入临时文件
+  temp_file=$(mktemp)
+  echo "$PARAMS_LIST" > "$temp_file"
+  
+  while IFS= read -r line; do
     key=$(echo "$line" | cut -d':' -f1)
     type=$(echo "$line" | cut -d':' -f2)
     var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
     eval val=\$$var_name
     [ -z "$val" ] && continue
+    
     if [ "$type" = "flag" ]; then
       cmd="$cmd $key"
+      log_info  "正在拼接命令: $key"
     else
       cmd="$cmd $key=$val"
+      log_info  "正在拼接命令: $key=$val"
     fi
-  done
-  log_info "⏳  生成命令："
+  done < "$temp_file"  # 从临时文件中读取内容
+  
+  # 删除临时文件
+  rm -f "$temp_file"
+
+  log_info "⏳ 生成命令："
   log_info "$cmd"
   log_info "🟢  是否立即执行该命令？[y/N]: " 1
   read runnow
   if [ "$runnow" = "y" ] || [ "$runnow" = "Y" ]; then
     log_info "🚀  正在执行 tailscale up ..."
     eval "$cmd"
-    log_info "✅  执行完成，按回车继续..." 1
+    log_info "⏳  请按回车继续..." 1
     read _
+    exit 0
   fi
 }
 
+
+# 主函数
 main() {
   while true; do
     load_conf
@@ -162,8 +187,6 @@ main() {
       exit 0
     elif [ "$input" = "g" ]; then
       generate_cmd
-      log_info "⏳  请按回车继续..." 1
-      read _
     elif echo "$OPTIONS" | grep -q "^$input|"; then
       edit_param "$input"
     fi
