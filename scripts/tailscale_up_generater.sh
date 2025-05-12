@@ -1,202 +1,171 @@
 #!/bin/sh
 
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
+CONFIG_DIR="/etc/tailscale"
 CONF_FILE="$CONFIG_DIR/tailscale_up.conf"
 
-# 参数定义（类型: flag/value, 描述）
-declare -A PARAMS_TYPE=(
-  ["--accept-dns"]=flag
-  ["--accept-risk"]=value
-  ["--accept-routes"]=flag
-  ["--advertise-exit-node"]=flag
-  ["--advertise-routes"]=value
-  ["--advertise-tags"]=value
-  ["--auth-key"]=value
-  ["--exit-node"]=value
-  ["--exit-node-allow-lan-access"]=flag
-  ["--force-reauth"]=flag
-  ["--hostname"]=value
-  ["--login-server"]=value
-  ["--netfilter-mode"]=value
-  ["--operator"]=value
-  ["--qr"]=flag
-  ["--reset"]=flag
-  ["--shields-up"]=flag
-  ["--snat-subnet-routes"]=flag
-  ["--stateful-filtering"]=flag
-  ["--ssh"]=flag
-  ["--timeout"]=value
-)
+PARAMS_LIST="
+--accept-dns:flag:接受来自管理控制台的 DNS 设置
+--accept-risk:value:接受风险类型并跳过确认（lose-ssh, all 或空）
+--accept-routes:flag:接受其他节点广告的子网路由
+--advertise-exit-node:flag:提供出口节点功能
+--advertise-routes:value:共享子网路由，填写 IP 段，如 192.168.1.0/24
+--advertise-tags:value:为设备添加标签权限
+--auth-key:value:提供认证密钥自动登录
+--exit-node:value:使用指定出口节点（IP 或名称）
+--exit-node-allow-lan-access:flag:允许连接出口节点时访问本地局域网
+--force-reauth:flag:强制重新认证
+--hostname:value:使用自定义主机名
+--login-server:value:指定控制服务器 URL
+--netfilter-mode:value:控制防火墙规则：off/nodivert/on
+--operator:value:使用非 root 用户操作 tailscaled
+--qr:flag:生成二维码供网页登录
+--reset:flag:重置未指定设置
+--shields-up:flag:屏蔽来自网络其他设备的连接
+--snat-subnet-routes:flag:对子网路由使用源地址转换
+--stateful-filtering:flag:启用状态过滤（子网路由器/出口节点）
+--ssh:flag:启用 Tailscale SSH 服务
+--timeout:value:tailscaled 初始化超时时间（如10s）
+"
 
-# 参数说明
-declare -A PARAMS_DESC=(
-  ["--accept-dns"]="接受来自管理控制台的 DNS 设置"
-  ["--accept-risk"]="接受风险类型并跳过确认（lose-ssh, all 或空）"
-  ["--accept-routes"]="接受其他节点广告的子网路由"
-  ["--advertise-exit-node"]="提供出口节点功能"
-  ["--advertise-routes"]="共享子网路由，填写 IP 段，如 192.168.1.0/24"
-  ["--advertise-tags"]="为设备添加标签权限"
-  ["--auth-key"]="提供认证密钥自动登录"
-  ["--exit-node"]="使用指定出口节点（IP 或名称）"
-  ["--exit-node-allow-lan-access"]="允许连接出口节点时访问本地局域网"
-  ["--force-reauth"]="强制重新认证"
-  ["--hostname"]="使用自定义主机名"
-  ["--login-server"]="指定控制服务器 URL"
-  ["--netfilter-mode"]="控制防火墙规则：off/nodivert/on"
-  ["--operator"]="使用非 root 用户操作 tailscaled"
-  ["--qr"]="生成二维码供网页登录"
-  ["--reset"]="重置未指定设置"
-  ["--shields-up"]="屏蔽来自网络其他设备的连接"
-  ["--snat-subnet-routes"]="对子网路由使用源地址转换"
-  ["--stateful-filtering"]="启用状态过滤（子网路由器/出口节点）"
-  ["--ssh"]="启用 Tailscale SSH 服务"
-  ["--timeout"]="tailscaled 初始化超时时间（如10s）"
-)
-
-# 加载配置
-load_conf() {
-  if [ -f "$CONF_FILE" ]; then
-    while IFS='=' read -r key value; do
-      [[ -z "$key" || "$key" == \#* ]] && continue
-      key=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-      value="${value%\"}"
-      value="${value#\"}"
-      declare -g "$key=$value"
-    done < "$CONF_FILE"
-  fi
+get_param_type() {
+  echo "$PARAMS_LIST" | grep "^$1:" | cut -d':' -f2
 }
 
+get_param_desc() {
+  echo "$PARAMS_LIST" | grep "^$1:" | cut -d':' -f3-
+}
 
-# 保存配置
+load_conf() {
+  [ -f "$CONF_FILE" ] || return
+  while IFS='=' read -r key value; do
+    [ -z "$key" ] && continue
+    case "$key" in \#*) continue ;; esac
+    key=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+    value=$(echo "$value" | sed 's/^"\(.*\)"$/\1/')
+    eval "$key=\"$value\""
+  done < "$CONF_FILE"
+}
+
 save_conf() {
-  > "$CONF_FILE"
-  for key in "${!PARAMS_TYPE[@]}"; do
-    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 转换为合法变量名
-    value="${!var_name}"  # 获取转换后的变量值
-    [[ -n "$value" ]] && echo "$key=\"$value\"" >> "$CONF_FILE"
+  : > "$CONF_FILE"
+  echo "$PARAMS_LIST" | while IFS= read -r line; do
+    key=$(echo "$line" | cut -d':' -f1)
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+    eval val=\$$var_name
+    [ -n "$val" ] && echo "$key=\"$val\"" >> "$CONF_FILE"
   done
 }
 
-# 展示状态
 show_status() {
   clear
   log_info "当前 tailscale up 参数状态："
-
-  # 计算最大宽度
   max_key_len=0
   max_val_len=0
-  for key in "${!PARAMS_TYPE[@]}"; do
-    key_len=${#key}
-    (( key_len > max_key_len )) && max_key_len=$key_len
-
-    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-    val="${!var_name}"
-    val_len=${#val}
-    [[ -n "$val" && $val_len -gt $max_val_len ]] && max_val_len=$val_len
-  done
-
   i=1
-  for key in "${!PARAMS_TYPE[@]}"; do
+  OPTIONS=""
+  echo "$PARAMS_LIST" | while IFS= read -r line; do
+    key=$(echo "$line" | cut -d':' -f1)
+    type=$(echo "$line" | cut -d':' -f2)
+    desc=$(echo "$line" | cut -d':' -f3-)
     var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
-    val="${!var_name}"
+    eval val=\$$var_name
+    [ "${#key}" -gt "$max_key_len" ] && max_key_len=${#key}
+    [ "${#val}" -gt "$max_val_len" ] && max_val_len=${#val}
+    OPTIONS="$OPTIONS
+$i|$key"
     emoji="❌"
-    [[ -n "$val" ]] && emoji="✅"
-    OPTIONS[$i]="$key"
-
-    if [[ -n "$val" ]]; then
+    [ -n "$val" ] && emoji="✅"
+    if [ -n "$val" ]; then
       printf "%2d) [%s] %-${max_key_len}s = %-${max_val_len}s # %s\n" \
-        $i "$emoji" "$key" "$val" "${PARAMS_DESC[$key]}"
+        "$i" "$emoji" "$key" "$val" "$desc"
     else
       printf "%2d) [%s] %-${max_key_len}s   %*s# %s\n" \
-        $i "$emoji" "$key" $((max_val_len + 3)) "" "${PARAMS_DESC[$key]}"
+        "$i" "$emoji" "$key" $((max_val_len + 3)) "" "$desc"
     fi
-    ((i++))
+    i=$((i + 1))
   done
-
   log_info "⏳  0) 退出   g) 生成带参数的 tailscale up 命令"
   log_info "⏳  输入编号后回车即可修改: " 1
 }
 
-
-# 修改参数
 edit_param() {
   idx=$1
-  key="${OPTIONS[$idx]}"
-  var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 将变量名转换为合法形式
-  type="${PARAMS_TYPE[$key]}"
-  
-  if [[ "$type" == "flag" ]]; then
-    # 直接切换 flag 类型的参数
-    if [[ -z "${!var_name}" ]]; then
-      declare -g $var_name=1  # 如果参数未启用，则启用
+  key=$(echo "$OPTIONS" | grep "^$idx|" | cut -d'|' -f2)
+  [ -z "$key" ] && return
+  type=$(get_param_type "$key")
+  desc=$(get_param_desc "$key")
+  var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+  eval val=\$$var_name
+
+  if [ "$type" = "flag" ]; then
+    if [ -z "$val" ]; then
+      eval "$var_name=1"
       log_info "✅  启用了 $key"
-      sleep 1
     else
-      unset $var_name  # 否则禁用
+      unset $var_name
       log_info "❌  禁用了 $key"
-      sleep 1
     fi
   else
-    # 需要用户输入内容的参数
-    if [[ -z "${!var_name}" ]]; then
-      log_info "🔑  请输入 $key 的值（${PARAMS_DESC[$key]}）：" 1
-      read -r val
-      if [[ -n "$val" ]]; then
-        declare -g $var_name="$val"
-        log_info "✅  保存了 $key 的值：$val"
-        sleep 1
-      fi
+    if [ -z "$val" ]; then
+      log_info "🔑  请输入 $key 的值（$desc）：" 1
+      read val
+      [ -n "$val" ] && eval "$var_name=\"$val\"" && log_info "✅  保存了 $key 的值：$val"
     else
-      log_info "🔄  当前 $key 的值为 ${!var_name}，按回车继续编辑或输入新值，输入空值将删除该值：" 1
-      read -r val
-      if [[ -n "$val" ]]; then
-        declare -g $var_name="$val"
-        log_info "✅  更新了 $key 的值：$val"
-        sleep 1
+      log_info "🔄  当前 $key 的值为 $val，按回车继续编辑或输入新值，输入空值将删除该值：" 1
+      read newval
+      if [ -n "$newval" ]; then
+        eval "$var_name=\"$newval\""
+        log_info "✅  更新了 $key 的值：$newval"
       else
         unset $var_name
         log_info "❌  删除了 $key 的值"
-        sleep 1
       fi
     fi
   fi
   save_conf
+  sleep 1
 }
 
-
-
-# 生成命令
 generate_cmd() {
   cmd="tailscale up"
-  for key in "${!PARAMS_TYPE[@]}"; do
-    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')  # 转换为合法变量名
-    val="${!var_name}"  # 获取变量值
-    if [[ -n "$val" ]]; then
-      if [[ "${PARAMS_TYPE[$key]}" == "flag" ]]; then
-        cmd+=" $key"  # 对于 flag 类型的参数，只加上参数名
-      else
-        cmd+=" $key=$val"  # 对于 value 类型的参数，拼接参数名和值
-      fi
+  echo "$PARAMS_LIST" | while IFS= read -r line; do
+    key=$(echo "$line" | cut -d':' -f1)
+    type=$(echo "$line" | cut -d':' -f2)
+    var_name=$(echo "$key" | tr '-' '_' | tr '[:lower:]' '[:upper:]')
+    eval val=\$$var_name
+    [ -z "$val" ] && continue
+    if [ "$type" = "flag" ]; then
+      cmd="$cmd $key"
+    else
+      cmd="$cmd $key=$val"
     fi
   done
-  log_info "⏳  生成命令：" 
+  log_info "⏳  生成命令："
   log_info "$cmd"
+  log_info "🟢  是否立即执行该命令？[y/N]: " 1
+  read runnow
+  if [ "$runnow" = "y" ] || [ "$runnow" = "Y" ]; then
+    log_info "🚀  正在执行 tailscale up ..."
+    eval "$cmd"
+    log_info "✅  执行完成，按回车继续..." 1
+    read _
+  fi
 }
 
-# 主循环
 main() {
   while true; do
     load_conf
     show_status
     read input
-    if [[ "$input" == "0" ]]; then
+    if [ "$input" = "0" ]; then
       exit 0
-    elif [[ "$input" == "g" ]]; then
+    elif [ "$input" = "g" ]; then
       generate_cmd
       log_info "⏳  请按回车继续..." 1
-      read khjfsdjkhfsd
-    elif [[ "$input" =~ ^[0-9]+$ && -n "${OPTIONS[$input]}" ]]; then
-      edit_param $input
+      read _
+    elif echo "$OPTIONS" | grep -q "^$input|"; then
+      edit_param "$input"
     fi
   done
 }

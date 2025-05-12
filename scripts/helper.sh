@@ -1,5 +1,5 @@
 #!/bin/sh
-SCRIPT_VERSION="v1.0.82"
+SCRIPT_VERSION="v1.0.83"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
