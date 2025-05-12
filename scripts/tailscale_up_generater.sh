@@ -4,8 +4,7 @@
 CONFIG_DIR="/etc/tailscale"
 CONF_FILE="$CONFIG_DIR/tailscale_up.conf"
 
-PARAMS_LIST="
---accept-dns:flag:接受来自管理控制台的 DNS 设置
+PARAMS_LIST="--accept-dns:flag:接受来自管理控制台的 DNS 设置
 --accept-risk:value:接受风险类型并跳过确认（lose-ssh, all 或空）
 --accept-routes:flag:接受其他节点广告的子网路由
 --advertise-exit-node:flag:提供出口节点功能
@@ -25,8 +24,7 @@ PARAMS_LIST="
 --snat-subnet-routes:flag:对子网路由使用源地址转换
 --stateful-filtering:flag:启用状态过滤（子网路由器/出口节点）
 --ssh:flag:启用 Tailscale SSH 服务
---timeout:value:tailscaled 初始化超时时间（如10s）
-"
+--timeout:value:tailscaled 初始化超时时间（如10s）"
 
 get_param_type() {
   echo "$PARAMS_LIST" | grep "^$1:" | cut -d':' -f2
