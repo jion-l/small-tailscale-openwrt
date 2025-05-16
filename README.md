@@ -6,7 +6,7 @@
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FCH3NGYZ%2Fsmall-tailscale-openwrt&label=views&countColor=%23263759&style=flat)](https://github.com/CH3NGYZ/small-tailscale-openwrt)
 [![Stars](https://img.shields.io/github/stars/CH3NGYZ/small-tailscale-openwrt)](https://github.com/CH3NGYZ/small-tailscale-openwrt/stargazers)
 
-#### For English documentation, see [README_EN.md](https://github.com/CH3NGYZ/small-tailscale-openwrt/blobs/main/README_EN.md).
+#### For English documentation, see [README_EN.md](https://github.com/CH3NGYZ/small-tailscale-openwrt/blob/main/README_EN.md).
 
 ### 脚本目前只在ImmortalWRT上测试通过, 其他系统请自测, 可能还有点小bug, 如发现问题请及时反馈~
 
