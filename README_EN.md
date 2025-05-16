@@ -8,7 +8,7 @@
 
 ### The script has been tested on ImmortalWRT. For other systems, please test it yourself, as there may be some minor bugs. If you encounter issues, please report them.
 
-## 📦 File Structure
+## 📦 Repository File Structure
 ```
 ├── install.sh                    # Install the script package locally
 ├── pretest_mirrors.sh             # First-time installation to test proxy pool (only Chinese users need it)

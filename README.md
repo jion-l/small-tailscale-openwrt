@@ -1,26 +1,36 @@
-# 小型化 Tailscale 在 OpenWRT 上的一键安装方案
+# 专用于 OpenWRT 的 UPX 压缩组合版本 Tailscale 的一键安装工具
+
+
 [![Release](https://img.shields.io/github/release/CH3NGYZ/small-tailscale-openwrt)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/CH3NGYZ/small-tailscale-openwrt/latest/total)](https://github.com/CH3NGYZ/small-tailscale-openwrt/releases/latest)
 [![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FCH3NGYZ%2Fsmall-tailscale-openwrt&label=views&countColor=%23263759&style=flat)](https://github.com/CH3NGYZ/small-tailscale-openwrt)
 [![Stars](https://img.shields.io/github/stars/CH3NGYZ/small-tailscale-openwrt)](https://github.com/CH3NGYZ/small-tailscale-openwrt/stargazers)
 
+#### For English documentation, see [README_EN.md](https://github.com/CH3NGYZ/small-tailscale-openwrt/README_EN.md).
+
 ### 脚本目前只在ImmortalWRT上测试通过, 其他系统请自测, 可能还有点小bug, 如发现问题请及时反馈~
 
-## 📦 文件结构
+## 📦 仓库文件结构
 ```
-/etc/tailscale/
-├── setup.sh               # 安装脚本
-├── fetch_and_install.sh   # 下载脚本
-├── test_mirrors.sh        # 代理检测
-├── autoupdate.sh          # 自动更新
-├── setup_service.sh       # 服务配置
-├── setup_cron.sh          # 定时任务
-├── notify_ctl.sh          # 通知管理
-├── update_ctl.sh          # 更新控制
-├── uninstall.sh           # 卸载脚本
-├── install.conf           # 安装配置
-├── mirrors.txt            # 镜像列表
-└── valid_mirrors.txt      # 有效镜像
+├── install.sh                    # 安装脚本包到本地
+├── pretest_mirrors.sh             # 第一次安装测速代理池的脚本
+├── mirrors.txt                    # 预先配置的代理列表
+├── tailscale-openwrt-scripts.tar.gz  # 本仓库的Scripts目录下的脚本压缩包
+└── scripts
+    ├── autoupdate.sh              # 自动更新脚本
+    ├── fetch_and_install.sh       # 获取并安装脚本
+    ├── github_direct_ctl.sh       # 切换直连或代理设置脚本
+    ├── helper.sh                  # 辅助脚本
+    ├── notify_ctl.sh              # 通知设置脚本
+    ├── setup_cron.sh              # 设置定时任务脚本
+    ├── setup_service.sh           # 设置服务脚本
+    ├── setup.sh                   # 安装tailscale脚本
+    ├── tailscale_up_generater.sh  # 生成tailscale up命令脚本
+    ├── test_mirrors.sh            # 测试镜像脚本
+    ├── tools.sh                   # 公共脚本
+    └── uninstall.sh               # 卸载脚本
+    └── update_ctl.sh              # 自动更新设置脚本
+
 ```
 
 ## 🚀 快速安装
@@ -90,39 +100,23 @@ X --> Z[结束]
 
 ## 🛠️ 管理工具说明
 
-通过 `tailscale-helper` 命令可进入交互式管理界面，提供以下功能：
+`tailscale-helper` 命令进入交互式管理界面，提供以下功能：
 
-- 💾 **安装/重装 Tailscale**：运行安装脚本安装或重装 Tailscale
-- 📥 **登录 Tailscale**：执行 `tailscale up`，并监听登录 URL 输出
-- 📝 **生成启动命令**：交互生成 `tailscale up` 所需参数及命令
-- 📤 **登出 Tailscale**：执行 `tailscale logout` 并检查状态
-- ❌ **卸载 Tailscale**：清理并卸载 Tailscale
-- 🔄 **管理自动更新**：配置本地或临时模式下的自动更新策略
-- 📦 **查看本地版本**：查看当前已安装的 Tailscale 版本
-- 📦 **查看远程版本**：获取并显示可用的 Tailscale 最新版本
-- 🔔 **管理推送通知**：配置 Server酱 / Bark / NTFY 推送
-- 📊 **排序代理池**：测试代理可用性并进行排序
-- ♻️ **更新代理池**：重新下载并更新代理池列表
-- 🛠️ **更新脚本包**：从 GitHub 获取最新版管理脚本并自动更新
-- 📜 **查看更新日志**：查看 Tailscale 启动或更新的相关日志
-- 🔄 **手动运行更新**：立即执行一次 Tailscale 自动更新脚本
-- 🔄 **切换GITHUB直连**：切换是否使用直连或者是使用代理
-
-## 📡 手动编辑代理配置
-   注:自定义的代理需要能通过拼接 CH3NGYZ/small-tailscale-openwrt/releases/latest/download/tailscaled_linux_amd64 下载release文件
-   1. 编辑镜像列表：
-      ```bash
-      vi /etc/tailscale/mirrors.txt
-      ```
-      格式示例：
-      ```
-      https://wget.la/https://github.com/
-      https://ghproxy.net/https://github.com/
-      ```
-   2. 测试可用性:
-      ```bash
-      /etc/tailscale/test_mirrors.sh
-      ```
+1. 💾 **安装 / 重装 Tailscale**：运行安装脚本来安装或重装 Tailscale。
+2. 📥 **登录 Tailscale**：执行 `tailscale up` 命令并监听登录 URL 输出。
+3. 📝 **生成启动命令**：交互式生成所需的参数和 `tailscale up` 命令。
+4. 📤 **登出 Tailscale**：执行 `tailscale logout` 并检查状态。
+5. ❌ **卸载 Tailscale**：清理并卸载 Tailscale。
+6. 🔄 **管理自动更新**：配置本地或临时模式的自动更新策略。
+7. 🔄 **手动运行更新脚本**：立即执行自动更新脚本。
+8. 🔄 **切换 GitHub 直连/代理**：在使用直连或代理之间切换。（仅限中国用户）
+9. 📦 **查看本地版本**：检查当前安装的 Tailscale 版本。
+10. 📦 **查看远程版本**：获取并显示可用的最新 Tailscale 版本。
+11. 🔔 **管理推送通知**：配置 Server酱 / Bark / NTFY 通知。
+12. 📊 **排序代理池**：测试代理的可用性并排序。（仅限中国用户）
+13. 🛠️ **更新脚本包**：从 GitHub 获取最新的管理脚本并自动更新。
+14. 📜 **查看更新日志**：查看与 Tailscale 启动或更新相关的日志。
+15. ⛔ **退出**：退出管理工具。
 
 ## 🔔 通知系统
 支持 Server酱、Bark 和 NTFY 通知方式：
