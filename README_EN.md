@@ -113,9 +113,7 @@ Configuration options include:
 
 ## ⚠️ Important Notes
 1. Memory installation mode requires re-downloading Tailscale after each reboot.
-2. Due to proxy instability, download failures may occur. It is recommended to use local installation mode.
-3. It is recommended to configure the notification feature for the first use.
-4. At least one of `curl` or `wget` must be available for proper operation.
+2. At least one of `curl` or `wget` must be available for proper operation.
 
 ## 💬 Contact Information
 
