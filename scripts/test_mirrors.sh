@@ -14,7 +14,7 @@ BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
 BIN_PATH="/tmp/$BIN_NAME"
 SUM_PATH="/tmp/$SUM_NAME"
-MIRROR_FILE_URL="CH3NGYZ/test-github-proxies/refs/heads/main/proxies.txt"
+MIRROR_FILE_URL="CH3NGYZ/test-github-proxies/raw/refs/heads/main/proxies.txt"
 SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$SUM_NAME"
 BIN_URL="CH3NGYZ/small-tailscale-openwrt/releases/latest/download/$BIN_NAME"
 
