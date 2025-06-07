@@ -12,7 +12,6 @@
 ```
 ├── install.sh                    # Install the script package locally
 ├── pretest_mirrors.sh             # First-time installation to test proxy pool (only Chinese users need it)
-├── mirrors.txt                    # Pre-configured list of proxies
 ├── tailscale-openwrt-scripts.tar.gz  # Script package from the Scripts directory
 └── scripts
     ├── autoupdate.sh              # Auto update script

@@ -14,7 +14,6 @@
 ```
 ├── install.sh                    # 安装脚本包到本地
 ├── pretest_mirrors.sh             # 第一次安装测速代理池的脚本
-├── mirrors.txt                    # 预先配置的代理列表
 ├── tailscale-openwrt-scripts.tar.gz  # 本仓库的Scripts目录下的脚本压缩包
 └── scripts
     ├── autoupdate.sh              # 自动更新脚本

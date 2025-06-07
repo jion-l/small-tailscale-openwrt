@@ -267,8 +267,8 @@ run_pretest_mirrors() {
 if [ "$GITHUB_DIRECT" = "true" ] ; then
     log_info "✅  使用Github直连, 跳过测速！"
 else
-    if [ ! -f /etc/tailscale/mirrors.txt ]; then
-        log_info "🔍 本地不存在 mirrors.txt, 将下载镜像列表并测速, 请等待..."
+    if [ ! -f /etc/tailscale/proxies.txt ]; then
+        log_info "🔍 本地不存在 proxies.txt, 将下载镜像列表并测速, 请等待..."
         if run_pretest_mirrors; then
             log_info "✅  下载镜像列表并测速完成！"
         else
@@ -276,7 +276,7 @@ else
             exit 1
         fi
     else
-        log_info "✅  本地存在 mirrors.txt, 无需再次下载!"
+        log_info "✅  本地存在 proxies.txt, 无需再次下载!"
     fi
 fi
 

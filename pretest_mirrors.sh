@@ -3,7 +3,7 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 TIME_OUT=10
-MIRROR_FILE_URL="CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/mirrors.txt"
+MIRROR_FILE_URL="CH3NGYZ/test-github-proxies/refs/heads/main/proxies.txt"
 SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/download/v1.82.5/SHA256SUMS.txt"
 INST_CONF="$CONFIG_DIR/install.conf"
 . "$INST_CONF"
