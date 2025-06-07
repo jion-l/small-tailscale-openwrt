@@ -7,9 +7,36 @@ set -e
 # 获取最新版本
 get_latest_version() {
     local api_url="https://api.github.com/repos/CH3NGYZ/small-tailscale-openwrt/releases/latest"
-    local version=$(curl -m 10 -fsSL "$api_url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+    local json=""
+    local version=""
+
+    if command -v curl >/dev/null 2>&1; then
+        # echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] 使用 curl" >&2
+        json=$(curl -m 10 -fsSL "$api_url") || {
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌  错误：curl 获取版本信息失败。" >&2
+            return 1
+        }
+    elif command -v wget >/dev/null 2>&1; then
+        # echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] 使用 wget" >&2
+        json=$(wget --timeout=10 -qO- "$api_url") || {
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌  错误：wget 获取版本信息失败。" >&2
+            return 1
+        }
+    else
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌  错误：找不到 curl 或 wget，请安装其中之一。" >&2
+        return 1
+    fi
+
+    version=$(echo "$json" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+
+    if [[ -z "$version" ]]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌  错误：未能解析 tag_name。" >&2
+        return 1
+    fi
+
     echo "$version"
 }
+
 
 get_checksum() {
     local sums_file=$1

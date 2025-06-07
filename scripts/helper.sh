@@ -1,5 +1,5 @@
 #!/bin/sh
-SCRIPT_VERSION="v1.0.84"
+SCRIPT_VERSION="v1.0.85"
 
 # 检查并引入 /etc/tailscale/tools.sh 文件
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
@@ -206,7 +206,7 @@ handle_choice() {
             read khjfsdjkhfsd
             ;;
         10)
-            $CONFIG_DIR/fetch_and_install.sh --dry-run
+            log_info "$($CONFIG_DIR/fetch_and_install.sh --dry-run)"
             log_info "✅  请按回车继续..." 1
             read khjfsdjkhfsd
             ;;

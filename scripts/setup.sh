@@ -27,6 +27,38 @@ get_arch() {
     echo "$arch"
 }
 
+webgetcode() {
+    local url="$1"
+    local http_code=""
+
+    if command -v curl >/dev/null 2>&1; then
+        # echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] 使用 curl" >&2
+        http_code=$(curl -s -w "%{http_code}" -o response.json "$url")
+    elif command -v wget >/dev/null 2>&1; then
+        # echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO] 使用 wget" >&2
+        wget --quiet --output-document=response.json "$url"
+        # 检查是否下载成功
+        if [[ $? -ne 0 ]]; then
+            echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌错误：wget 下载失败。" >&2
+            exit 1
+        fi
+        # wget 无法直接取 code，只能通过重新发 HEAD 请求获取状态码
+        http_code=$(wget --spider --server-response "$url" 2>&1 | awk '/^  HTTP\/|^HTTP\//' | tail -1 | awk '{print $2}')
+    else
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌错误：找不到 curl 或 wget，请安装其中之一。" >&2
+        exit 1
+    fi
+
+    if ! [[ "$http_code" =~ ^[0-9]{3}$ ]]; then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] [ERROR] ❌错误：无法获取有效的 HTTP 状态码，实际返回为：$http_code" >&2
+        exit 1
+    fi
+
+    echo "$http_code"
+}
+
+
+
 # 默认值
 MODE=""
 AUTO_UPDATE=""
@@ -84,11 +116,11 @@ if [ "$has_args" = false ]; then
     esac
 
     # 🧩 拉取 release tag 列表
-    HTTP_CODE=$(curl -s -w "%{http_code}" -o response.json "https://api.github.com/repos/ch3ngyz/small-tailscale-openwrt/releases")
+    HTTP_CODE=$(webgetcode "https://api.github.com/repos/ch3ngyz/small-tailscale-openwrt/releases")
 
     if [ "$HTTP_CODE" -ne 200 ]; then
         log_error "❌  GitHub API 请求失败，状态码: $HTTP_CODE"
-        log_info "🔧  无法获取可用版本号，将跳过版本校验"
+        log_info "🔧  无法获取可用版本号，将跳过版本校验，使用 latest 版本"
         VERSION="latest"
     else
         TAGS_TMP="/tmp/.tags.$$"
