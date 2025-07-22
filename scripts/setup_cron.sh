@@ -27,13 +27,19 @@ done
 log_info "⏰  清除旧的定时任务配置..."
 sed -i "\|$CONFIG_DIR/|d" /etc/crontabs/root || { log_error "❌  清除旧配置失败"; exit 1; }
 
-# 添加镜像维护任务
+# 添加镜像维护任务（2:00 ~ 3:59）
+RANDOM_HOUR=$((2 + $(awk 'BEGIN{srand(); print int(rand()*2)}')))  # 2 或 3
+RANDOM_MIN=$(awk 'BEGIN{srand(); print int(rand()*60)}')
 log_info "⏰  添加镜像维护任务..."
-echo "0 3 * * * $CONFIG_DIR/test_mirrors.sh" >> /etc/crontabs/root || { log_error "❌  添加镜像维护任务失败"; exit 1; }
+echo "$RANDOM_MIN $RANDOM_HOUR * * * $CONFIG_DIR/test_mirrors.sh" >> /etc/crontabs/root || { log_error "❌  添加镜像维护任务失败"; exit 1; }
+log_info "⏰  镜像维护任务已设定为 $RANDOM_HOUR 点 $RANDOM_MIN 分"
 
-# 添加自动更新任务
+# 添加自动更新任务（4:00 ~ 6:59）
+UPDATE_HOUR=$((4 + $(awk 'BEGIN{srand(); print int(rand()*3)}')))  # 4,5,6
+UPDATE_MIN=$(awk 'BEGIN{srand(); print int(rand()*60)}')
 log_info "⏰  添加自动更新任务..."
-echo "0 4 * * * $CONFIG_DIR/autoupdate.sh" >> /etc/crontabs/root || { log_error "❌  添加自动更新任务失败"; exit 1; }
+echo "$UPDATE_MIN $UPDATE_HOUR * * * $CONFIG_DIR/autoupdate.sh" >> /etc/crontabs/root || { log_error "❌  添加自动更新任务失败"; exit 1; }
+log_info "⏰  自动更新任务已设定为 $UPDATE_HOUR 点 $UPDATE_MIN 分"
 
 # 重启cron服务
 log_info "⏰  重启cron服务..."

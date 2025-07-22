@@ -29,14 +29,14 @@ show_menu() {
     [ -f "$NTF_CONF" ] && . "$NTF_CONF"
 
     # 获取当前通知开关状态
-    serverchan_status=$([ "$NOTIFY_SERVERCHAN" = "1" ] && echo "🟩" || echo "❌")
-    bark_status=$([ "$NOTIFY_BARK" = "1" ] && echo "🟩" || echo "❌")
-    ntfy_status=$([ "$NOTIFY_NTFY" = "1" ] && echo "🟩" || echo "❌")
+    serverchan_status=$([ "$NOTIFY_SERVERCHAN" = "1" ] && echo "✅" || echo "❌")
+    bark_status=$([ "$NOTIFY_BARK" = "1" ] && echo "✅" || echo "❌")
+    ntfy_status=$([ "$NOTIFY_NTFY" = "1" ] && echo "✅" || echo "❌")
     
     # 获取其他通知配置
-    update_status=$([ "$NOTIFY_UPDATE" = "1" ] && echo "🟩" || echo "❌")
-    mirror_fail_status=$([ "$NOTIFY_MIRROR_FAIL" = "1" ] && echo "🟩" || echo "❌")
-    emergency_status=$([ "$NOTIFY_EMERGENCY" = "1" ] && echo "🟩" || echo "❌")
+    update_status=$([ "$NOTIFY_UPDATE" = "1" ] && echo "✅" || echo "❌")
+    mirror_fail_status=$([ "$NOTIFY_MIRROR_FAIL" = "1" ] && echo "✅" || echo "❌")
+    emergency_status=$([ "$NOTIFY_EMERGENCY" = "1" ] && echo "✅" || echo "❌")
 
     log_info "🛠️  通知配置管理"
     log_info "------------通知秘钥设置------------"
