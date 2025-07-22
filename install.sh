@@ -281,4 +281,4 @@ else
 fi
 
 log_info "✅  一键安装 Tailscale 配置工具安装完毕!"
-
+log_info "✅  请运行 tailscale-helper 以开始安装 Tailscale"
