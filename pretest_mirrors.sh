@@ -4,7 +4,7 @@ set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 TIME_OUT=10
 CONFIG_DIR="/etc/tailscale"
-MIRROR_FILE_URL="CH3NGYZ/test-github-proxies/refs/heads/main/proxies.txt"
+MIRROR_FILE_URL="CH3NGYZ/test-github-proxies/raw/refs/heads/main/proxies.txt"
 SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/latest/download/SHA256SUMS.txt"
 INST_CONF="$CONFIG_DIR/install.conf"
 . "$INST_CONF"
@@ -54,8 +54,8 @@ webget() {
 }
 
 # 提前下载校验文件
-SUM_URL_PROXY="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/${SUM_URL}"
-SUM_URL_DIRECT="https://raw.githubusercontent.com/${SUM_URL}"
+SUM_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${SUM_URL}"
+SUM_URL_DIRECT="https://github.com/${SUM_URL}"
 
 if [ "$GITHUB_DIRECT" = "true" ] ; then
     log_info "📄  使用 GitHub 直连下载: $SUM_URL_DIRECT"
@@ -113,7 +113,7 @@ manual_fallback() {
         read choice
         case $choice in
             1)
-                log_info "⏳  输入镜像URL (需要带上githubusercontent域名，如 https://mirror.example.com/https://raw.githubusercontent.com/): " 1
+                log_info "⏳  输入镜像URL (需要和 $MIRROR_FILE_URL 拼凑后能下载此文件，如 https://ghproxy.example.com/https://github.com/): " 1
                 read  mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if echo "$mirror" | grep -qE '^https?://'; then
@@ -137,8 +137,8 @@ manual_fallback() {
 }
 
 # 下载镜像列表
-MIRROR_FILE_URL_PROXY="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/${MIRROR_FILE_URL}"
-MIRROR_FILE_URL_DIRECT="https://raw.githubusercontent.com/${MIRROR_FILE_URL}"
+MIRROR_FILE_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${MIRROR_FILE_URL}"
+MIRROR_FILE_URL_DIRECT="https://github.com/${MIRROR_FILE_URL}"
 
 log_info "🛠️  正在下载镜像列表，请耐心等待..."
 
