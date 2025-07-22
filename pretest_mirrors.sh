@@ -164,7 +164,7 @@ log_warn "⚠️  测试代理下载tailscale可执行文件花费的时间中, 
 total=$(grep -cve '^\s*$' "$MIRROR_LIST")  # 排除空行
 index=0
 while read -r mirror; do
-    [ -n "$mirror" ] || continue
+    [[ -n "$mirror" && "$mirror" == http* ]] || continue
     index=$((index + 1))
     test_mirror "$mirror" "$index/$total"
 done < "$MIRROR_LIST"
