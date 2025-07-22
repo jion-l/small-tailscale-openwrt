@@ -33,11 +33,11 @@
 
 ### 1. Download the management tool
    ```
-   rm -rf /etc/tailscale
-   dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
-   URL="https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   rm -rf /etc/tailscale /tmp/install.sh
    touch /tmp/tailscale-use-direct
-   [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
+   URL="https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo Failed to Download; exit 1; }
+   sh /tmp/install.sh || { echo Failed to Execute /tmp/install.sh; exit 1; }
    ```
 
 ### 2. Launch the management tool

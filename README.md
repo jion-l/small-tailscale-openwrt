@@ -48,7 +48,7 @@
    # 直连版
    rm -rf /etc/tailscale /tmp/install.sh
    touch /tmp/tailscale-use-direct
-   URL="https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   URL="https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
    (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo 下载失败; exit 1; }
    sh /tmp/install.sh || { echo 执行失败; exit 1; }
    ```
