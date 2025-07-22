@@ -54,8 +54,8 @@ webget() {
 }
 
 # 提前下载校验文件
-SUM_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${SUM_URL}"
-SUM_URL_DIRECT="https://github.com/${SUM_URL}"
+SUM_URL_PROXY="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/${SUM_URL}"
+SUM_URL_DIRECT="https://raw.githubusercontent.com/${SUM_URL}"
 
 if [ "$GITHUB_DIRECT" = "true" ] ; then
     log_info "📄  使用 GitHub 直连下载: $SUM_URL_DIRECT"
@@ -107,13 +107,13 @@ test_mirror() {
 # 手动回退逻辑
 manual_fallback() {
     log_info "🧩  手动选择镜像源："
-    log_info "     1) ✍️ 手动输入镜像  2) 🌐  使用直连  3) ❌  退出"
+    log_info "     1) ✍️ 手动输入备选镜像  2) 🌐  使用直连  3) ❌  退出"
     while :; do
         log_info "       请选择: " 1
         read choice
         case $choice in
             1)
-                log_info "⏳  输入镜像URL (如 https://mirror.example.com/https://github.com/): " 1
+                log_info "⏳  输入镜像URL (需要带上githubusercontent域名，如 https://mirror.example.com/https://raw.githubusercontent.com/): " 1
                 read  mirror
                 mirror=$(echo "$mirror" | sed 's|/*$|/|')
                 if echo "$mirror" | grep -qE '^https?://'; then
@@ -137,8 +137,8 @@ manual_fallback() {
 }
 
 # 下载镜像列表
-MIRROR_FILE_URL_PROXY="https://ghproxy.ch3ng.top/https://github.com/${MIRROR_FILE_URL}"
-MIRROR_FILE_URL_DIRECT="https://github.com/${MIRROR_FILE_URL}"
+MIRROR_FILE_URL_PROXY="https://ghproxy.ch3ng.top/https://raw.githubusercontent.com/${MIRROR_FILE_URL}"
+MIRROR_FILE_URL_DIRECT="https://raw.githubusercontent.com/${MIRROR_FILE_URL}"
 
 log_info "🛠️  正在下载镜像列表，请耐心等待..."
 
