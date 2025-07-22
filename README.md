@@ -37,7 +37,7 @@
 ### 1.下载管理工具 & 排序代理池
    ```bash
    # 代理版
-    rm -f /etc/tailscale /tmp/tailscale-use-direct /tmp/install.sh
+    rm -rf /etc/tailscale /tmp/tailscale-use-direct /tmp/install.sh
     URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
     (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo 下载失败; exit 1; }
     sh /tmp/install.sh || { echo 执行失败; exit 1; }
@@ -46,7 +46,7 @@
    
    ```bash
    # 直连版
-   rm -f /etc/tailscale /tmp/install.sh
+   rm -rf /etc/tailscale /tmp/install.sh
    touch /tmp/tailscale-use-direct
    URL="https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
    (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo 下载失败; exit 1; }
