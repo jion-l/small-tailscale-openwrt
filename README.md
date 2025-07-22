@@ -42,7 +42,7 @@
     (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo 下载失败; exit 1; }
     sh /tmp/install.sh || { echo 执行失败; exit 1; }
    ```
-##### 请注意, 代理版脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 如果您开启了代理, 可能会403，请关闭代理后重试, 或使用下方的直连命令:
+##### 请注意, 如果您开启了代理，下载及更新可能会出现网络问题，可以尝试使用下方的直连命令安装:
    
    ```bash
    # 直连版
