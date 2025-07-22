@@ -114,6 +114,8 @@ if [ "$has_args" = false ]; then
         2) AUTO_UPDATE=false ;;
         *) AUTO_UPDATE=true ;;
     esac
+    log_info
+    log_info "🧩  正在拉取版本列表，请耐心等待..."
 
     # 🧩 拉取 release tag 列表
     HTTP_CODE=$(webgetcode "https://api.github.com/repos/ch3ngyz/small-tailscale-openwrt/releases")
@@ -139,7 +141,7 @@ if [ "$has_args" = false ]; then
                 i=$((i + 1))
             done < "$TAGS_TMP"
             total=$((i - 1))
-            log_info "⏳  请输入序号选择版本 (留空使用 latest): " 1
+            log_info "⏳  请输入序号选择版本 (直接回车则使用最新版本): " 1
             read index
             index=$(echo "$index" | xargs)
 
