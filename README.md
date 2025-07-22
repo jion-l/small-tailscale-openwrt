@@ -37,21 +37,20 @@
 ### 1.下载管理工具 & 排序代理池
    ```bash
    # 代理版
-   rm -rf /etc/tailscale
-   dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
-   URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
-   rm -f /tmp/tailscale-use-direct
-   [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
+    rm -f /etc/tailscale /tmp/tailscale-use-direct /tmp/install.sh
+    URL="https://ghproxy.ch3ng.top/https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+    (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo 下载失败; exit 1; }
+    sh /tmp/install.sh || { echo 执行失败; exit 1; }
    ```
-##### 请注意, 代理版脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 如果您开启了代理, 在运行代理版命令时可能会无任何输出, 您可以在 `clash` 或其它工具的配置里设置 `ch3ng.top` 为直连, 例如 `clash` 的配置: `- DOMAIN-SUFFIX,ch3ng.top,DIRECT`, 或使用下方的直连命令:
+##### 请注意, 代理版脚本内置的 `https://ghproxy.ch3ng.top` 默认block了所有国外ip访问, 如果您开启了代理, 可能会403，请关闭代理后重试, 或使用下方的直连命令:
    
    ```bash
    # 直连版
-   rm -rf /etc/tailscale
-   dtool(){ command -v curl >/dev/null&&echo c||command -v wget >/dev/null&&echo w||exit 1; }
-   URL="https://github.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   rm -f /etc/tailscale /tmp/install.sh
    touch /tmp/tailscale-use-direct
-   [ "$(dtool)" = c ] && curl -fsSL $URL | sh || wget -qO- $URL | sh
+   URL="https://raw.githubusercontent.com/CH3NGYZ/small-tailscale-openwrt/raw/refs/heads/main/install.sh"
+   (command -v curl >/dev/null && curl -fSL "$URL" -o /tmp/install.sh || wget "$URL" -O /tmp/install.sh) || { echo 下载失败; exit 1; }
+   sh /tmp/install.sh || { echo 执行失败; exit 1; }
    ```
 
 ### 2.启动管理工具
