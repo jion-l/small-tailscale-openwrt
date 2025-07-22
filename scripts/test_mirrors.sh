@@ -93,15 +93,12 @@ test_mirror() {
             local end=$(date +%s.%N)
             local dl_time=$(awk "BEGIN {printf \"%.2f\", $end - $start}")
             log_info "✅  用时 ${dl_time}s"
-            log_info "$(date +%s),$mirror,1,$dl_time,-" >> "$SCORE_FILE"
             echo "$dl_time $mirror" >> "$TMP_VALID_MIRRORS"
         else
             log_warn "❌  校验失败"
-            log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
         fi
     else
         log_warn "❌  下载失败"
-        log_info "$(date +%s),$mirror,0,999,0" >> "$SCORE_FILE"
     fi
     rm -f "$BIN_PATH" "$SUM_PATH"
 }
