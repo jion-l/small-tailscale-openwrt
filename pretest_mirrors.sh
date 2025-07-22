@@ -3,6 +3,7 @@
 set -e
 [ -f /etc/tailscale/tools.sh ] && . /etc/tailscale/tools.sh
 TIME_OUT=10
+CONFIG_DIR="/etc/tailscale"
 MIRROR_FILE_URL="CH3NGYZ/test-github-proxies/refs/heads/main/proxies.txt"
 SUM_URL="CH3NGYZ/small-tailscale-openwrt/releases/latest/download/SHA256SUMS.txt"
 INST_CONF="$CONFIG_DIR/install.conf"
@@ -11,6 +12,8 @@ BIN_NAME="tailscaled_linux_amd64"
 SUM_NAME="SHA256SUMS.txt"
 BIN_PATH="/tmp/$BIN_NAME"
 SUM_PATH="/tmp/$SUM_NAME"
+VALID_MIRRORS="$CONFIG_DIR/valid_proxies.txt"
+MIRROR_LIST="$CONFIG_DIR/proxies.txt"
 
 rm -f "$TMP_VALID_MIRRORS"
 
@@ -170,6 +173,8 @@ done < "$MIRROR_LIST"
 if [ -s "$TMP_VALID_MIRRORS" ]; then
     sort -n "$TMP_VALID_MIRRORS" | awk '{print $2}' > "$VALID_MIRRORS"
     log_info "🏆 最佳镜像: $(head -n1 "$VALID_MIRRORS")"
+elif [ -f "$VALID_MIRRORS" ] && [ ! -s "$VALID_MIRRORS" ]; then
+    log_info "🌐  选择了直连模式，跳过测速结果"
 else
     manual_fallback
 fi
