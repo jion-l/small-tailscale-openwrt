@@ -132,7 +132,7 @@ X --> Z[结束]
 
 ## 💬 联系方式
 
-- 如有问题或建议，请提交 issue 或联系仓库作者。
+- 如有问题或建议，请提交 issue 或 email 至 github@ch3ng.top
 
 ## 😍 鸣谢
    1. [glinet-tailscale-updater](https://github.com/Admonstrator/glinet-tailscale-updater)
